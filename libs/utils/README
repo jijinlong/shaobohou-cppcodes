@@ -1,0 +1,8 @@
+ArcBall: arc ball implementation for visualisation control
+BasicCamera: base camera class, defines default view to look down positive z axis (as oppose to negative z axis in OpenGL), allows accessor returns the intuitive camera position and orientation, the class internally handle the difference between view and model space
+DraggableInterface: class for picking and dragging objects in OpenGL, using ray intersection
+Keybinding: allows unique binding between keys and names of an action to be defined and queried
+MiscUtils: misc functions, include getting seed from system and system time in seconds
+Movement: subclass of Keybinding, caches results, designed for camera and object movement
+QuakeCamera: implement Quake style camera using longitude and latitude parameterisation
+QuatCamera: implementation Quaternion camera, allows full 3D rotation and translations

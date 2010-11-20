@@ -1,0 +1,77 @@
+USAGE for the Maths lib
+
+CubicSpline: implementation of natural cubic spline
+ExponentialMap: functions for converting Quaternion to/from exponential, also function for computing jacobian of quaternion rotation
+LinearAlgera: arithmetic operators and io operators for NRMatrix and NRVector
+NRMatrix: template matrix class, single contiguous memory allocation (row major).
+NRVector: template vector class
+Optimise: implementation of Scale Conjugate Gradient algorithm for nonlinear optimisation, based on netlab implementation
+
+
+Vector3D class:
+
+This is basically an implementation of 3D vectors which can be used to represent point or directions in 3 dimension.
+
+Basic overloaded operators are fairly self explanatory such as Vector3D scaling via / and * with a scalar value, Vector3D addition and subtraction via + and - operator. += and -= are also provided. e.g Vector3D(1.0, 2.0, 3.0) *= 4.0; gives new Vector3D(4.0, 8., 12.0);
+
+Unary - operator also negate the Vector3D.
+
+Dot product between 2 Vector3Ds is done using the overloaded * operator. Cross product between 2 Vector3Ds is done using the ^ operator and the order of the Vector3Ds matters.
+
+Some misc functions: normal() calculate the normal of the plane which contains the specified 3 Vector3D points, assume counter-clockwise winding. angle() calculate the angle between 2 direction Vector3Ds and return the answer in radian. distance() returns the distance between 2 Vector3D points.
+
+magnitude() returns the magnitude of the Vector3D and normalise() functions will normalise the magnitude of the Vector3D to 1.0 (most of the time, it returns a Vector3D of 0.0 size if the initial Vector3D magnitude is far too small, less then tolernace level for floating point calculation). One thing to note is that, try and avoid calling these functions if you can as they both make call to the expensive sqrt() function. Sometimes it maybe possible to alter the code to use the square of the magnitude rather than magnitude itself, to get the square of the magnitude, simply do dot product of the Vector3D with itself.
+
+Standard accessors and mutators.
+
+
+Matrix3x3 class:
+
+This is the 3x3 matrix implementation, a possible alternative to using Quaternion to represent orietation and rotation. It is also used to represent moment of inertia in 3D, which requires a rank 2 tensor, which is what this is.
+
+Functions include ones to calculate the determinant, transpose and inverse of the matrix, if you don't know what these means, look them up. Also static method to return a identity 33 matrix.
+
+Again the usual array of overloaded operator to allow for elegant and concise code. Ones of interest are the Matrix multiplication and Matrix Vector3D multiplication. Like the Vector3D class, two version of overloaded basically does the same job but allows different order of argument i.e. x * y and y * x when x and y are not of the same type.
+
+
+Quaternion class:
+
+Quaternions are 4D vector used to represent rotation and orientation. It is basically the Axis Angle implementation but with certain constraints, it can offer a number of useful mathematical properties. The essential constraint is that the magnitude of the Quaternnion is always 1.0 in order for it to be useful as a representation. It also avoid weird things such as gimbal lock (with Euler angles rerpesentation, roll, pitch, yaw) and it is better than Matrix3x3 because there is less chance of numerical drift due to less element and easier to satisfy constraint.
+
+I say it is basically an Axis Angle implementation because it is represent by a 3D Vector3D which represents an arbitrary axis of rotation in 3D and the fourth element represent the angle of rotation about that axis. Accessor are given to allow direct access to these values but they are usually meaningless without interpretation.
+
+magnitude() and normalise() is very similar to the ones in Vector3D class.
+
+Usual scaling and addition and subtraction overloaded operators are provided. Ones of interest here are the ~ negate operator which negate the axis of rotation and the binary * multiplciation operator between Quaternions, this is effectively concatenating rotations in body space, e.g. user rotate by Quaternion q and then from its new orientation it makes what he thinks is rotation p (in body space), to represent this, the new orientation becomes p * q, note the order of the multiplication. This is particularly useful and forms part of the QuatCamera class. Multiplying a Vector3D with a Quaternion is the same as multiplying a Quaternion  made from the Vector3D with 0 for the angle part with the other Quaternion. e.g. v * q = Quaternion(0, v) * q
+
+getAngle() returns the angle of rotation about the axis in radian. getAxis(0 returns the normalised Vector3D representing the axis of rotation.
+
+The very important overloaded rotate function. It is mainly used to convert between body space and world space. e.g. to convert a point in body space to world space do: orientation.rotation(point) and to convert from world space to body space do: (~orientation).rotate(point) where orientation is the orientation of the body as measure from world space.
+
+Several conversion functions is offered between Quaternion and Matrix3x3, Euler angles and Axis Angle, even one to OpenGL rotation matrix.
+
+Lastly the untested slerp interpolation function which can be useful if some form of custom animation is needed.
+
+
+Integrator class:
+
+This a generic integrator for ODE or ordinary differential equations. Basically when you do calculation such as v = u + at, you are actually integrating via Euler's method where you use the derivative of at the initial point and use it to estimate a future value, which is fine if the derivative is constant but most of the time it won't be, so Euler's method will give rather large errors given circumstances. This integratos implementated the Euler's method, midpoint method and the most importantly, the Runge Kutta or RK4 integration.
+
+The error of Euler's method is more obvious if the timestep is greater but making timestep smaller may not be possible, especially if realtime performance is needed. RK4 offers 10000 times times the accuracy with only 4 times the calculation cost (with some additional overhead with copy data back to the object).
+
+All object wish to use the the Integrator can either have a static method that can integrate for them (conform to a certain interface) or implmented the interface Integratable which forces the the class to implement method for conversion back and forth between the object and the integrator and most importantly a function for calculating the derivative of all elements at any given point in time.
+
+Integrator will manage its own memory, since only the objects should even know about its integrator. Constructor will construct a integrator for n number of elements, the object will need to manage how to convert its internal values into the array of elements. The current value of the elements are stored in the array y which what the conversion functions should use. the other public array dy is the difference between the y at the start of the time step and the y after the time step. Here a design decision was made, in that other integrator tends to update the y values here, but I chose to store the difference in a separate array and user decide whether it wants to update or not, might be useful in collision detection. For example on how to implement the derive function and conversion functions, see the SpaceFlightBody class and for the generate stage operation of a integrator, see the RigidBody class, the step function is of particular interest.
+
+= operator is overloaded to avoid memory problems. setNumberOfElements will actually flush the integrator and resize all its arrays.
+
+
+global:
+
+contains misc functions and constants.
+
+constant for tol for testing near 0 floating point, near_one for similar reason, pi
+
+functions for calculating the lowest positive root of a quadratic equation
+
+functions for getting system time(double) in seconds for both linux and windows.
