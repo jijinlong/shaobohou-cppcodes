@@ -1,0 +1,2 @@
+PlyReader: read ascii version of .ply files, all entries are stored as strings, it is up to the user to cast them into the necessary type
+Mesh: a simple mesh implementation that can accept instance of PlyReader

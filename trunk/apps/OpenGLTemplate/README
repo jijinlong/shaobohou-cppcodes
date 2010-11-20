@@ -1,0 +1,8 @@
+control:
+
+w,  move forward
+a,  move left
+s,  move backward,
+d,  move right
+
+f, toggle mouselook
