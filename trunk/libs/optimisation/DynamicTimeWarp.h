@@ -104,7 +104,7 @@ public:
 
         // find end of partial match
         int endInd = rows.size();
-        for(int i = endInd; i < static_cast<int>(rows.size()); i++)
+        for(int i = begInd; i < static_cast<int>(rows.size()); i++)
         {
             if((!constrainLastCol && rows[i] == nrows-1) || (constrainLastRow && cols[i] == ncols-1))
             {
