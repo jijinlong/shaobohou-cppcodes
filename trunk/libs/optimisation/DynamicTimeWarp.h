@@ -43,6 +43,7 @@ public:
 
     DynamicTimeWarp(const std::vector<std::vector<T> > &costMatrix, const std::vector<std::pair<int, int> > &legalMoves)
     {
+        // store and init variables
         costs = costMatrix;
         moves = legalMoves;
 
@@ -54,34 +55,19 @@ public:
         for(int i = 0; i < nrows; i++)
             assert(static_cast<int>(costs[i].size()) == ncols);
 
-        // dynamic time warp
+        // initialise distance matrix and backpointers
         dists = std::vector<std::vector<T> >(nrows, std::vector<T>(ncols, 0));
         backs = std::vector<std::vector<int> >(nrows, std::vector<int>(ncols, -1));
+
+        // compute [0:N-1][0:M-1]
         for(int r = 0; r < nrows; r++)
+        {
             for(int c = 0; c < ncols; c++)
             {
-                dists[r][c] = costs[r][c];
-
-                // find the move with minimum cost
-                int bestMove = -1;
-                T bestDist = 0;
-                for(unsigned int k = 0; k < moves.size(); k++)
-                {
-                    const int nr = r + moves[k].first;
-                    const int nc = c + moves[k].second;
-
-                    if(nr >= 0 && nc >= 0)
-                        if(bestMove < 0 || dists[nr][nc] < bestDist)
-                        {
-                            bestMove = k;
-                            bestDist = dists[nr][nc];
-                        }
-                }
-
-                // update grid
-                backs[r][c] = bestMove;
-                dists[r][c] += bestDist;
+                backs[r][c] = FindBestMove(r, c);
+                dists[r][c] = ComputeMoveCost(r, c, backs[r][c]);
             }
+        }
     }
 
     T FindWarpPath(std::vector<int> &rows, std::vector<int> &cols, const bool constrainFirstRow, const bool constrainFirstCol, const bool constrainLastRow, const bool constrainLastCol) const
@@ -91,34 +77,7 @@ public:
         rows = std::vector<int>(1, nrows-1);
         cols = std::vector<int>(1, ncols-1);
 
-        // if end point is NOT constrained to the last column
-        if(!constrainLastCol)
-        {
-            int minDistCol = min_element_index(dists.back());
-            if(dists[nrows-1][minDistCol] < minDist)
-            {
-                minDist = dists[nrows-1][minDistCol];
-                rows.back() = nrows-1;
-                cols.back() = minDistCol;
-            }
-        }
-        
-        // if end point is not constrained to the last row
-        if(!constrainLastRow)
-        {
-            for(int r = 0; r < nrows; r++)
-            {
-                if(dists[r][ncols-1] < minDist)
-                {
-                    minDist = dists[r][ncols-1];
-                    rows.back() = r;
-                    cols.back() = ncols-1;
-                }
-            }
-        }
-
-        // backtrack
-        T initDist = 0;
+        // backtrack from [N-1][M-1] to [0][0]
         while(backs[rows.front()][cols.front()] >= 0)
         {
             const int r = rows.front();
@@ -128,25 +87,38 @@ public:
             const int nr = r + moves[m].first;
             const int nc = c + moves[m].second;
 
-             // terminate backtrack if not constrained to start on the first row and already reached the first column
-            if(!constrainFirstRow && cols.front() == 0)
-            {
-                initDist = dists[nr][nc];
-                break;
-            }
-
-            // terminate backtrack if not constrained to start on the first column and already reached the first row
-            if(!constrainFirstCol && rows.front() == 0)
-            {
-                initDist = dists[nr][nc];
-                break;
-            }
-
             rows.insert(rows.begin(), nr);
             cols.insert(cols.begin(), nc);
         }
 
-        const T warpCost = dists[rows.back()][cols.back()] - initDist;
+        // find start of partial match
+        int begInd = 0;
+        for(int i = 1; i < static_cast<int>(rows.size()); i++)
+        {
+            if((constrainFirstRow || rows[i] != 0) && (constrainFirstCol || cols[i] != 0))
+            {
+                begInd = i-1;
+                break;
+            }
+        }
+
+        // find end of partial match
+        int endInd = rows.size();
+        for(int i = endInd; i < static_cast<int>(rows.size()); i++)
+        {
+            if((!constrainLastCol && rows[i] == nrows-1) || (constrainLastRow && cols[i] == ncols-1))
+            {
+                endInd = i+1;
+                break;
+            }
+        }
+
+        // extract (partial) warp path and compute its cost
+        T warpCost = dists[rows[endInd-1]][cols[endInd-1]];
+        if(begInd > 0)
+            warpCost -= dists[rows[begInd-1]][cols[begInd-1]];
+        rows = std::vector<int>(rows.begin()+begInd, rows.begin()+endInd);
+        cols = std::vector<int>(cols.begin()+begInd, cols.begin()+endInd);
 
         return warpCost;
     }
@@ -159,6 +131,43 @@ private:
 
     std::vector<std::vector<T> > dists;
     std::vector<std::vector<int> > backs;
+
+    // find the best move for a particular cell,
+    // assume relevant cells in the distance matrix has been filed.
+    int FindBestMove(const int r, const int c) const
+    {
+        // find the move with minimum cost
+        T bestDist = 0;
+        int bestMove = -1;
+        for(unsigned int k = 0; k < moves.size(); k++)
+        {
+            const int nr = r + moves[k].first;
+            const int nc = c + moves[k].second;
+
+            if(nr >= 0 && nc >= 0)
+                if(bestMove < 0 || dists[nr][nc] < bestDist)
+                {
+                    bestDist = dists[nr][nc];
+                    bestMove = k;
+                }
+        }
+
+        return bestMove;
+    }
+
+    // compute the partial path cost of moving to the cell [r][c] using move m
+    T ComputeMoveCost(const int r, const int c, const int m) const
+    {
+        T d = costs[r][c];
+        if(m >= 0)
+        {
+            const int pr = r + moves[m].first;
+            const int pc = c + moves[m].second;
+            d += dists[pr][pc];
+        }
+
+        return d;
+    }
 };
 
 
