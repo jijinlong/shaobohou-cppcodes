@@ -41,7 +41,7 @@ public:
         ncols = 0;
     }
 
-    DynamicTimeWarp(const std::vector<std::vector<T> > &costMatrix, const std::vector<std::pair<int, int> > &legalMoves)
+    DynamicTimeWarp(const std::vector<std::vector<T> > &costMatrix, const std::vector<std::pair<int, int> > &legalMoves, const bool constrainFirstCol)
     {
         // store and init variables
         costs = costMatrix;
@@ -59,8 +59,25 @@ public:
         dists = std::vector<std::vector<T> >(nrows, std::vector<T>(ncols, 0));
         backs = std::vector<std::vector<int> >(nrows, std::vector<int>(ncols, -1));
 
-        // compute [0:N-1][0:M-1]
-        for(int r = 0; r < nrows; r++)
+        // compute [0][0:M-1]
+        if(constrainFirstCol)
+        {
+            for(int c = 0; c < ncols; c++)
+            {
+                backs[0][c] = FindBestMove(0, c);
+                dists[0][c] = ComputeMoveCost(0, c, backs[0][c]);
+            }
+        }
+        else
+        {
+            for(int c = 0; c < ncols; c++)
+            {
+                dists[0][c] = costs[0][c];
+            }
+        }
+
+        // compute [1:N-1][0:M-1]
+        for(int r = 1; r < nrows; r++)
         {
             for(int c = 0; c < ncols; c++)
             {
@@ -70,12 +87,14 @@ public:
         }
     }
 
-    T FindWarpPath(std::vector<int> &rows, std::vector<int> &cols, const bool constrainFirstRow, const bool constrainFirstCol, const bool constrainLastRow, const bool constrainLastCol) const
+    T FindWarpPath(std::vector<int> &rows, std::vector<int> &cols, const bool constrainLastCol) const
     {
         // initialise backtrack
-        T minDist = dists[nrows-1][ncols-1];
         rows = std::vector<int>(1, nrows-1);
         cols = std::vector<int>(1, ncols-1);
+
+        if(!constrainLastCol)
+            cols.back() = min_element_index(dists.back());
 
         // backtrack from [N-1][M-1] to [0][0]
         while(backs[rows.front()][cols.front()] >= 0)
@@ -91,34 +110,8 @@ public:
             cols.insert(cols.begin(), nc);
         }
 
-        // find start of partial match
-        int begInd = 0;
-        for(int i = 1; i < static_cast<int>(rows.size()); i++)
-        {
-            if((constrainFirstRow || rows[i] != 0) && (constrainFirstCol || cols[i] != 0))
-            {
-                begInd = i-1;
-                break;
-            }
-        }
-
-        // find end of partial match
-        int endInd = rows.size();
-        for(int i = begInd; i < static_cast<int>(rows.size()); i++)
-        {
-            if((!constrainLastCol && rows[i] == nrows-1) || (constrainLastRow && cols[i] == ncols-1))
-            {
-                endInd = i+1;
-                break;
-            }
-        }
-
         // extract (partial) warp path and compute its cost
-        T warpCost = dists[rows[endInd-1]][cols[endInd-1]];
-        if(begInd > 0)
-            warpCost -= dists[rows[begInd-1]][cols[begInd-1]];
-        rows = std::vector<int>(rows.begin()+begInd, rows.begin()+endInd);
-        cols = std::vector<int>(cols.begin()+begInd, cols.begin()+endInd);
+        T warpCost = dists[rows.back()][cols.back()];
 
         return warpCost;
     }
