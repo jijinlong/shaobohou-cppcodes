@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <cassert>
 
+extern unsigned long getTime();
+
 int main(int argc, char *argv[])
 {
     assert(argc > 1);
@@ -13,10 +15,11 @@ int main(int argc, char *argv[])
     std::string filename(argv[1]);
 
     std::cout << "loading simulation from " << filename << std::endl;
-    unsigned long beforeTime = time(NULL);
+    double beforeTime = getTime()/1000000.0;
     pathGenerator.simulate(filename);
+    double afterTime  = getTime()/1000000.0;;
     pathGenerator.save();
-    std::cout << "simulation took " << time(NULL)-beforeTime << " seconds" << std::endl;
+    std::cout << "simulation took " << afterTime-beforeTime << " seconds" << std::endl;
     std::cout << std::endl;
 
     int count = 0;
