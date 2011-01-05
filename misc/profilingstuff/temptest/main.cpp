@@ -16,7 +16,7 @@ private:
 
 struct Point
 {
-  short x, y;
+    short x, y;
 };
 
 //------------------------------------------------
@@ -24,7 +24,7 @@ struct Point
 template <unsigned short MAX_POINTS_VALUE>
 struct PointArray
 {
-  Point points[MAX_POINTS_VALUE];
+    Point points[MAX_POINTS_VALUE];
 };
 
 typedef PointArray<100> Path;
@@ -33,8 +33,8 @@ typedef PointArray<100> Path;
 
 struct TimePath
 {
-  Path path;
-  unsigned long lastUpdated;
+    Path path;
+    unsigned long lastUpdated;
 };
 
 typedef GenericArrayList<TimePath, 500> TimePathList;
@@ -43,8 +43,8 @@ typedef GenericArrayList<TimePath, 500> TimePathList;
 
 struct MasterPath
 {
-  TimePath master;
-  TimePathList subPaths;  
+    TimePath master;
+    TimePathList subPaths;  
 };
 
 typedef GenericArrayList<MasterPath, 50> MasterPathList;
@@ -55,7 +55,7 @@ typedef GenericArrayList<MasterPath, 50> MasterPathList;
 class PathGenerator
 {
 private:
-  MasterPathList m_MasterPaths;
+    MasterPathList m_MasterPaths;
 };
 
 //------------------------------------------------
