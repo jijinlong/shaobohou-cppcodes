@@ -15,6 +15,7 @@ INCLUDEPATH += . /home/shaobohou/host/"Irisys SDK SCO Dev"/Software/C++/"Irisys 
 
 CONFIG -= qt
 #CONFIG += release
+#CONFIG += debug
 
 QMAKE_CXXFLAGS += -ansi -Wall -pedantic -Wno-deprecated -Wno-long-long
 
@@ -34,6 +35,7 @@ SOURCES += main.cpp \
 HEADERS += ShaoboUtils.h \
            PathGeneratorExtensions.h \
            PathGeneratorUtils.h \
+           GenericIterator.h \
            GenericArrayList.h \
            EdmondsAlgorithm.h \
            EdmondsAlgorithmDense.h
