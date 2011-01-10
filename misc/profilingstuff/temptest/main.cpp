@@ -37,7 +37,7 @@ struct TimePath
     unsigned long lastUpdated;
 };
 
-typedef GenericArrayList<TimePath, 500> TimePathList;
+typedef GenericArrayList<TimePath, 1000> TimePathList;
 
 //------------------------------------------------
 
@@ -47,7 +47,7 @@ struct MasterPath
     TimePathList subPaths;  
 };
 
-typedef GenericArrayList<MasterPath, 50> MasterPathList;
+typedef GenericArrayList<MasterPath, 100> MasterPathList;
 
 //------------------------------------------------
 
