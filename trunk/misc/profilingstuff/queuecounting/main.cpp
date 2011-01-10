@@ -10,7 +10,8 @@ int main(int argc, char *argv[])
 {
     assert(argc > 1);
 
-    PathGeneratorShaobo pathGenerator;
+    PathGeneratorConfig pathConfig;
+    PathGeneratorShaobo pathGenerator(&pathConfig);
 
     std::string filename(argv[1]);
 
@@ -23,8 +24,8 @@ int main(int argc, char *argv[])
     std::cout << std::endl;
 
     int count = 0;
-    std::cout << pathGenerator.GetMasterPaths()->size() << " master paths" << std::endl;
-    for(MasterPathList::iterator it = pathGenerator.GetMasterPaths()->begin(); it != pathGenerator.GetMasterPaths()->end(); it++)
+    std::cout << pathGenerator.GetMasterPaths().size() << " master paths" << std::endl;
+    for(MasterPathList::const_iterator it = pathGenerator.GetMasterPaths().begin(); it != pathGenerator.GetMasterPaths().end(); it++)
     {
         std::cout << "master path " << count << " contains " << it->subPaths.size() << " sub-paths and is " << it->master.path.numberOfPoints << " points long" << std::endl;
         count++;
