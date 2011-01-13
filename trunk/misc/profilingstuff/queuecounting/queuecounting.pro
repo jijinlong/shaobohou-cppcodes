@@ -20,7 +20,7 @@ CONFIG -= qt
 QMAKE_CXXFLAGS += -ansi -Wall -pedantic -Wno-deprecated -Wno-long-long
 
 # extra defines
-QMAKE_CXXFLAGS += -D SHAOBO_PROFILING_TEST
+QMAKE_CXXFLAGS += -D LINUX_PROFILING_TEST
 
 QMAKE_CFLAGS+=-pg
 QMAKE_CXXFLAGS+=-pg
