@@ -29,13 +29,13 @@ QMAKE_LFLAGS+=-pg
 # Input
 SOURCES += main.cpp \
            PathGeneratorExtensions.cpp \
-           EdmondsAlgorithm.cpp \
-           EdmondsAlgorithmDense.cpp
+           EdmondsAlgorithm.cpp
 
 HEADERS += ShaoboUtils.h \
            PathGeneratorExtensions.h \
            PathGeneratorUtils.h \
            GenericIterator.h \
            GenericArrayList.h \
-           EdmondsAlgorithm.h \
-           EdmondsAlgorithmDense.h
+           GenericArray.h \
+           GenericVector.h \
+           EdmondsAlgorithm.h
