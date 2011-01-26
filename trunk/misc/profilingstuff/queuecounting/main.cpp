@@ -4,7 +4,19 @@
 #include <cstdlib>
 #include <cassert>
 
-extern unsigned long getTime();
+#include <sys/time.h>
+
+
+long getTime()
+{
+    struct timeval currtime;
+    gettimeofday(&currtime, NULL);
+
+    long mtime = currtime.tv_sec*1000000 + currtime.tv_usec;
+
+    return mtime;
+}
+
 
 int main(int argc, char *argv[])
 {

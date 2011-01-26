@@ -4,12 +4,10 @@
 
 TEMPLATE = app
 TARGET = 
-DEPENDPATH +=  .  /home/shaobohou/host/"Irisys SDK SCO Dev"/Software/C++/"Irisys SDK"/DLL/ISDKQueueCounting/Q2/Queue2 \
-                 /home/shaobohou/host/"Irisys SDK SCO Dev"/Software/C++/"Irisys SDK"/DLL/ISDKPlay/edmonds \
+DEPENDPATH +=  . /home/shaobohou/host/"Irisys SDK SCO Dev"/Software/C++/"Irisys SDK"/DLL/ISDKQueueCounting/Q2/Queue2 \
                  /home/shaobohou/host/"Irisys SDK SCO Dev"/Software/C++/"Irisys SDK"/DLL/ISDKPlay/ \
                  /home/shaobohou/host/"Irisys SDK SCO Dev"/Software/C++/"Irisys SDK"/DLL
 INCLUDEPATH += . /home/shaobohou/host/"Irisys SDK SCO Dev"/Software/C++/"Irisys SDK"/DLL/ISDKQueueCounting/Q2/Queue2 \
-                 /home/shaobohou/host/"Irisys SDK SCO Dev"/Software/C++/"Irisys SDK"/DLL/ISDKPlay/edmonds \
                  /home/shaobohou/host/"Irisys SDK SCO Dev"/Software/C++/"Irisys SDK"/DLL/ISDKPlay/ \
                  /home/shaobohou/host/"Irisys SDK SCO Dev"/Software/C++/"Irisys SDK"/DLL
 
@@ -29,7 +27,6 @@ QMAKE_LFLAGS+=-pg
 # Input
 SOURCES += main.cpp \
            PathGeneratorExtensions.cpp \
-           EdmondsAlgorithm.cpp
 
 HEADERS += ShaoboUtils.h \
            PathGeneratorExtensions.h \
@@ -38,4 +35,6 @@ HEADERS += ShaoboUtils.h \
            GenericArrayList.h \
            GenericArray.h \
            GenericVector.h \
-           EdmondsAlgorithm.h
+           WeightedGraph.h \
+           EdmondsAlgorithm.h \
+           KruskalAlgorithm.h
