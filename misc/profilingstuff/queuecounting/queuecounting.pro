@@ -29,6 +29,7 @@ SOURCES += main.cpp \
            PathGeneratorExtensions.cpp \
 
 HEADERS += ShaoboUtils.h \
+           HannLUT.h \
            PathGeneratorExtensions.h \
            PathGeneratorUtils.h \
            GenericIterator.h \
