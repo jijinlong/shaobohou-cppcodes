@@ -12,7 +12,7 @@ INCLUDEPATH += . /home/shaobohou/host/"Irisys SDK SCO Dev"/Software/C++/"Irisys 
                  /home/shaobohou/host/"Irisys SDK SCO Dev"/Software/C++/"Irisys SDK"/DLL
 
 CONFIG -= qt
-#CONFIG += release
+CONFIG += release
 #CONFIG += debug
 
 QMAKE_CXXFLAGS += -ansi -Wall -pedantic -Wno-deprecated -Wno-long-long
