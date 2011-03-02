@@ -1,7 +1,6 @@
 #ifndef QUAKE_CAMERA_H
 #define QUAKE_CAMERA_H
 
-#include <GL/glu.h>
 #include "BasicCamera.h"
 
 //allow standard quake style movement control therefor certain restriction is applied
