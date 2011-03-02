@@ -1,8 +1,6 @@
 #ifndef BASIC_CAMERA_H
 #define BASIC_CAMERA_H
 
-#include <GL/gl.h>
-
 #include "Quaternion.h"
 #include "Vector3D.h"
 #include "Movement.h"

@@ -1,6 +1,13 @@
+#if defined _WIN64 || defined _WIN32
+#include <windows.h>
+#endif
+
 #include "GLUtils.h"
 
 #include "special.h"
+
+#include <GL/glu.h>
+#include <fstream>
 
 using std::string;
 using std::ofstream;
@@ -9,27 +16,27 @@ using std::endl;
 
 void glColor(const Vector3D &c)
 {
-    glColor3f(c[0], c[1], c[2]);
+    glColor3d(c[0], c[1], c[2]);
 }
 
 void glColor(const Vector3D &c, double alpha)
 {
-    glColor4f(c[0], c[1], c[2], alpha);
+    glColor4d(c[0], c[1], c[2], alpha);
 }
 
 void glVertex(const Vector3D &v)
 {
-    glVertex3f(v[0], v[1], v[2]);
+    glVertex3d(v[0], v[1], v[2]);
 }
 
 void glNormal(const Vector3D &v)
 {
-    glNormal3f(v[0], v[1], v[2]);
+    glNormal3d(v[0], v[1], v[2]);
 }
 
 void glTranslate(const Vector3D &t)
 {
-    glTranslatef(t[0], t[1], t[2]);
+    glTranslated(t[0], t[1], t[2]);
 }
 
 void glRotate(const Quaternion &R)
@@ -37,6 +44,12 @@ void glRotate(const Quaternion &R)
     Vector3D axis = R.getAxis();
     double angle = R.getAngle();
     glRotated(rad2deg(angle), axis[0], axis[1], axis[2]);
+}
+
+void setIdentityModelView()
+{
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 }
 
 void takeScreenShot(const string &filename)
