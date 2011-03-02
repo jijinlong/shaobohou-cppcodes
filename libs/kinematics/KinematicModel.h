@@ -102,7 +102,7 @@ const Joint& KinematicModel<Joint>::joints(int i) const
 template <typename Joint>
 int KinematicModel<Joint>::njoints() const
 {
-    return m_joints.size();
+    return static_cast<int>(m_joints.size());
 }
 
 template <typename Joint>
