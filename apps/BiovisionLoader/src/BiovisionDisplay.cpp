@@ -1,7 +1,12 @@
+#if defined _WIN64 || defined _WIN32
+#include <windows.h>
+#endif
+
 #include "BiovisionDisplay.h"
 
 #include "special.h"
 #include "GLUtils.h"
+
 #include <iostream>
 
 
@@ -43,7 +48,7 @@ void BiovisionDisplay::draw(const KinematicModel<BiovisionJoint> &model, const V
             Vector3D global_direction = (joint.global_position()-model.getParent(joint).global_position()).direction();
             double length = joint.local_position().magnitude();
 
-            glColor3f(colour[0], colour[1], colour[2]);
+            glColor(colour);
             glPushMatrix();
                 glTranslate(joint.global_position());
                 glTranslate(-global_direction*length*0.5);
@@ -52,7 +57,7 @@ void BiovisionDisplay::draw(const KinematicModel<BiovisionJoint> &model, const V
                 Vector3D zAxis = Vector3D(0.0, 0.0, 1.0);
                 Vector3D newAxis = zAxis ^ global_direction;
                 double newAngle = acos(zAxis *global_direction);
-                glRotatef(rad2deg(newAngle), newAxis[0], newAxis[1], newAxis[2]);
+                glRotated(rad2deg(newAngle), newAxis[0], newAxis[1], newAxis[2]);
 
                 //draw bone
                 GLUquadricObj *qobj = gluNewQuadric();

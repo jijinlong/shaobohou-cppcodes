@@ -1,7 +1,6 @@
-#include <cstdlib>
-#include <iostream>
-#include <fstream>
-#include <GL/glut.h>
+#if defined _WIN64 || defined _WIN32
+#include <windows.h>
+#endif
 
 #include "Visualisation.h"
 #include "BiovisionReader.h"
@@ -9,6 +8,12 @@
 #include "QuakeCamera.h"
 #include "MiscUtils.h"
 #include "special.h"
+
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <GL/gl.h>
+#include <GL/glut.h>
 
 using std::vector;
 using std::cout;

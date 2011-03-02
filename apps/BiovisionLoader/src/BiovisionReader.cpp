@@ -102,7 +102,7 @@ int BiovisionReader::parseHierarchy(const vector<string> &lines, int start)
         if(keyword == "{")
         {
             nbrackets++;
-            curr_parent = bones.size()-1;
+            curr_parent = static_cast<int>(bones.size())-1;
 
             readAnything = true;
         }
@@ -125,7 +125,7 @@ int BiovisionReader::parseHierarchy(const vector<string> &lines, int start)
 
             bones.back().parent = curr_parent;
             if(curr_parent >= 0)
-                bones[curr_parent].children.push_back(bones.size()-1);
+                bones[curr_parent].children.push_back(static_cast<int>(bones.size())-1);
 
         }
         else if(keyword == "offset")
