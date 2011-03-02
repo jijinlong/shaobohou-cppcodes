@@ -1,6 +1,7 @@
 #include "BasicCamera.h"
 
 #include "special.h"
+#include "GLUtils.h"
 
 const Quaternion BasicCamera::cameraOffset = Quaternion::makeFromEulerAngles(0.0, pi, 0.0);
 
@@ -60,16 +61,13 @@ void BasicCamera::setTurnSpeed(double newTurnSpeed)
 
 void BasicCamera::setPerspective()
 {
+    setIdentityModelView();
+
     Quaternion cameraOrientation = ~trueOrientation;
-    Vector3D translation = -position;
-    Vector3D axis = cameraOrientation.getAxis();
-    double angle = cameraOrientation.getAngle();
+    Vector3D cameraTranslation = -position;
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-    glRotatef(rad2deg(angle), axis[0], axis[1], axis[2]);
-    glTranslatef(translation[0], translation[1], translation[2]);
+    glRotate(cameraOrientation);
+    glTranslate(cameraTranslation);
 }
 
 Vector3D BasicCamera::update(double deltaTime)
