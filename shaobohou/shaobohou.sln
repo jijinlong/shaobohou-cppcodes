@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AcclaimLoader", "..\apps\Ac
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EarleyParser", "..\apps\EarleyParser\EarleyParser.vcxproj", "{16996A6C-77DA-49C9-8D68-B2F17948EA40}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlyReader", "..\apps\PlyReader\PlyReader.vcxproj", "{B5DC3703-5270-4BA0-8644-E1B7D52674EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -25,6 +27,10 @@ Global
 		{16996A6C-77DA-49C9-8D68-B2F17948EA40}.Debug|Win32.Build.0 = Debug|Win32
 		{16996A6C-77DA-49C9-8D68-B2F17948EA40}.Release|Win32.ActiveCfg = Release|Win32
 		{16996A6C-77DA-49C9-8D68-B2F17948EA40}.Release|Win32.Build.0 = Release|Win32
+		{B5DC3703-5270-4BA0-8644-E1B7D52674EF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B5DC3703-5270-4BA0-8644-E1B7D52674EF}.Debug|Win32.Build.0 = Debug|Win32
+		{B5DC3703-5270-4BA0-8644-E1B7D52674EF}.Release|Win32.ActiveCfg = Release|Win32
+		{B5DC3703-5270-4BA0-8644-E1B7D52674EF}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

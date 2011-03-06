@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{16996A6C-77DA-49C9-8D68-B2F17948EA40}</ProjectGuid>
+    <ProjectGuid>{B5DC3703-5270-4BA0-8644-E1B7D52674EF}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>EarleyParser</RootNamespace>
+    <RootNamespace>PlyReader</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -50,7 +50,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\codes\cppcodes\libs\utils;D:\codes\cppcodes\libs\maths;D:\codes\cppcodes\libs\linearalgebra;D:\codes\cppcodes\libs\linearalgebra\tnt;D:\codes\cppcodes\apps\EarleyParser\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\codes\cppcodes\libs\linearalgebra\tnt;D:\codes\cppcodes\libs\linearalgebra;D:\codes\cppcodes\apps\PlyReader\src;D:\codes\cppcodes\libs\maths;D:\codes\cppcodes\libs\utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -75,8 +75,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\libs\utils\Stringable.cpp" />
+    <ClCompile Include="..\..\libs\maths\Matrix3x3.cpp" />
+    <ClCompile Include="..\..\libs\maths\Quaternion.cpp" />
+    <ClCompile Include="..\..\libs\maths\special.cpp" />
+    <ClCompile Include="..\..\libs\maths\Vector3D.cpp" />
+    <ClCompile Include="..\..\libs\utils\BasicCamera.cpp" />
+    <ClCompile Include="..\..\libs\utils\GLUtils.cpp" />
+    <ClCompile Include="..\..\libs\utils\Keybinding.cpp" />
+    <ClCompile Include="..\..\libs\utils\MiscUtils.cpp" />
+    <ClCompile Include="..\..\libs\utils\QuakeCamera.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\PlyReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\libs\linearalgebra\LinearAlgebra.h" />
@@ -89,12 +99,18 @@
     <ClInclude Include="..\..\libs\linearalgebra\tnt\shaobo_array2d.h" />
     <ClInclude Include="..\..\libs\linearalgebra\tnt\shaobo_array3d.h" />
     <ClInclude Include="..\..\libs\linearalgebra\tnt\tnt_math_utils.h" />
-    <ClInclude Include="..\..\libs\utils\Stringable.h" />
-    <ClInclude Include="src\BookKeeping.h" />
-    <ClInclude Include="src\EarleyParser.h" />
-    <ClInclude Include="src\EarleyState.h" />
-    <ClInclude Include="src\GrammarRule.h" />
-    <ClInclude Include="src\ParseTree.h" />
+    <ClInclude Include="..\..\libs\maths\Matrix3x3.h" />
+    <ClInclude Include="..\..\libs\maths\Quaternion.h" />
+    <ClInclude Include="..\..\libs\maths\special.h" />
+    <ClInclude Include="..\..\libs\maths\Vector3D.h" />
+    <ClInclude Include="..\..\libs\utils\BasicCamera.h" />
+    <ClInclude Include="..\..\libs\utils\GLUtils.h" />
+    <ClInclude Include="..\..\libs\utils\Keybinding.h" />
+    <ClInclude Include="..\..\libs\utils\MiscUtils.h" />
+    <ClInclude Include="..\..\libs\utils\Movement.h" />
+    <ClInclude Include="..\..\libs\utils\QuakeCamera.h" />
+    <ClInclude Include="src\Mesh.h" />
+    <ClInclude Include="src\PlyReader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
