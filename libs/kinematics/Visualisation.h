@@ -4,6 +4,8 @@
 #include "KinematicModel.h"
 #include "GLUtils.h"
 
+#include <GL/glu.h>
+
 
 template <typename JointParam>
 void drawModel(const KinematicModel<JointParam> &model, const Vector3D& colour, double model_size, const bool drawJoints, const bool drawAxis)
