@@ -114,7 +114,7 @@ Array2D<T>::Array2D(const Array2D &other): nrows(other.nrows), ncols(other.ncols
 {}
 
 template <typename T>
-Array2D<T>::~Array2D<T>()
+Array2D<T>::~Array2D()
 {}
 
 template <typename T>
