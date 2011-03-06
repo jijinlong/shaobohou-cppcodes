@@ -1,7 +1,6 @@
-#include <cstdlib>
-#include <iostream>
-#include <fstream>
-#include <GL/glut.h>
+#if defined _WIN64 || defined _WIN32
+#include <windows.h>
+#endif
 
 #include "KinematicModel.h"
 #include "Visualisation.h"
@@ -14,6 +13,11 @@
 
 #include "QuakeCamera.h"
 #include "MiscUtils.h"
+
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <GL/glut.h>
 
 using std::vector;
 using std::cout;

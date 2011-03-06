@@ -1,4 +1,7 @@
-#include <GL/glut.h>
+#if defined _WIN64 || defined _WIN32
+#define NOMINMAX
+#include <windows.h>
+#endif
 
 #include "MiscUtils.h"
 #include "QuakeCamera.h"
@@ -8,6 +11,8 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+
+#include <GL/glut.h>
 
 using std::cout;
 using std::endl;
