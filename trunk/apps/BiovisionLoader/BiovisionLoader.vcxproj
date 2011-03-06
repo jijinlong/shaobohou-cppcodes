@@ -50,6 +50,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>D:\codes\cppcodes\apps\BiovisionLoader\src;D:\codes\cppcodes\libs\utils;D:\codes\cppcodes\libs\maths;D:\codes\cppcodes\libs\kinematics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -74,7 +75,42 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\libs\kinematics\KinematicJoint.cpp" />
+    <ClCompile Include="..\..\libs\maths\Matrix3x3.cpp" />
+    <ClCompile Include="..\..\libs\maths\Quaternion.cpp" />
+    <ClCompile Include="..\..\libs\maths\special.cpp" />
+    <ClCompile Include="..\..\libs\maths\Vector3D.cpp" />
+    <ClCompile Include="..\..\libs\utils\BasicCamera.cpp" />
+    <ClCompile Include="..\..\libs\utils\GLUtils.cpp" />
+    <ClCompile Include="..\..\libs\utils\Keybinding.cpp" />
+    <ClCompile Include="..\..\libs\utils\MiscUtils.cpp" />
+    <ClCompile Include="..\..\libs\utils\QuakeCamera.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\BiovisionAnimation.cpp" />
+    <ClCompile Include="src\BiovisionDisplay.cpp" />
+    <ClCompile Include="src\BiovisionJoint.cpp" />
+    <ClCompile Include="src\BiovisionReader.cpp" />
+    <ClCompile Include="src\BiovisionUtils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\libs\kinematics\KinematicJoint.h" />
+    <ClInclude Include="..\..\libs\kinematics\KinematicModel.h" />
+    <ClInclude Include="..\..\libs\kinematics\Visualisation.h" />
+    <ClInclude Include="..\..\libs\maths\Matrix3x3.h" />
+    <ClInclude Include="..\..\libs\maths\Quaternion.h" />
+    <ClInclude Include="..\..\libs\maths\special.h" />
+    <ClInclude Include="..\..\libs\maths\Vector3D.h" />
+    <ClInclude Include="..\..\libs\utils\BasicCamera.h" />
+    <ClInclude Include="..\..\libs\utils\GLUtils.h" />
+    <ClInclude Include="..\..\libs\utils\Keybinding.h" />
+    <ClInclude Include="..\..\libs\utils\MiscUtils.h" />
+    <ClInclude Include="..\..\libs\utils\Movement.h" />
+    <ClInclude Include="..\..\libs\utils\QuakeCamera.h" />
+    <ClInclude Include="src\BiovisionAnimation.h" />
+    <ClInclude Include="src\BiovisionDisplay.h" />
+    <ClInclude Include="src\BiovisionJoint.h" />
+    <ClInclude Include="src\BiovisionReader.h" />
+    <ClInclude Include="src\BiovisionUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
