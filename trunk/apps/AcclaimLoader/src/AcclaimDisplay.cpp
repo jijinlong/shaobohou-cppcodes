@@ -1,3 +1,7 @@
+#if defined _WIN64 || defined _WIN32
+#include <windows.h>
+#endif
+
 #include "AcclaimDisplay.h"
 
 #include "special.h"
