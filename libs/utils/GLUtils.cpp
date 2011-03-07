@@ -62,19 +62,18 @@ void takeScreenShot(const string &filename)
     ofstream gf(filename.c_str(), ios::binary);
     gf << "P6" << endl << width << '\t' << height << endl << "255" << endl;
     gf.close();
-    FILE *ff= fopen(filename.c_str(),"ab");
-    GLubyte *v = new GLubyte[width * height * 3];
 
+
+    GLubyte *v = new GLubyte[width * height * 3];
     glReadPixels(0,0,width,height,GL_RGB,GL_UNSIGNED_BYTE, v);
 
-    int status = 0;
-    for (unsigned int j = 0; j < height; j++)
-        status = fwrite(&v[(height-j-1)*width*3],width*3,sizeof(GLbyte),ff);
+    gf.open(filename.c_str(), ios::out | ios::app | ios::binary);
+    for(unsigned int j = 0; j < height; j++)
+        gf.write(reinterpret_cast<const char *>(v[(height-j-1)*width*3]), sizeof(GLubyte)*width*3);
+    gf.close();
 
     glDrawPixels(width, height, GL_RGB, GL_BYTE, v);
-
     delete v;
-    fclose(ff);
 }
 
 void castRayFromPixel(Vector3D &rayOrigin, Vector3D &rayDirection, double trueX, double trueY)

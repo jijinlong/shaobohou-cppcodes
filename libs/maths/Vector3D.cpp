@@ -165,6 +165,7 @@ double& Vector3D::operator[](unsigned int selection)
             break;
         default:
             assert(false);
+            return x;
     }
 }
 
@@ -183,6 +184,7 @@ const double& Vector3D::operator[](unsigned int selection) const
             break;
         default:
             assert(false);
+            return x;
     }
 }
 

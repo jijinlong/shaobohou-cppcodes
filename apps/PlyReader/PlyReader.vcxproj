@@ -51,6 +51,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>D:\codes\cppcodes\libs\linearalgebra\tnt;D:\codes\cppcodes\libs\linearalgebra;D:\codes\cppcodes\apps\PlyReader\src;D:\codes\cppcodes\libs\maths;D:\codes\cppcodes\libs\utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -89,16 +90,8 @@
     <ClCompile Include="src\PlyReader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\libs\linearalgebra\LinearAlgebra.h" />
-    <ClInclude Include="..\..\libs\linearalgebra\tnt\jama_cholesky.h" />
-    <ClInclude Include="..\..\libs\linearalgebra\tnt\jama_eig.h" />
-    <ClInclude Include="..\..\libs\linearalgebra\tnt\jama_lu.h" />
-    <ClInclude Include="..\..\libs\linearalgebra\tnt\jama_qr.h" />
-    <ClInclude Include="..\..\libs\linearalgebra\tnt\jama_svd.h" />
     <ClInclude Include="..\..\libs\linearalgebra\tnt\shaobo_array1d.h" />
     <ClInclude Include="..\..\libs\linearalgebra\tnt\shaobo_array2d.h" />
-    <ClInclude Include="..\..\libs\linearalgebra\tnt\shaobo_array3d.h" />
-    <ClInclude Include="..\..\libs\linearalgebra\tnt\tnt_math_utils.h" />
     <ClInclude Include="..\..\libs\maths\Matrix3x3.h" />
     <ClInclude Include="..\..\libs\maths\Quaternion.h" />
     <ClInclude Include="..\..\libs\maths\special.h" />

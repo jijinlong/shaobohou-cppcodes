@@ -303,6 +303,7 @@ double& Quaternion::operator[](unsigned int selection)
             break;
         default:
             assert(false);
+            return w;
     }
 }
 
@@ -324,6 +325,7 @@ const double& Quaternion::operator[](unsigned int selection) const
             break;
         default:
             assert(false);
+            return w;
     }
 }
 

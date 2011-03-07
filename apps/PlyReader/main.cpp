@@ -21,62 +21,24 @@ using std::string;
 Mesh faceMesh;
 
 
-
 // variables for controlling the app
 QuakeCamera camera;
 int framenumber = 0;
 bool fixPointer = false;
 bool freezeFrame = false;
 // window size
+int mainID = -1;
 int windowWidth = 640;
 int windowHeight = 480;
-int mainID = 0;
 // frame rate control
 double desiredFPS = 60.0;
 double elapsedTime = 0.0;
 double lastTime = -1.0;
 double fps = 0.0;
-// screenshot
-bool capturing = false;
 
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void takeScreenShot()
-{
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
-    unsigned int width = viewport[2];
-    unsigned int height = viewport[3];
-
-    std::ostringstream s;
-    if (framenumber < 10)
-        s << "captures/" << "000" << framenumber << ".ppm";
-    else if (framenumber < 100)
-        s << "captures/" << "00" << framenumber << ".ppm";
-    else if (framenumber < 1000)
-        s << "captures/" << "0" << framenumber << ".ppm";
-    else
-        s << "captures/" << "" << framenumber << ".ppm";
-
-    std::ofstream gf(s.str().c_str(), std::ios::binary);
-    gf << "P6" << endl << width << '\t' << height << endl << "255" << endl;
-    gf.close();
-    FILE *ff= fopen(s.str().c_str(),"ab");
-    GLubyte *v = new GLubyte[width * height * 3];
-
-    glReadPixels(0,0,width,height,GL_RGB,GL_UNSIGNED_BYTE, v);
-
-    int status = 0;
-    for (unsigned int j = 0; j < height; j++)
-        status = fwrite(&v[(height-j-1)*width*3],width*3,sizeof(GLbyte),ff);
-
-    glDrawPixels(width, height, GL_RGB, GL_BYTE, v);
-
-    delete v;
-    fclose(ff);
-}
 
 void idle()
 {
@@ -111,11 +73,9 @@ void keyboard(unsigned char key, int x, int y)
             break;
         case (int)('b'):	framenumber--;
             break;
-        case (int)('n'):	freezeFrame = !freezeFrame;
-            break;
+        case (int)('n'):    freezeFrame = !freezeFrame;
+  			                break;
         case (int)('m'):	framenumber++;
-            break;
-        case (int)('c'):    capturing = !capturing;
             break;
         case (int)('='):    camera.setRunSpeed(camera.getRunSpeed()*2.0);
             break;
@@ -233,21 +193,17 @@ void draw_opengl()
     glutSwapBuffers( );
 
     // simple method for controlling speed of animation
-    if (elapsedTime > (1.0 / desiredFPS))
+    if(elapsedTime > (1.0 / desiredFPS))
     {
-        fps = 1 / elapsedTime;
+        fps = 1.0 / elapsedTime;
         elapsedTime = 0.0;
 
-        if (!freezeFrame)
-        {
-            if (capturing)
-                takeScreenShot();
-        }
+        if(!freezeFrame)
+            framenumber++;
     }
 
-    char title[100];
-    sprintf(title, "OpenGL Template: Frame %d @ %f fps", framenumber, fps);
-    glutSetWindowTitle(title);
+    string title("OpenGL Template: Frame " + num2str(framenumber) + " @ " + num2str(fps) + "fps");
+    glutSetWindowTitle(title.c_str());
 }
 
 void setupWindows()

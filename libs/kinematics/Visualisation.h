@@ -49,7 +49,7 @@ void drawJoint(const KinematicModel<JointParam> &model, int ind, const Vector3D&
         sphere = gluNewQuadric();
         glPushMatrix();
             glTranslate(model.joints(ind).global_position());
-            glColor3f(1.0-colour[0], 1.0-colour[1], 1.0-colour[2]);
+            glColor3d(1.0-colour[0], 1.0-colour[1], 1.0-colour[2]);
             gluQuadricDrawStyle(sphere, GLU_FILL);
             gluSphere(sphere, model_size/60.0, 20, 20 );
         glPopMatrix();

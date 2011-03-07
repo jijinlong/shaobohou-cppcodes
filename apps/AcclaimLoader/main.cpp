@@ -34,15 +34,18 @@ AcclaimAnimation animation;
 
 // control variables
 QuakeCamera camera;
-double lastTime = 0.0;
 int framenumber = 0;
-int mainID;
 bool fixPointer = true;
-bool freeze_frame = true;
-
+bool freezeFrame = true;
 // window stuff
+int mainID = -1;
 int windowWidth = 640;
 int windowHeight = 480;
+// frame rate control
+double desiredFPS = 60.0;
+double elapsedTime = 0.0;
+double lastTime = -1.0;
+double fps = 0.0;
 
 
 void idle()
@@ -76,7 +79,7 @@ void keyboard(unsigned char key, int x, int y)
                         else
                             framenumber = animation.nframes();
   			            break;
-        case (int)('n'):freeze_frame = !freeze_frame;
+        case (int)('n'):freezeFrame = !freezeFrame;
   			            break;
         case (int)('m'):framenumber++;
   			            break;
@@ -144,11 +147,14 @@ void setCamera(double realTime)
 
 void draw_opengl()
 {
-    double realTime;
-    double deltaTime;
-
     if(lastTime < 0.0)
-        lastTime = getTime() - 0.01;
+        lastTime = getTime();
+
+    double currentTime = getTime();
+    double deltaTime = currentTime - lastTime;
+    elapsedTime += deltaTime;
+    lastTime = currentTime;
+
 
     glShadeModel(GL_SMOOTH);
     glCullFace(GL_BACK);
@@ -178,11 +184,6 @@ void draw_opengl()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
-    realTime = getTime();
-    deltaTime = realTime - lastTime;
-    if(deltaTime > 0.02)
-        deltaTime = 0.02;
-    lastTime = realTime;
 
     setCamera(deltaTime);	//everything must be drawn after setting camera
 
@@ -227,12 +228,18 @@ void draw_opengl()
     glutPostRedisplay();
     glutSwapBuffers( );
 
-    char title[100];
-    sprintf(title, "Motion: Frame %d", framenumber % animation.nframes());
-    glutSetWindowTitle(title);
 
-    if(!freeze_frame)
-        framenumber++;
+    if(elapsedTime > (1.0 / desiredFPS))
+    {
+        fps = 1.0 / elapsedTime;
+        elapsedTime = 0.0;
+
+        if(!freezeFrame)
+            framenumber = (framenumber + 1) % animation.nframes();
+    }
+
+    string title("Motion: Frame " + num2str(framenumber%animation.nframes()) + " @ " + num2str(fps) + " fps");
+    glutSetWindowTitle(title.c_str());
 }
 
 void setupWindows()
