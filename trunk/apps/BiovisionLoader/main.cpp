@@ -79,6 +79,8 @@ void keyboard(unsigned char key, int x, int y)
   			            break;
         case (int)('m'):framenumber++;
   			            break;
+        case (int)('c'):takeScreenShot(num2str(framenumber)+".ppm");
+                        break;
         default:		camera.move.set(key, true);
                         break;
     }
