@@ -6,17 +6,28 @@
 #include <cmath>
 #include <iostream>
 
+
 using std::swap;
 using std::vector;
 
-const double inv_RAND_MAX = 1.0 / static_cast<double>(RAND_MAX);
+
+const double INV_RAND_MAX = 1.0 / static_cast<double>(RAND_MAX);
 const double realmin = std::numeric_limits<double>::min();
 const double realmax = std::numeric_limits<double>::max();
 const int intmax = std::numeric_limits<int>::max();
 
+
+#ifndef cbrt
+template <typename T>
+T cbrt(const T &v)
+{
+	return pow(v, 1.0/3.0);
+}
+#endif
+
 double uniform_rand()
 {
-    return rand() * inv_RAND_MAX;
+    return rand() * INV_RAND_MAX;
 }
 
 double uniform_rand(double l, double u)

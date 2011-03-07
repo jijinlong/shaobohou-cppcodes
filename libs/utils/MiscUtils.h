@@ -31,8 +31,4 @@ std::string num2str(const T &num)
     return stream_cast<std::string, T>(num);
 }
 
-//return system time in seconds,
-double getTime();
-unsigned int getSeedFromTime();
-
 #endif
