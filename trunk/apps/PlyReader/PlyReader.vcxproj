@@ -81,9 +81,9 @@
     <ClCompile Include="..\..\libs\maths\special.cpp" />
     <ClCompile Include="..\..\libs\maths\Vector3D.cpp" />
     <ClCompile Include="..\..\libs\utils\BasicCamera.cpp" />
+    <ClCompile Include="..\..\libs\utils\CrossPlatform.cpp" />
     <ClCompile Include="..\..\libs\utils\GLUtils.cpp" />
     <ClCompile Include="..\..\libs\utils\Keybinding.cpp" />
-    <ClCompile Include="..\..\libs\utils\MiscUtils.cpp" />
     <ClCompile Include="..\..\libs\utils\QuakeCamera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
@@ -97,9 +97,9 @@
     <ClInclude Include="..\..\libs\maths\special.h" />
     <ClInclude Include="..\..\libs\maths\Vector3D.h" />
     <ClInclude Include="..\..\libs\utils\BasicCamera.h" />
+    <ClInclude Include="..\..\libs\utils\CrossPlatform.h" />
     <ClInclude Include="..\..\libs\utils\GLUtils.h" />
     <ClInclude Include="..\..\libs\utils\Keybinding.h" />
-    <ClInclude Include="..\..\libs\utils\MiscUtils.h" />
     <ClInclude Include="..\..\libs\utils\Movement.h" />
     <ClInclude Include="..\..\libs\utils\QuakeCamera.h" />
     <ClInclude Include="src\Mesh.h" />

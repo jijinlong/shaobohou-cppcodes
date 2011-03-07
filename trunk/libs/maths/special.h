@@ -5,17 +5,6 @@
 #include <vector>
 #include <limits>
 
-#if defined _WIN64 || defined _WIN32
-#include <numeric>
-template <typename T>
-T cbrt(const T &v)
-{
-	return pow(v, 1.0/3.0);
-}
-#else
-#include <ext/numeric>
-#endif
-
 const double tol = 1e-6;
 const double small_tol = 1e-9;
 const double smaller_tol = 1e-12;
