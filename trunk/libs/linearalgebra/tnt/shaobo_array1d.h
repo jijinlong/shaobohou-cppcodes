@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include <fstream>
-#include <cassert>
 #include <cstdlib>
+#include <cassert>
 
 
 namespace TNT

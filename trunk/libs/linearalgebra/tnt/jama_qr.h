@@ -3,10 +3,33 @@
 
 #include "shaobo_array1d.h"
 #include "shaobo_array2d.h"
-#include "tnt_math_utils.h"
+
+
+using TNT::Array1D;
+using TNT::Array2D;
+
 
 namespace JAMA
 {
+
+/**
+	@returns hypotenuse of real (non-complex) scalars a and b by 
+	avoiding underflow/overflow
+	using (a * sqrt( 1 + (b/a) * (b/a))), rather than
+	sqrt(a*a + b*b).
+*/
+template <class Real>
+Real hypot(const Real &a, const Real &b)
+{
+	
+	if (a== 0)
+		return abs(b);
+	else
+	{
+		Real c = b/a;
+		return fabs(a) * sqrt(1 + c*c);
+	}
+}
 
 /**
 <p>
@@ -39,7 +62,7 @@ class QR {
    @serial internal array storage.
    */
 
-   TNT::Array2D<Real> QR_;
+   Array2D<Real> QR_;
 
    /** Row and column dimensions.
    @serial column dimension.
@@ -50,7 +73,7 @@ class QR {
    /** Array for internal storage of diagonal of R.
    @serial diagonal of R.
    */
-   TNT::Array1D<Real> Rdiag;
+   Array1D<Real> Rdiag;
 
 
 public:
@@ -60,12 +83,12 @@ public:
 
 	@param A rectangular (m>=n) matrix.
 */
-	QR(const TNT::Array2D<Real> &A)		/* constructor */
+	QR(const Array2D<Real> &A)		/* constructor */
 	{
       QR_ = A.copy();
       m = A.dim1();
       n = A.dim2();
-      Rdiag = TNT::Array1D<Real>(n);
+      Rdiag = Array1D<Real>(n);
 	  int i=0, j=0, k=0;
 
       // Main loop.
@@ -127,9 +150,9 @@ public:
    @returns lower trapezoidal matrix whose columns define the reflections
    */
 
-   TNT::Array2D<Real> getHouseholder (void)  const
+   Array2D<Real> getHouseholder (void)  const
    {
-   	  TNT::Array2D<Real> H(m,n);
+   	  Array2D<Real> H(m,n);
 
 	  /* note: H is completely filled in by algorithm, so
 	     initializaiton of H is not necessary.
@@ -154,9 +177,9 @@ public:
    @return     R
    */
 
-	TNT::Array2D<Real> getR() const
+	Array2D<Real> getR() const
 	{
-      TNT::Array2D<Real> R(n,n);
+      Array2D<Real> R(n,n);
       for (int i = 0; i < n; i++) {
          for (int j = 0; j < n; j++) {
             if (i < j) {
@@ -180,11 +203,11 @@ public:
    @param     Q the (ecnomy-sized) orthogonal factor (Q*R=A).
    */
 
-	TNT::Array2D<Real> getQ() const
+	Array2D<Real> getQ() const
 	{
 	  int i=0, j=0, k=0;
 
-	  TNT::Array2D<Real> Q(m,n);
+	  Array2D<Real> Q(m,n);
       for (k = n-1; k >= 0; k--) {
          for (i = 0; i < m; i++) {
             Q(i, k) = 0.0;
@@ -214,12 +237,12 @@ public:
 						the routine returns a null (0-length) vector.
    */
 
-   TNT::Array1D<Real> solve(const TNT::Array1D<Real> &b) const
+   Array1D<Real> solve(const Array1D<Real> &b) const
    {
    	  assert(b.dim1() == m);		/* arrays must be conformant */
 	  assert(isFullRank());		/* matrix is rank deficient */
 
-	  TNT::Array1D<Real> x = b.copy();
+	  Array1D<Real> x = b.copy();
 
       // Compute Y = transpose(Q)*b
       for (int k = 0; k < n; k++)
@@ -246,7 +269,7 @@ public:
 
 
 	  /* return n x nx portion of X */
-	  TNT::Array1D<Real> x_(n);
+	  Array1D<Real> x_(n);
 	  for (int i=0; i<n; i++)
 			x_[i] = x[i];
 
@@ -260,13 +283,13 @@ public:
 						the routine returns a null (0x0) array.
    */
 
-   TNT::Array2D<Real> solve(const TNT::Array2D<Real> &B) const
+   Array2D<Real> solve(const Array2D<Real> &B) const
    {
    	  assert(B.dim1() == m);		/* arrays must be conformant */
 	  assert(isFullRank());		/* matrix is rank deficient */
 
       int nx = B.dim2();
-	  TNT::Array2D<Real> X = B.copy();
+	  Array2D<Real> X = B.copy();
 	  int i=0, j=0, k=0;
 
       // Compute Y = transpose(Q)*B
@@ -296,7 +319,7 @@ public:
 
 
 	  /* return n x nx portion of X */
-	  TNT::Array2D<Real> X_(n,nx);
+	  Array2D<Real> X_(n,nx);
 	  for (i=0; i<n; i++)
 	  	for (j=0; j<nx; j++)
 			X_(i, j) = X(i, j);

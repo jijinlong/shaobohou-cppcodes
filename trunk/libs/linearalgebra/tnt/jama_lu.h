@@ -1,15 +1,16 @@
 #ifndef JAMA_LU_H
 #define JAMA_LU_H
 
-// #include "tnt.h"
+#include "shaobo_array1d.h"
 #include "shaobo_array2d.h"
 
 #include <algorithm>
-//for min(), max() below
-
 #include <cassert>
 
-using namespace TNT;
+
+using TNT::Array1D;
+using TNT::Array2D;
+
 
 namespace JAMA
 {

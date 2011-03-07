@@ -3,14 +3,14 @@
 
 #include "shaobo_array1d.h"
 #include "shaobo_array2d.h"
-#include "tnt_math_utils.h"
 
 #include <algorithm>
-// for min(), max() below
 #include <cmath>
-// for abs() below
 
-using namespace TNT;
+
+using TNT::Array1D;
+using TNT::Array2D;
+
 
 namespace JAMA
 {
