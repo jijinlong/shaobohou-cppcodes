@@ -1,5 +1,6 @@
 #include "Mesh.h"
 
+#include "MiscUtils.h"
 #include "special.h"
 
 using std::cout;
@@ -8,6 +9,7 @@ using std::string;
 using std::vector;
 using std::stringstream;
 using std::ostream;
+
 
 Mesh::Mesh()
 {

@@ -31,20 +31,17 @@ std::vector<BiovisionAnimation> animations;
 // control variables
 QuakeCamera camera;
 int framenumber = 0;
-int mainID;
 bool fixPointer = true;
 bool freezeFrame = true;
-
 // window stuff
+int mainID = -1;
 int windowWidth = 640;
 int windowHeight = 480;
-
-// controlling variables
-double desiredFPS = 30.0;
+// frame rate control
+double desiredFPS = 60.0;
 double elapsedTime = 0.0;
 double lastTime = -1.0;
 double fps = 0.0;
-bool capturing = false;
 
 
 void idle()
@@ -242,10 +239,8 @@ void draw_opengl()
             framenumber = (framenumber + 1) % animations.front().nframes();
     }
 
-
-    char title[100];
-    sprintf(title, "Motion: Frame %d @ %f fps", framenumber % animations.front().nframes(), fps);
-    glutSetWindowTitle(title);
+    string title("Motion: Frame " + num2str(framenumber%animations.front().nframes()) + " @ " + num2str(fps) + " fps");
+    glutSetWindowTitle(title.c_str());
 }
 
 void setupWindows()

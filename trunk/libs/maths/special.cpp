@@ -212,6 +212,7 @@ double gammaln(double x)
 
     //should not happen
     assert(false);
+    return 0.0;
 }
 
 double digamma(double x)

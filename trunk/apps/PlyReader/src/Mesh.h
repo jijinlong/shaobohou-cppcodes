@@ -4,9 +4,14 @@
 #include <vector>
 
 #include "PlyReader.h"
-#include "LinearAlgebra.h"
-#include "MiscUtils.h"
 #include "Vector3D.h"
+#include "shaobo_array1d.h"
+#include "shaobo_array2d.h"
+
+
+using TNT::Array1D;
+using TNT::Array2D;
+
 
 class Mesh
 {

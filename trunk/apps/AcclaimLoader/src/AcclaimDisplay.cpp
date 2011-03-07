@@ -31,7 +31,7 @@ void AcclaimDisplay::draw(const KinematicModel<AcclaimJoint> &model, const Vecto
         Vector3D global_direction = joint.global_endeffector_displacement().direction();
         double length = joint.local_endeffector().magnitude();
 
-        glColor3f(colour[0], colour[1], colour[2]);
+        glColor3d(colour[0], colour[1], colour[2]);
         glPushMatrix();
             glTranslate(joint.global_position());
             glTranslate(global_direction* joint.local_endeffector().magnitude() * 0.5);
@@ -40,7 +40,7 @@ void AcclaimDisplay::draw(const KinematicModel<AcclaimJoint> &model, const Vecto
             Vector3D zAxis = Vector3D(0.0, 0.0, 1.0);
             Vector3D newAxis = zAxis ^ global_direction;
             double newAngle = acos(zAxis *global_direction);
-            glRotatef(rad2deg(newAngle), newAxis[0], newAxis[1], newAxis[2]);
+            glRotated(rad2deg(newAngle), newAxis[0], newAxis[1], newAxis[2]);
 
             //draw bone
             GLUquadricObj *qobj = gluNewQuadric();
