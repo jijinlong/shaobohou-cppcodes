@@ -3,15 +3,14 @@
 
 #include "shaobo_array1d.h"
 #include "shaobo_array2d.h"
-#include "tnt_math_utils.h"
 
 #include <algorithm>
-// for min(), max() below
-
 #include <cmath>
-// for abs() below
 
-using namespace TNT;
+
+using TNT::Array1D;
+using TNT::Array2D;
+
 
 namespace JAMA
 {
@@ -78,22 +77,22 @@ class Eigenvalue
 
    /** Arrays for internal storage of eigenvalues. */
 
-   TNT::Array1D<Real> d;         /* real part */
-   TNT::Array1D<Real> e;         /* img part */
+   Array1D<Real> d;         /* real part */
+   Array1D<Real> e;         /* img part */
 
    /** Array for internal storage of eigenvectors. */
-    TNT::Array2D<Real> V;
+   Array2D<Real> V;
 
    /** Array for internal storage of nonsymmetric Hessenberg form.
    @serial internal storage of nonsymmetric Hessenberg form.
    */
-   TNT::Array2D<Real> H;
+   Array2D<Real> H;
 
 
    /** Working storage for nonsymmetric algorithm.
    @serial working storage for nonsymmetric algorithm.
    */
-   TNT::Array1D<Real> ort;
+   Array1D<Real> ort;
 
 
    // Symmetric Householder reduction to tridiagonal form.
@@ -899,7 +898,7 @@ public:
    @param A    Square real (non-complex) matrix
    */
 
-   Eigenvalue(const TNT::Array2D<Real> &A) {
+   Eigenvalue(const Array2D<Real> &A) {
       n = A.dim2();
       V = Array2D<Real>(n,n);
       d = Array1D<Real>(n);
@@ -926,8 +925,8 @@ public:
          tql2();
 
       } else {
-         H = TNT::Array2D<Real>(n,n);
-         ort = TNT::Array1D<Real>(n);
+         H = Array2D<Real>(n,n);
+         ort = Array1D<Real>(n);
 
          for (int j = 0; j < n; j++) {
             for (int i = 0; i < n; i++) {
@@ -948,7 +947,7 @@ public:
    @return     V
    */
 
-   const TNT::Array2D<Real>& getV() {
+   const Array2D<Real>& getV() {
       return V;
    }
 
@@ -956,7 +955,7 @@ public:
    @return     real(diag(D))
    */
 
-   const TNT::Array1D<Real>& getRealEigenvalues() {
+   const Array1D<Real>& getRealEigenvalues() {
       return d;
    }
 
@@ -965,7 +964,7 @@ public:
 
    @pararm e_: new matrix with imaginary parts of the eigenvalues.
    */
-   const TNT::Array1D<Real>& getImagEigenvalues() {
+   const Array1D<Real>& getImagEigenvalues() {
       return e;
    }
 
@@ -1003,8 +1002,8 @@ public:
 	eigenvalue matrix.
 
 */
-   TNT::Array2D<Real> getD () {
-      TNT::Array2D<Real> D(n,n);
+   Array2D<Real> getD () {
+      Array2D<Real> D(n,n);
       for (int i = 0; i < n; i++) {
          for (int j = 0; j < n; j++) {
             D(i, j) = 0.0;

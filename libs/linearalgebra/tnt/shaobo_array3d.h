@@ -4,9 +4,6 @@
 #include "shaobo_array1d.h"
 
 
-using std::endl;
-
-
 namespace TNT
 {
 

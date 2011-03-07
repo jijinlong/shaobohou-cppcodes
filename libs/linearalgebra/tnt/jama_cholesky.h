@@ -1,14 +1,18 @@
 #ifndef JAMA_CHOLESKY_H
 #define JAMA_CHOLESKY_H
 
+#include "shaobo_array1d.h"
+#include "shaobo_array2d.h"
+
 #include <cmath>
-// needed for sqrt() below.
+
+
+using TNT::Array1D;
+using TNT::Array2D;
+
 
 namespace JAMA
 {
-
-
-using namespace TNT;
 
 /**
    <P>
