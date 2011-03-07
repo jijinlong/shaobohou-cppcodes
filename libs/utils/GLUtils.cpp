@@ -69,7 +69,7 @@ void takeScreenShot(const string &filename)
 
     gf.open(filename.c_str(), ios::out | ios::app | ios::binary);
     for(unsigned int j = 0; j < height; j++)
-        gf.write(reinterpret_cast<const char *>(v[(height-j-1)*width*3]), sizeof(GLubyte)*width*3);
+        gf.write(reinterpret_cast<const char *>(&v[(height-j-1)*width*3]), sizeof(GLubyte)*width*3);
     gf.close();
 
     glDrawPixels(width, height, GL_RGB, GL_BYTE, v);
