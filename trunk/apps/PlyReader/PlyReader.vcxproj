@@ -50,7 +50,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\codes\cppcodes\libs\linearalgebra\tnt;D:\codes\cppcodes\libs\linearalgebra;D:\codes\cppcodes\apps\PlyReader\src;D:\codes\cppcodes\libs\maths;D:\codes\cppcodes\libs\utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\libs\linearalgebra\tnt;..\..\libs\linearalgebra;..\..\apps\PlyReader\src;..\..\libs\maths;..\..\libs\utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
