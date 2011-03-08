@@ -1,7 +1,8 @@
 #ifndef ARRAY3D_H
 #define ARRAY3D_H
 
-#include "shaobo_array1d.h"
+#include "array1d.h"
+#include "array2d.h"
 
 
 namespace TNT
@@ -298,6 +299,164 @@ void convert(Array3D<T> &B, const Array3D<S> &A)
 
     for(int i = 0; i < A.size(); i++)
         B(i) = static_cast<T>(A(i));
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+// additional functions and operators
+//////////////////////////////////////////////////////////////////////////////
+
+// B = A > s
+template <typename T>
+Array3D<bool> operator>(const Array3D<T> &A, const T &s)
+{
+    Array3D<bool> B(A.dim1(), A.dim2(), A.dim3());
+    greaterThan(B.vector(), A.vector(), s);
+
+    return B;
+}
+
+// squeeze singleton dimension
+template <typename T>
+Array2D<T> squeeze(const Array3D<T> &A)
+{
+    if(A.dim1() == A.size() || A.dim2() == A.size() || A.dim3() == A.size())
+        return Array2D<T>(A.size(), 1, A.vals());
+    else if(A.dim1() == 1)
+        return Array2D<T>(A.dim2(), A.dim3(), A.vals());
+    else if(A.dim2() == 1)
+        return Array2D<T>(A.dim1(), A.dim3(), A.vals());
+    else if(A.dim3() == 1)
+        return Array2D<T>(A.dim1(), A.dim2(), A.vals());
+    else
+        assert(false);
+       
+    return Array2D<T>();
+}
+
+// inflate singleton dimension
+template <typename T>
+Array3D<T> inflate(const Array2D<T> &A, const std::string &dim)
+{
+    if(dim == "rows")
+        return Array3D<T>(1, A.dim1(), A.dim2(), A.vals());
+    else if(dim == "cols")
+        return Array3D<T>(A.dim1(), 1, A.dim2(), A.vals());
+    else if(dim == "mats" || dim == "") 
+        return Array3D<T>(A.dim1(), A.dim2(), 1, A.vals());
+    else
+        assert(false);
+
+    return Array3D<T>();
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+// tensor operators
+//////////////////////////////////////////////////////////////////////////////
+
+// C = A - B
+template <typename T>
+Array3D<T> operator-(const Array3D<T> &A, const Array3D<T> &B)
+{
+    assert(A.dim1() == B.dim1());
+    assert(A.dim2() == B.dim2());
+    assert(A.dim3() == B.dim3());
+
+    Array3D<T> C(A.dim1(), A.dim2(), A.dim3());
+    sub(C.vector(), A.vector(), B.vector());
+
+    return C;
+}
+
+// A = A + B
+template <typename T>
+Array3D<T>&  operator+=(Array3D<T> &A, const Array3D<T> &B)
+{
+    assert(A.dim1() == B.dim1());
+    assert(A.dim2() == B.dim2());
+    assert(A.dim3() == B.dim3());	
+
+    add(A.vector(), A.vector(), B.vector());
+
+    return A;
+}
+
+// B = s - A
+template <typename T>
+Array3D<T> operator-(const T &s, const Array3D<T> &A)
+{
+    Array3D<T> B(A.dim1(), A.dim2(), A.dim3());
+    sub(B.vector(), s, A.vector());
+
+    return B;
+}
+
+// B = A * s
+template <typename T>
+Array3D<T> operator*(const Array3D<T> &A, const T &s)
+{
+    Array3D<T> B(A.dim1(), A.dim2(), A.dim3());
+    dotmult(B.vector(), A.vector(), s);
+
+    return B;
+}
+
+// B = A ./ s
+template <typename T>
+Array3D<T> operator/(const Array3D<T> &A, const T &s)
+{
+	return A*(1.0/s);
+}
+
+// B = sqrt(A)
+template <typename T>
+Array3D<T> sqrt(const Array3D<T> &A)
+{
+    Array3D<T> B(A.dim1(), A.dim2(), A.dim3());
+    sqrt(B.vector(), A.vector());
+
+    return B;
+}
+
+// B = fabs(A)
+template <typename T>
+Array3D<T> fabs(const Array3D<T> &A)
+{
+    Array3D<T> B(A.dim1(), A.dim2(), A.dim3());
+    fabs(B.vector(), A.vector());
+
+    return B;
+}
+
+// B = sum3(A)
+template <typename T>
+Array3D<T> sum3(const Array3D<T> &A)
+{
+    assert(A.dim1() > 0);
+    assert(A.dim2() > 0);
+    assert(A.dim3() > 0);
+
+    const int nm = A.dim1()*A.dim2();
+
+    Array3D<T> B(A.dim1(), A.dim2(), 1);
+
+    T *psource = A.vals();
+    T *ptarget = B.vals();
+    for(int k = 0; k < A.dim3(); k++)
+    {
+        ptarget = B.vals();
+        for(int i = 0; i < nm; i++)
+        {
+            *ptarget += *psource;
+            psource++;
+            ptarget++;
+        }
+    }
+
+    return B;
 }
 
 
