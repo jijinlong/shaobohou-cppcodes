@@ -1,8 +1,8 @@
 #ifndef JAMA_SVD_H
 #define JAMA_SVD_H
 
-#include "shaobo_array1d.h"
-#include "shaobo_array2d.h"
+#include "array1d.h"
+#include "array2d.h"
 
 #include <algorithm>
 #include <cmath>

@@ -380,6 +380,392 @@ void setsub(Array1D<T> &a, int v0, int v1, const Array1D<T> &b)
 }
 
 
+
+//////////////////////////////////////////////////////////////////////////////
+// additional functions and operators
+//////////////////////////////////////////////////////////////////////////////
+
+// greaterThan(b, a, s)
+template <typename T>
+void greaterThan(Array1D<bool> &b, const Array1D<T> &a, const T &s)
+{
+    assert(a.dim() == b.dim());
+
+    const int n = a.dim();
+    for(int i = 0; i < n; i++)
+        b[i] = a[i] > s;
+}
+
+// b = a > s
+template <typename T>
+Array1D<bool> operator>(const Array1D<T> &a, const T &s)
+{
+    Array1D<bool> b(a.dim());
+    greaterThan(b, a, s);
+
+    return b;
+}
+
+// smallerThan(b, a, s)
+template <typename T>
+void smallerThan(Array1D<bool> &b, const Array1D<T> &a, const T &s)
+{
+    assert(a.dim() == b.dim());
+
+    const int n = a.dim();
+    for(int i = 0; i < n; i++)
+        b[i] = a[i] < s;
+}
+
+// b = a < s
+template <typename T>
+Array1D<bool> operator<(const Array1D<T> &a, const T &s)
+{
+    Array1D<bool> b(a.dim());
+    smallerThan(b, a, s);
+
+    return b;
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+// template vector elementwise operators
+//////////////////////////////////////////////////////////////////////////////
+
+// add(c, b, a)
+template <typename T>
+void add(Array1D<T> &c, const Array1D<T> &a, const Array1D<T> &b)
+{
+    assert(c.dim() == a.dim());
+    assert(c.dim() == b.dim());
+
+    int n = a.dim();
+    for (int i=0; i<n; i++)
+        c[i] = a[i]+b[i];
+}
+
+// c = a + b
+template <typename T>
+Array1D<T> operator+(const Array1D<T> &a, const Array1D<T> &b)
+{
+    assert(a.dim() == b.dim());
+
+    Array1D<T> c(a.dim());
+    add(c, a, b);
+
+    return c;
+}
+
+// sub(c, b, a)
+template <typename T>
+void sub(Array1D<T> &c, const Array1D<T> &a, const Array1D<T> &b)
+{
+    assert(c.dim() == a.dim());
+    assert(c.dim() == b.dim());
+
+    int n = a.dim();
+    for (int i=0; i<n; i++)
+        c[i] = a[i]-b[i];
+}
+
+// c = a - b
+template <typename T>
+Array1D<T> operator-(const Array1D<T> &a, const Array1D<T> &b)
+{
+    assert(a.dim() == b.dim());
+
+    Array1D<T> c(a.dim());
+    sub(c, a, b);
+
+    return c;
+}
+
+// dotmult(c, b, a)
+template <typename T>
+void dotmult(Array1D<T> &c, const Array1D<T> &a, const Array1D<T> &b)
+{
+    assert(c.dim() == a.dim());
+    assert(c.dim() == b.dim());
+
+    int n = a.dim();
+    for (int i=0; i<n; i++)
+        c[i] = a[i]*b[i];
+}
+
+// c = a .* b
+template <typename T>
+Array1D<T> dotmult(const Array1D<T> &a, const Array1D<T> &b)
+{
+    assert(a.dim() == b.dim());
+
+    Array1D<T> c(a.dim());
+    dotmult(c, a, b);
+
+    return c;
+}
+
+// dotdiv(c, b, a)
+template <typename T>
+void dotdiv(Array1D<T> &c, const Array1D<T> &a, const Array1D<T> &b)
+{
+    assert(c.dim() == a.dim());
+    assert(c.dim() == b.dim());
+
+    int n = a.dim();
+    for (int i=0; i<n; i++)
+        c[i] = a[i]/b[i];
+}
+
+// c = a ./ b
+template <typename T>
+Array1D<T> dotdiv(const Array1D<T> &a, const Array1D<T> &b)
+{
+    assert(a.dim() == b.dim());
+
+    Array1D<T> c(a.dim());
+    dotdiv(c, a, b);
+
+    return c;
+}
+
+// a = a + b
+template <typename T>
+Array1D<T>&  operator+=(Array1D<T> &a, const Array1D<T> &b)
+{
+    assert(a.dim() == b.dim());
+
+    add(a, a, b);
+
+    return a;
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+// vector scalar operators
+//////////////////////////////////////////////////////////////////////////////
+
+// negate(b, a)
+template <typename T>
+void negate(Array1D<T> &b, const Array1D<T> &a)
+{
+    assert(a.dim() == b.dim());
+
+    int n = a.dim();
+    for (int i=0; i<n; i++)
+        b[i] = -a[i];
+}
+
+// b = -a
+template <typename T>
+Array1D<T> operator-(const Array1D<T> &a)
+{
+    Array1D<T> b(a.dim());
+    negate(b, a);
+
+    return b;
+}
+
+// add(b, a, s)
+template <typename T>
+void add(Array1D<T> &b, const Array1D<T> &a, const T &s)
+{
+    assert(a.dim() == b.dim());
+
+	int n = a.dim();
+	for (int i=0; i<n; i++)
+		b[i] = a[i]+s;
+}
+
+// b = a + s
+template <typename T>
+Array1D<T> operator+(const Array1D<T> &a, const T &s)
+{
+    Array1D<T> b(a.dim());
+    add(b, a, s);
+
+	return b;
+}
+
+// sub(b, s, a)
+template <typename T>
+void sub(Array1D<T> &b, const T &s, const Array1D<T> &a)
+{
+    assert(a.dim() == b.dim());
+
+	int n = a.dim();
+	for (int i=0; i<n; i++)
+		b[i] = s-a[i];
+}
+
+// b = s - a
+template <typename T>
+Array1D<T> operator-(const T &s, const Array1D<T> &a)
+{
+    Array1D<T> b(a.dim());
+    sub(b, s, a);
+
+	return b;
+}
+
+// sub(b, a, s)
+template <typename T>
+void sub(Array1D<T> &b, const Array1D<T> &a, const T &s)
+{
+    assert(a.dim() == b.dim());
+
+	int n = a.dim();
+	for (int i=0; i<n; i++)
+		b[i] = a[i]-s;
+}
+
+// b = s - a
+template <typename T>
+Array1D<T> operator-(const Array1D<T> &a, const T &s)
+{
+    Array1D<T> b(a.dim());
+    sub(b, a, s);
+
+	return b;
+}
+
+// dotmult(b, a, s)
+template <typename T>
+void dotmult(Array1D<T> &b, const Array1D<T> &a, const T &s)
+{
+    assert(a.dim() == b.dim());
+
+    int n = a.dim();
+    for(int i = 0; i < n; i++)
+        b[i] = a[i]*s;
+}
+
+// b = a * s
+template <typename T>
+Array1D<T> operator*(const Array1D<T> &a, const T &s)
+{
+    Array1D<T> b(a.dim());
+    dotmult(b, a, s);
+
+    return b;
+}
+
+// b = s * a
+template <typename T>
+Array1D<T> operator*(const T &s, const Array1D<T> &a)
+{
+    return a*s;
+}
+
+// b = a ./ s
+template <typename T>
+Array1D<T> operator/(const Array1D<T> &a, const T &s)
+{
+	return a*(1.0/s);
+}
+
+// dotdiv(b, a, s)
+template <typename T>
+void dotdiv(Array1D<T> &b, const T &s, const Array1D<T> &a)
+{
+    assert(a.dim() == b.dim());
+
+    int n = a.dim();
+    for(int i = 0; i < n; i++)
+        b[i] = s/a[i];
+}
+
+// b = s ./ a
+template <typename T>
+Array1D<T> operator/(const T &s, const Array1D<T> &a)
+{
+    Array1D<T> b(a.dim());
+    dotdiv(b, s, a);
+
+    return b;
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+// distance operators
+//////////////////////////////////////////////////////////////////////////////
+
+// s = dot(a, b)
+template <typename T>
+T dot(const Array1D<T> &a, const Array1D<T> &b)
+{
+    assert(a.dim() == b.dim());
+
+    int n = a.dim();
+
+    T s(0.0);
+    for(int i = 0; i < n; i++)
+        s += a[i]*b[i];
+    return s;
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+// overloaded maths operators
+//////////////////////////////////////////////////////////////////////////////
+
+// b = log(a)
+template <typename T>
+Array1D<T> log(const Array1D<T> &a)
+{
+    Array1D<T> b(a.dim());
+    for(int i = 0; i < a.dim(); i++)
+        b[i] = log(a[i]);
+
+    return b;
+}
+
+// sqrt(b, a)
+template <typename T>
+void sqrt(Array1D<T> &b, const Array1D<T> &a)
+{
+    assert(b.dim() == a.dim());
+
+    const int n = a.dim();
+    for(int i = 0; i < n; i++)
+        b[i] = sqrt(a[i]);
+}
+
+// b = sqrt(a)
+template <typename T>
+Array1D<T> sqrt(const Array1D<T> &a)
+{
+    Array1D<T> b(a.dim());
+    sqrt(b, a);
+
+    return b;
+}
+
+// fabs(b, a)
+template <typename T>
+void fabs(Array1D<T> &b, const Array1D<T> &a)
+{
+    assert(b.dim() == a.dim());
+
+    int n = a.dim();
+    for (int i = 0; i < n; i++)
+        b[i] = fabs(a[i]);
+}
+
+// b = fabs(a)
+template <typename T>
+Array1D<T> fabs(const Array1D<T> &a)
+{
+    Array1D<T> b(a.dim());
+    fabs(b, a);
+
+    return b;
+}
+
+
 }
 
 

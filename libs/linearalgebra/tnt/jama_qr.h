@@ -1,8 +1,8 @@
 #ifndef JAMA_QR_H
 #define JAMA_QR_H
 
-#include "shaobo_array1d.h"
-#include "shaobo_array2d.h"
+#include "array1d.h"
+#include "array2d.h"
 
 
 using TNT::Array1D;
