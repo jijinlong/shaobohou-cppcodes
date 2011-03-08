@@ -62,6 +62,56 @@ template <typename T> void loadArray1D(const std::string &filename, Array1D<T> &
 template <typename T> Array1D<T> getsub(const Array1D<T> &a, int v0, int v1);
 template <typename T> void setsub(Array1D<T> &a, int v0, int v1, const Array1D<T> &b);
 
+// additional functions and operators
+template <typename T> void greaterThan(Array1D<bool> &b, const Array1D<T> &a, const T &s);
+template <typename T> Array1D<bool> operator>(const Array1D<T> &a, const T &s);
+template <typename T> void smallerThan(Array1D<bool> &b, const Array1D<T> &a, const T &s);
+template <typename T> Array1D<bool> operator<(const Array1D<T> &a, const T &s);
+
+// template vector elementwise operators
+template <typename T> void add(Array1D<T> &c, const Array1D<T> &a, const Array1D<T> &b);
+template <typename T> Array1D<T> operator+(const Array1D<T> &a, const Array1D<T> &b);
+template <typename T> void sub(Array1D<T> &c, const Array1D<T> &a, const Array1D<T> &b);
+template <typename T> Array1D<T> operator-(const Array1D<T> &a, const Array1D<T> &b);
+template <typename T> void dotmult(Array1D<T> &c, const Array1D<T> &a, const Array1D<T> &b);
+template <typename T> Array1D<T> dotmult(const Array1D<T> &a, const Array1D<T> &b);
+template <typename T> void dotdiv(Array1D<T> &c, const Array1D<T> &a, const Array1D<T> &b);
+template <typename T> Array1D<T> dotdiv(const Array1D<T> &a, const Array1D<T> &b);
+template <typename T> Array1D<T>&  operator+=(Array1D<T> &a, const Array1D<T> &b);
+
+// vector scalar operators
+template <typename T> void negate(Array1D<T> &b, const Array1D<T> &a);
+template <typename T> Array1D<T> operator-(const Array1D<T> &a);
+template <typename T> void add(Array1D<T> &b, const Array1D<T> &a, const T &s);
+template <typename T> Array1D<T> operator+(const Array1D<T> &a, const T &s);
+template <typename T> void sub(Array1D<T> &b, const T &s, const Array1D<T> &a);
+template <typename T> Array1D<T> operator-(const T &s, const Array1D<T> &a);
+template <typename T> void sub(Array1D<T> &b, const Array1D<T> &a, const T &s);
+template <typename T> Array1D<T> operator-(const Array1D<T> &a, const T &s);
+template <typename T> void dotmult(Array1D<T> &b, const Array1D<T> &a, const T &s);
+template <typename T> Array1D<T> operator*(const Array1D<T> &a, const T &s);
+template <typename T> Array1D<T> operator*(const T &s, const Array1D<T> &a);
+template <typename T> Array1D<T> operator/(const Array1D<T> &a, const T &s);
+template <typename T> void dotdiv(Array1D<T> &b, const T &s, const Array1D<T> &a);
+template <typename T> Array1D<T> operator/(const T &s, const Array1D<T> &a);
+
+// sum, prod, cumsum, mean and max operators
+template <typename T> T mean(const Array1D<T> &a);
+template <typename T> T sum(const Array1D<T> &a);
+template <typename T> T prod(const Array1D<T> &a);
+template <typename T> T max(const Array1D<T> &a);
+template <typename T> T min(const Array1D<T> &a);
+
+// distance operators
+template <typename T> T dot(const Array1D<T> &a, const Array1D<T> &b);
+
+// overloaded maths operators
+template <typename T> Array1D<T> log(const Array1D<T> &a);
+template <typename T> void sqrt(Array1D<T> &b, const Array1D<T> &a);
+template <typename T> Array1D<T> sqrt(const Array1D<T> &a);
+template <typename T> void fabs(Array1D<T> &b, const Array1D<T> &a);
+template <typename T> Array1D<T> fabs(const Array1D<T> &a);
+
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -684,6 +734,82 @@ Array1D<T> operator/(const T &s, const Array1D<T> &a)
     dotdiv(b, s, a);
 
     return b;
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+// sum, prod, cumsum, mean and max operators
+//////////////////////////////////////////////////////////////////////////////
+
+// s = mean(a)
+template <typename T>
+T mean(const Array1D<T> &a)
+{
+    assert(a.dim1() > 0);
+
+    T m(0);
+    for(int i = 0; i < a.dim(); i++)
+        m += a[i];
+    m /= static_cast<T>(a.dim());
+
+    return m;
+}
+
+// s = sum(a)
+template <typename T>
+T sum(const Array1D<T> &a)
+{
+    int n = a.dim();
+
+    T s(0);
+    for(int i = 0; i < n; i++)
+        s += a[i];
+    return s;
+}
+
+// s = prod(a)
+template <typename T>
+T prod(const Array1D<T> &a)
+{
+    int n = a.dim();
+
+    assert(n > 0);
+
+    T prods(1);
+    for(int i = 0; i < n; i++)
+        prods *= a[i];
+    return prods;
+}
+
+// s = max(a)
+template <typename T>
+T max(const Array1D<T> &a)
+{
+    assert(a.dim() > 0);
+
+    int n = a.dim();
+
+    T s(a[0]);
+    for(int i = 1; i < n; i++)
+        if(a[i] > s)
+            s = a[i];
+    return s;
+}
+
+// s = min(a)
+template <typename T>
+T min(const Array1D<T> &a)
+{
+    assert(a.dim() > 0);
+
+    int n = a.dim();
+
+    T s(a[0]);
+    for(int i = 1; i < n; i++)
+        if(a[i] < s)
+            s = a[i];
+    return s;
 }
 
 

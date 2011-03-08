@@ -58,6 +58,21 @@ template <typename T> Array3D<T> loadArray3D(const std::string &filename);
 // convert
 template <typename T, typename S> Array2D<S> convert(Array2D<T> &B, const Array2D<S> &A);
 
+// additional functions and operators
+template <typename T> Array3D<bool> operator>(const Array3D<T> &A, const T &s);
+template <typename T> Array2D<T> squeeze(const Array3D<T> &A);
+template <typename T> Array3D<T> inflate(const Array2D<T> &A, const std::string &dim);
+
+// tensor operators
+template <typename T> Array3D<T> operator-(const Array3D<T> &A, const Array3D<T> &B);
+template <typename T> Array3D<T>&  operator+=(Array3D<T> &A, const Array3D<T> &B);
+template <typename T> Array3D<T> operator-(const T &s, const Array3D<T> &A);
+template <typename T> Array3D<T> operator*(const Array3D<T> &A, const T &s);
+template <typename T> Array3D<T> operator/(const Array3D<T> &A, const T &s);
+template <typename T> Array3D<T> sqrt(const Array3D<T> &A);
+template <typename T> Array3D<T> fabs(const Array3D<T> &A);
+template <typename T> Array3D<T> sum3(const Array3D<T> &A);
+
 
 
 //////////////////////////////////////////////////////////////////////////////
