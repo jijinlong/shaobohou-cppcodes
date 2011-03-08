@@ -114,7 +114,6 @@ template <typename T> Array2D<T> operator/(const T &s, const Array2D<T> &A);
 // trace and more utility functions
 template <typename T> T trace(const Array2D<T> &A);
 template <typename T> T trace_matmult(const Array2D<T> &A, const Array2D<T> &B);
-template <typename T> Array2D<T> dist2(const Array2D<T> &A, const Array2D<T> &B);
 
 // sum, prod, cumsum, mean and max operators
 template <typename T> Array2D<T> sum(const Array2D<T> &A, const std::string &dim="");
@@ -126,11 +125,12 @@ template <typename T> Array1D<T> min(const Array2D<T> &A, const std::string &dim
 // variance operators
 template <typename T> Array2D<T> cov(const Array2D<T> &A);
 template <typename T> Array2D<T> var(const Array2D<T> &A);
-template <typename T> Array2D<T> covariance(const Array1D<T> &a);
+template <typename T> Array2D<T> cov(const Array1D<T> &a);
 
 // distance operators
-template <typename T> T mahalanobisDistance(const Array2D<T> &A, const Array1D<T> &b);
-template <typename T> Array2D<T> mahalanobisDistance(const Array2D<T> &A, const Array2D<T> &B);
+template <typename T> T mahalanobis(const Array2D<T> &A, const Array1D<T> &b);
+template <typename T> Array2D<T> mahalanobis(const Array2D<T> &A, const Array2D<T> &B);
+template <typename T> Array2D<T> dist2(const Array2D<T> &A, const Array2D<T> &B);
 
 // overloaded maths operators
 template <typename T> Array2D<T> log(const Array2D<T> &A);
@@ -878,16 +878,6 @@ T trace_matmult(const Array2D<T> &A, const Array2D<T> &B)
     return sum(sum(dotmult(A, transpose(B))))(0, 0);
 }
 
-// C = dist2(A, B);
-template <typename T>
-Array2D<T> dist2(const Array2D<T> &A, const Array2D<T> &B)
-{
-    assert(A.dim2() == B.dim2());
-
-    return repmat(sum(dotmult(A, A), "cols"), 1, B.dim1()) +
-           repmat(transpose(sum(dotmult(B, B), "cols")), A.dim1(), 1) - 2.0*(A*transpose(B));
-}
-
 
 //////////////////////////////////////////////////////////////////////////////
 // sum, prod, cumsum, mean and max operators
@@ -1120,7 +1110,7 @@ Array2D<T> var(const Array2D<T> &A)
 
 // B = cov(a)
 template <typename T>
-Array2D<T> covariance(const Array1D<T> &a)
+Array2D<T> cov(const Array1D<T> &a)
 {
     int n = a.dim();
 
@@ -1140,16 +1130,26 @@ Array2D<T> covariance(const Array1D<T> &a)
 
 // s = b'*A*b
 template <typename T>
-T mahalanobisDistance(const Array2D<T> &A, const Array1D<T> &b)
+T mahalanobis(const Array2D<T> &A, const Array1D<T> &b)
 {
     return dot(b*A, b);
 }
 
 // s = diag(B'*A*B)
 template <typename T>
-Array2D<T> mahalanobisDistance(const Array2D<T> &A, const Array2D<T> &B)
+Array2D<T> mahalanobis(const Array2D<T> &A, const Array2D<T> &B)
 {
     return sum(dotmult(transpose(B)*A, B), "cols");
+}
+
+// C = dist2(A, B);
+template <typename T>
+Array2D<T> dist2(const Array2D<T> &A, const Array2D<T> &B)
+{
+    assert(A.dim2() == B.dim2());
+
+    return repmat(sum(dotmult(A, A), "cols"), 1, B.dim1()) +
+           repmat(transpose(sum(dotmult(B, B), "cols")), A.dim1(), 1) - 2.0*(A*transpose(B));
 }
 
 
