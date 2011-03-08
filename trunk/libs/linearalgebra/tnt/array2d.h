@@ -78,6 +78,66 @@ template <typename T> Array2D<T> diag(const Array2D<T> &A);
 // convert
 template <typename T, typename S> void convert(Array2D<T> &B, const Array2D<S> &A);
 
+// additional functions and operators
+template <typename T> Array2D<bool> operator>(const Array2D<T> &A, const T &s);
+template <typename T> Array2D<T> eye(int dim);
+template <typename T> Array2D<T> zeros(int dim1, int dim2);
+template <typename T> Array2D<T> zeros(int dim);
+template <typename T> Array2D<T> ones(int dim1, int dim2);
+template <typename T> Array2D<T> ones(int dim);
+template <typename T> bool square(const Array2D<T> &A);
+
+// matrix elementwise operators
+template <typename T> Array2D<T> operator+(const Array2D<T> &A, const Array2D<T> &B);
+template <typename T> Array2D<T> operator-(const Array2D<T> &A, const Array2D<T> &B);
+template <typename T> Array2D<T> dotmult(const Array2D<T> &A, const Array2D<T> &B);
+template <typename T> Array2D<T> dotdiv(const Array2D<T> &A, const Array2D<T> &B);
+template <typename T> Array2D<T>& operator+=(Array2D<T> &A, const Array2D<T> &B);
+
+// matrix matrix operators
+template <typename T> Array2D<T> operator*(const Array2D<T> &A, const Array2D<T> &B);
+
+// matrix vector operators
+template <typename T> Array1D<T> operator*(const Array2D<T> &A, const Array1D<T> &b);
+template <typename T> Array1D<T> operator*(const Array1D<T> &a, const Array2D<T> &B);
+
+// matrix scalar operators
+template <typename T> Array2D<T> operator-(const Array2D<T> &A);
+template <typename T> Array2D<T> operator+(const Array2D<T> &A, const T &s);
+template <typename T> Array2D<T> operator-(const Array2D<T> &A, const T &s);
+template <typename T> Array2D<T> operator-(const T &s, const Array2D<T> &A);
+template <typename T> Array2D<T> operator*(const Array2D<T> &A, const T &s);
+template <typename T> Array2D<T> operator*(const T &s, const Array2D<T> &A);
+template <typename T> Array2D<T> operator/(const Array2D<T> &A, const T &s);
+template <typename T> Array2D<T> operator/(const T &s, const Array2D<T> &A);
+
+// trace and more utility functions
+template <typename T> T trace(const Array2D<T> &A);
+template <typename T> T trace_matmult(const Array2D<T> &A, const Array2D<T> &B);
+template <typename T> Array2D<T> dist2(const Array2D<T> &A, const Array2D<T> &B);
+
+// sum, prod, cumsum, mean and max operators
+template <typename T> Array2D<T> sum(const Array2D<T> &A, const std::string &dim="");
+template <typename T> Array2D<T> cumsum(const Array2D<T> &A, const std::string &dim="");
+template <typename T> Array2D<T> mean(const Array2D<T> &A, const std::string &dim="");
+template <typename T> Array1D<T> max(const Array2D<T> &A, const std::string &dim="");
+template <typename T> Array1D<T> min(const Array2D<T> &A, const std::string &dim="");
+
+// variance operators
+template <typename T> Array2D<T> cov(const Array2D<T> &A);
+template <typename T> Array2D<T> var(const Array2D<T> &A);
+template <typename T> Array2D<T> covariance(const Array1D<T> &a);
+
+// distance operators
+template <typename T> T mahalanobisDistance(const Array2D<T> &A, const Array1D<T> &b);
+template <typename T> Array2D<T> mahalanobisDistance(const Array2D<T> &A, const Array2D<T> &B);
+
+// overloaded maths operators
+template <typename T> Array2D<T> log(const Array2D<T> &A);
+template <typename T> Array2D<T> exp(const Array2D<T> &A);
+template <typename T> Array2D<T> sqrt(const Array2D<T> &A);
+template <typename T> Array2D<T> fabs(const Array2D<T> &A);
+
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -835,17 +895,16 @@ Array2D<T> dist2(const Array2D<T> &A, const Array2D<T> &B)
 
 // B = sum(A, dim)
 template <typename T>
-Array2D<T> sum(const Array2D<T> &A, const std::string &dim="")
+Array2D<T> sum(const Array2D<T> &A, const std::string &dim)
 {
     if(A.dim1() == 0 && A.dim2() == 0)
         return Array2D<T>();
-
-    const int nm = A.dim1()*A.dim2();
 
     Array2D<T> B;
     if(((A.dim1() == 1) || (A.dim2() == 1)) && (dim == ""))
     {
         B = Array2D<T>(1, 1, T(0));
+        const int nm = A.dim1()*A.dim2();
         for(int i = 0; i < nm; i++)
             B(0) += A(i);
     }
@@ -871,13 +930,21 @@ Array2D<T> sum(const Array2D<T> &A, const std::string &dim="")
 
 // B = cumsum(A, dim)
 template <typename T>
-Array2D<T> cumsum(const Array2D<T> &A, const std::string &dim="rows")
+Array2D<T> cumsum(const Array2D<T> &A, const std::string &dim)
 {
     if(A.dim1() == 0 && A.dim2() == 0)
         return Array2D<T>();
 
     Array2D<T> B(A.dim1(), A.dim2());
-    if(dim == "rows")
+    if(((A.dim1() == 1) || (A.dim2() == 1)) && (dim == ""))
+    {
+        B = Array2D<T>(1, 1, T(0));
+        const int nm = A.dim1()*A.dim2();
+        B(0) = A(0);
+        for(int i = 1; i < nm; i++)
+            B(i) = B(i-1) + A(i);
+    }
+    else if((dim == "rows") || (dim == ""))
     {
         for(int j = 0; j < A.dim2(); j++)
             B(0, j) = A(0, j);
@@ -902,7 +969,7 @@ Array2D<T> cumsum(const Array2D<T> &A, const std::string &dim="rows")
 
 // B = mean(A, dim)
 template <typename T>
-Array2D<T> mean(const Array2D<T> &A, const std::string &dim="")
+Array2D<T> mean(const Array2D<T> &A, const std::string &dim)
 {
     if(A.dim1() == 0 && A.dim2() == 0)
         return Array2D<T>();
@@ -940,23 +1007,9 @@ Array2D<T> mean(const Array2D<T> &A, const std::string &dim="")
     return B;
 }
 
-// s = mean(a)
-template <typename T>
-T mean(const Array1D<T> &a)
-{
-    assert(a.dim1() > 0);
-
-    T m(0);
-    for(int i = 0; i < a.dim(); i++)
-        m += a[i];
-    m /= static_cast<T>(a.dim());
-
-    return m;
-}
-
 // B = max(A, dim)
 template <typename T>
-Array1D<T> max(const Array2D<T> &A, const std::string &dim="")
+Array1D<T> max(const Array2D<T> &A, const std::string &dim)
 {
     assert(A.dim1() > 0);
     assert(A.dim2() > 0);
@@ -999,7 +1052,7 @@ Array1D<T> max(const Array2D<T> &A, const std::string &dim="")
 
 // B = min(A, dim)
 template <typename T>
-Array1D<T> min(const Array2D<T> &A, const std::string &dim="")
+Array1D<T> min(const Array2D<T> &A, const std::string &dim)
 {
     if(A.dim1() == 0 && A.dim2() == 0)
         return Array1D<T>();
@@ -1038,62 +1091,6 @@ Array1D<T> min(const Array2D<T> &A, const std::string &dim="")
         assert(false);
 
     return B;
-}
-
-// s = sum(a)
-template <typename T>
-T sum(const Array1D<T> &a)
-{
-    int n = a.dim();
-
-    T s(0);
-    for(int i = 0; i < n; i++)
-        s += a[i];
-    return s;
-}
-
-// s = prod(a)
-template <typename T>
-T prod(const Array1D<T> &a)
-{
-    int n = a.dim();
-
-    assert(n > 0);
-
-    T prods(1);
-    for(int i = 0; i < n; i++)
-        prods *= a[i];
-    return prods;
-}
-
-// s = max(a)
-template <typename T>
-T max(const Array1D<T> &a)
-{
-    assert(a.dim() > 0);
-
-    int n = a.dim();
-
-    T s(a[0]);
-    for(int i = 1; i < n; i++)
-        if(a[i] > s)
-            s = a[i];
-    return s;
-}
-
-// s = min(a)
-template <typename T>
-T min(const Array1D<T> &a)
-{
-    assert(a.dim() > 0);
-
-    int n = a.dim();
-
-    T s(a[0]);
-    for(int i = 1; i < n; i++)
-        if(a[i] < s)
-            s = a[i];
-    return s;
 }
 
 
