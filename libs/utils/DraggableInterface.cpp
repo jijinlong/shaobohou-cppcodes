@@ -1,3 +1,5 @@
+#include "CrossPlatform.h"
+
 #include "DraggableInterface.h"
 
 //DraggableHandle implementation
