@@ -1,3 +1,5 @@
+#include "CrossPlatform.h"
+
 #include "OBBTree.h"
 
 #include "special.h"
