@@ -1,5 +1,5 @@
-#ifndef JAMA_CHOLESKY_H
-#define JAMA_CHOLESKY_H
+#ifndef JAMA_CHOL_H
+#define JAMA_CHOL_H
 
 #include "array1d.h"
 #include "array2d.h"

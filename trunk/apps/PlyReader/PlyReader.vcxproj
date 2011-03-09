@@ -84,6 +84,7 @@
     <ClCompile Include="..\..\libs\utils\CrossPlatform.cpp" />
     <ClCompile Include="..\..\libs\utils\GLUtils.cpp" />
     <ClCompile Include="..\..\libs\utils\Keybinding.cpp" />
+    <ClCompile Include="..\..\libs\utils\MiscUtils.cpp" />
     <ClCompile Include="..\..\libs\utils\QuakeCamera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
@@ -100,10 +101,14 @@
     <ClInclude Include="..\..\libs\utils\CrossPlatform.h" />
     <ClInclude Include="..\..\libs\utils\GLUtils.h" />
     <ClInclude Include="..\..\libs\utils\Keybinding.h" />
+    <ClInclude Include="..\..\libs\utils\MiscUtils.h" />
     <ClInclude Include="..\..\libs\utils\Movement.h" />
     <ClInclude Include="..\..\libs\utils\QuakeCamera.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\PlyReader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
