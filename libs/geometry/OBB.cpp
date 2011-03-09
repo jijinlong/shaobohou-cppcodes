@@ -1,3 +1,5 @@
+#include "CrossPlatform.h"
+
 #include "OBB.h"
 
 #include "special.h"

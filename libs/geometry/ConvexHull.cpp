@@ -1,3 +1,5 @@
+#include "CrossPlatform.h"
+
 #include "ConvexHull.h"
 
 #include "special.h"

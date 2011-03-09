@@ -1,3 +1,5 @@
+#include "CrossPlatform.h"
+
 #include "Polytope.h"
 
 #include "special.h"
