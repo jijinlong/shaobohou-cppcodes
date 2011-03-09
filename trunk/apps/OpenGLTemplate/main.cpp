@@ -1,3 +1,5 @@
+#include "CrossPlatform.h"
+
 #include <GL/glut.h>
 
 #include "QuakeCamera.h"

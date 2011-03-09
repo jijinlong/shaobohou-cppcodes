@@ -9,6 +9,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EarleyParser", "..\apps\Ear
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlyReader", "..\apps\PlyReader\PlyReader.vcxproj", "{B5DC3703-5270-4BA0-8644-E1B7D52674EF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLTemplate", "..\apps\OpenGLTemplate\OpenGLTemplate.vcxproj", "{2F4339AB-5F0E-4BB9-B542-7FCAD071E30E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLSelection", "..\apps\OpenGLSelection\OpenGLSelection.vcxproj", "{3FC60AF1-BAAC-4101-A49D-C96A9D79CACD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -31,6 +35,14 @@ Global
 		{B5DC3703-5270-4BA0-8644-E1B7D52674EF}.Debug|Win32.Build.0 = Debug|Win32
 		{B5DC3703-5270-4BA0-8644-E1B7D52674EF}.Release|Win32.ActiveCfg = Release|Win32
 		{B5DC3703-5270-4BA0-8644-E1B7D52674EF}.Release|Win32.Build.0 = Release|Win32
+		{2F4339AB-5F0E-4BB9-B542-7FCAD071E30E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2F4339AB-5F0E-4BB9-B542-7FCAD071E30E}.Debug|Win32.Build.0 = Debug|Win32
+		{2F4339AB-5F0E-4BB9-B542-7FCAD071E30E}.Release|Win32.ActiveCfg = Release|Win32
+		{2F4339AB-5F0E-4BB9-B542-7FCAD071E30E}.Release|Win32.Build.0 = Release|Win32
+		{3FC60AF1-BAAC-4101-A49D-C96A9D79CACD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3FC60AF1-BAAC-4101-A49D-C96A9D79CACD}.Debug|Win32.Build.0 = Debug|Win32
+		{3FC60AF1-BAAC-4101-A49D-C96A9D79CACD}.Release|Win32.ActiveCfg = Release|Win32
+		{3FC60AF1-BAAC-4101-A49D-C96A9D79CACD}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

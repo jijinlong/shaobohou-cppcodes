@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{B5DC3703-5270-4BA0-8644-E1B7D52674EF}</ProjectGuid>
+    <ProjectGuid>{3FC60AF1-BAAC-4101-A49D-C96A9D79CACD}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>PlyReader</RootNamespace>
+    <RootNamespace>OpenGLSelection</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -46,8 +46,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\libs\linearalgebra\tnt;..\..\libs\linearalgebra;..\..\apps\PlyReader\src;..\..\libs\maths;..\..\libs\utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalIncludeDirectories>..\..\libs\geometry;..\..\libs\utils;..\..\libs\maths;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -72,36 +71,36 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\libs\geometry\GraphicsMaths.cpp" />
     <ClCompile Include="..\..\libs\maths\Matrix3x3.cpp" />
     <ClCompile Include="..\..\libs\maths\Quaternion.cpp" />
     <ClCompile Include="..\..\libs\maths\special.cpp" />
+    <ClCompile Include="..\..\libs\maths\Vector2D.cpp" />
     <ClCompile Include="..\..\libs\maths\Vector3D.cpp" />
     <ClCompile Include="..\..\libs\utils\BasicCamera.cpp" />
     <ClCompile Include="..\..\libs\utils\CrossPlatform.cpp" />
+    <ClCompile Include="..\..\libs\utils\DraggableInterface.cpp" />
     <ClCompile Include="..\..\libs\utils\GLUtils.cpp" />
     <ClCompile Include="..\..\libs\utils\Keybinding.cpp" />
-    <ClCompile Include="..\..\libs\utils\MiscUtils.cpp" />
     <ClCompile Include="..\..\libs\utils\QuakeCamera.cpp" />
+    <ClCompile Include="..\..\libs\utils\QuatCamera.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="src\Mesh.cpp" />
-    <ClCompile Include="src\PlyReader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\libs\linearalgebra\tnt\array1d.h" />
-    <ClInclude Include="..\..\libs\linearalgebra\tnt\array2d.h" />
+    <ClInclude Include="..\..\libs\geometry\GraphicsMaths.h" />
     <ClInclude Include="..\..\libs\maths\Matrix3x3.h" />
     <ClInclude Include="..\..\libs\maths\Quaternion.h" />
     <ClInclude Include="..\..\libs\maths\special.h" />
+    <ClInclude Include="..\..\libs\maths\Vector2D.h" />
     <ClInclude Include="..\..\libs\maths\Vector3D.h" />
     <ClInclude Include="..\..\libs\utils\BasicCamera.h" />
     <ClInclude Include="..\..\libs\utils\CrossPlatform.h" />
+    <ClInclude Include="..\..\libs\utils\DraggableInterface.h" />
     <ClInclude Include="..\..\libs\utils\GLUtils.h" />
     <ClInclude Include="..\..\libs\utils\Keybinding.h" />
-    <ClInclude Include="..\..\libs\utils\MiscUtils.h" />
     <ClInclude Include="..\..\libs\utils\Movement.h" />
     <ClInclude Include="..\..\libs\utils\QuakeCamera.h" />
-    <ClInclude Include="src\Mesh.h" />
-    <ClInclude Include="src\PlyReader.h" />
+    <ClInclude Include="..\..\libs\utils\QuatCamera.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
