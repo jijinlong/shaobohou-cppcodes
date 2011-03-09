@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B2B72049-7417-435C-B5F5-2D617266FA3D}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>GameEngine3D</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;..\..\libs\geometry;..\..\libs\physics;..\..\libs\utils;..\..\libs\maths;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\libs\geometry\ConvexHull.cpp" />
+    <ClCompile Include="..\..\libs\geometry\GraphicsMaths.cpp" />
+    <ClCompile Include="..\..\libs\geometry\OBB.cpp" />
+    <ClCompile Include="..\..\libs\geometry\OBBTree.cpp" />
+    <ClCompile Include="..\..\libs\geometry\Polytope.cpp" />
+    <ClCompile Include="..\..\libs\geometry\SupportMappable.cpp" />
+    <ClCompile Include="..\..\libs\maths\Integrator.cpp" />
+    <ClCompile Include="..\..\libs\maths\Matrix3x3.cpp" />
+    <ClCompile Include="..\..\libs\maths\Quaternion.cpp" />
+    <ClCompile Include="..\..\libs\maths\special.cpp" />
+    <ClCompile Include="..\..\libs\maths\Vector2D.cpp" />
+    <ClCompile Include="..\..\libs\maths\Vector3D.cpp" />
+    <ClCompile Include="..\..\libs\physics\collision.cpp" />
+    <ClCompile Include="..\..\libs\physics\inertia.cpp" />
+    <ClCompile Include="..\..\libs\physics\RigidBody.cpp" />
+    <ClCompile Include="..\..\libs\utils\BasicCamera.cpp" />
+    <ClCompile Include="..\..\libs\utils\CrossPlatform.cpp" />
+    <ClCompile Include="..\..\libs\utils\GLUtils.cpp" />
+    <ClCompile Include="..\..\libs\utils\Keybinding.cpp" />
+    <ClCompile Include="..\..\libs\utils\MiscUtils.cpp" />
+    <ClCompile Include="..\..\libs\utils\QuakeCamera.cpp" />
+    <ClCompile Include="..\..\libs\utils\QuatCamera.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\GenericShip.cpp" />
+    <ClCompile Include="src\Object.cpp" />
+    <ClCompile Include="src\SpaceFlightBody.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\libs\geometry\ConvexHull.h" />
+    <ClInclude Include="..\..\libs\geometry\GraphicsMaths.h" />
+    <ClInclude Include="..\..\libs\geometry\OBB.h" />
+    <ClInclude Include="..\..\libs\geometry\OBBTree.h" />
+    <ClInclude Include="..\..\libs\geometry\Polytope.h" />
+    <ClInclude Include="..\..\libs\geometry\SupportMappable.h" />
+    <ClInclude Include="..\..\libs\maths\Integrator.h" />
+    <ClInclude Include="..\..\libs\maths\Matrix3x3.h" />
+    <ClInclude Include="..\..\libs\maths\Quaternion.h" />
+    <ClInclude Include="..\..\libs\maths\special.h" />
+    <ClInclude Include="..\..\libs\maths\Vector2D.h" />
+    <ClInclude Include="..\..\libs\maths\Vector3D.h" />
+    <ClInclude Include="..\..\libs\physics\collision.h" />
+    <ClInclude Include="..\..\libs\physics\inertia.h" />
+    <ClInclude Include="..\..\libs\physics\RigidBody.h" />
+    <ClInclude Include="..\..\libs\utils\BasicCamera.h" />
+    <ClInclude Include="..\..\libs\utils\CrossPlatform.h" />
+    <ClInclude Include="..\..\libs\utils\GLUtils.h" />
+    <ClInclude Include="..\..\libs\utils\Keybinding.h" />
+    <ClInclude Include="..\..\libs\utils\MiscUtils.h" />
+    <ClInclude Include="..\..\libs\utils\Movement.h" />
+    <ClInclude Include="..\..\libs\utils\QuakeCamera.h" />
+    <ClInclude Include="..\..\libs\utils\QuatCamera.h" />
+    <ClInclude Include="src\GenericShip.h" />
+    <ClInclude Include="src\Object.h" />
+    <ClInclude Include="src\SpaceFlightBody.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
