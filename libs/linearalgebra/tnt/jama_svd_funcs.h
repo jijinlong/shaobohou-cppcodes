@@ -1,5 +1,5 @@
-#ifndef PINV_H
-#define PINV_H
+#ifndef JAMA_SVD_FUNCS_H
+#define JAMA_SVD_FUNCS_H
 
 #include "jama_svd.h"
 
