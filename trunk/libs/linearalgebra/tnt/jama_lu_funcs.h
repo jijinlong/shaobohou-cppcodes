@@ -23,7 +23,7 @@ Array2D<T> inv(const Array2D<T> &A)
 template <typename T>
 Array2D<T> inv(const Array2D<T> &A, T &det)
 {
-    assert(isSquareMatrix(A));
+    assert(square(A));
 
 	JAMA::LU<T> lu(A);
     det = lu.det();

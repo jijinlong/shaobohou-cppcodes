@@ -13,18 +13,18 @@ Array2D<T> pinv(const Array2D<T> &A, bool include_nullspace=false)
     Array2D<T> U = svd.getU();
     Array2D<T> S = svd.getS();
     Array2D<T> V = svd.getV();
-    Array1D<T> s = diag(S);
+    Array2D<T> s = diag(S);
 
     int count = 0;
-    T tol(std::min(S.dim1(), S.dim2())*2.2204e-16*max(diag(S)));
-    for(int i = 0; i < s.dim(); i++)
-        if(s[i] > tol)
+    T tol(std::min(S.dim1(), S.dim2())*2.2204e-16*max(diag(S).vector()));
+    for(int i = 0; i < s.size(); i++)
+        if(s(i) > tol)
         {
-            s[i] = T(1.0)/s[i];
+            s(i) = T(1.0)/s(i);
             count++;
         }
         else
-            s[i] = 0.0;
+            s(i) = 0.0;
 
     assert(count > 0);
     Array2D<double> inv1 = getcols(V, 0, count-1) * diag(s) * transpose(getcols(U, 0, count-1));
