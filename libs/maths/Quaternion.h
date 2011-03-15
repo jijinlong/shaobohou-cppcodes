@@ -2,7 +2,6 @@
 #define QUATERNION_H
 
 #include "Vector3D.h"
-#include "Matrix3x3.h"
 
 class Quaternion
 {
@@ -40,9 +39,7 @@ class Quaternion
 
         static Quaternion makeFromAxisAngle(const Vector3D &axis, double angle); 	//take angle in radian
         static Quaternion makeFromEulerAngles(double roll, double pitch, double yaw); 	//takes parameters in radian
-        static Quaternion makeFromRotationMatrix(const Matrix3x3 &matrix);
         Vector3D makeEulerAngles() const;			//return answer in radians
-        Matrix3x3 makeRotationMatrix() const;
 
         double& operator[](unsigned int selection);
         const double& operator[](unsigned int selection) const;

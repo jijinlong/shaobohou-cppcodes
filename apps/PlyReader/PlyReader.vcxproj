@@ -72,7 +72,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\libs\maths\Matrix3x3.cpp" />
     <ClCompile Include="..\..\libs\maths\Quaternion.cpp" />
     <ClCompile Include="..\..\libs\maths\special.cpp" />
     <ClCompile Include="..\..\libs\maths\Vector3D.cpp" />
@@ -89,7 +88,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\libs\linearalgebra\tnt\array1d.h" />
     <ClInclude Include="..\..\libs\linearalgebra\tnt\array2d.h" />
-    <ClInclude Include="..\..\libs\maths\Matrix3x3.h" />
     <ClInclude Include="..\..\libs\maths\Quaternion.h" />
     <ClInclude Include="..\..\libs\maths\special.h" />
     <ClInclude Include="..\..\libs\maths\Vector3D.h" />

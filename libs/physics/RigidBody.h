@@ -3,6 +3,7 @@
 
 #include "Integrator.h"
 #include "Quaternion.h"
+#include "Matrix3x3.h"
 
 //linear and angular momentum is better as they can be conserved
 

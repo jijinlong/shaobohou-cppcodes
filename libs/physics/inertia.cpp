@@ -22,8 +22,8 @@ Matrix3x3 getSphereInertia(double radius, double mass)
 
 Matrix3x3 getGlobalInertia(const Quaternion &orientation, const Matrix3x3 &inertia)
 {
-    Matrix3x3   o = orientation.makeRotationMatrix(),
-                  oT = o.transpose();
+    Matrix3x3 rot(orientation);
+    Matrix3x3 rotT = rot.transpose();
 
-    return o * inertia * oT;
+    return rot * inertia * rotT;
 }

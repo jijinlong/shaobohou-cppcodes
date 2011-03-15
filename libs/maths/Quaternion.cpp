@@ -199,49 +199,6 @@ Quaternion Quaternion::makeFromEulerAngles(double roll, double pitch, double yaw
     return q;
 }
 
-Quaternion Quaternion::makeFromRotationMatrix(const Matrix3x3 &matrix)
-{
-    double m00 = matrix(0, 0), m11 = matrix(1, 1), m22 = matrix(2, 2);
-    double tr = m00 + m11 + m22 + 1.0;
-
-    double w, x, y, z;
-    if (tr > smallest_tol)
-    {
-        double s = 0.5 / sqrt(tr);
-        w = 0.25 / s;
-
-        x = (matrix(2, 1) - matrix(1, 2)) * s;
-        y = (matrix(0, 2) - matrix(2, 0)) * s;
-        z = (matrix(1, 0) - matrix(0, 1)) * s;
-    }
-    else
-    {
-        unsigned int i = 0;
-        if (m11 > m00) i = 1;
-        if (m22 > matrix(i, i)) i = 2;
-
-        unsigned int j = (i + 1) % 3;
-        unsigned int k = (j + 1) % 3;
-
-        double s = sqrt(matrix(i, i) - matrix(j, j) + matrix(k, k) + 1.0);
-
-        double q[4];
-        q[i] = s * 0.5;
-        if (fabs(s) > smallest_tol) s = 0.5 / s;
-
-        q[3] = (matrix(j, k) - matrix(k, j)) * s;
-        q[j] = (matrix(i, j) + matrix(j, i)) * s;
-        q[k] = (matrix(i, k) + matrix(k, i)) * s;
-
-        w = q[3]; x = q[0]; y = q[1]; z = q[2];
-    }
-
-    Quaternion q(w, Vector3D(x, y, z));
-    q.normalise();
-
-    return q;
-}
-
 //output in radian
 Vector3D Quaternion::makeEulerAngles() const
 {
@@ -274,15 +231,6 @@ Vector3D Quaternion::makeEulerAngles() const
     }
 
     return u;
-}
-
-Matrix3x3 Quaternion::makeRotationMatrix() const
-{
-    double q00 = w*w, q11 = x*x, q22 = y*y, q33 = z*z;
-
-    return  Matrix3x3( q00 + q11 - q22 - q33, 2.0 * (x*y - w*z), 2.0 * (x*z + w*y),
-                       2.0 * (x*y + w*z), q00 - q11 + q22 - q33, 2.0 * (y*z - w*x),
-                       2.0 * (x*z - w*y), 2.0 * (y*z + w*x), q00 - q11 - q22 + q33);
 }
 
 double& Quaternion::operator[](unsigned int selection)
