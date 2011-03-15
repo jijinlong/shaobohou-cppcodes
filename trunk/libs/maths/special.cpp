@@ -11,6 +11,9 @@ using std::swap;
 using std::vector;
 
 
+const double EPSILON = 1.1921e-007;
+const double DOUBLE_EPSILON = 2.2204e-016;
+const double PI = 3.14159265358979323851280895940618620443274267017841339111328125;
 const double INV_RAND_MAX = 1.0 / static_cast<double>(RAND_MAX);
 const double realmin = std::numeric_limits<double>::min();
 const double realmax = std::numeric_limits<double>::max();
@@ -75,16 +78,6 @@ double normal_rand(double mu, double stddev)
     return normal_rand()*stddev + mu;
 }
 
-double deg2rad(double degree)
-{
-    return degree * pi / 180.0;
-}
-
-double rad2deg(double radian)
-{
-    return radian * 180.0 / pi;
-}
-
 double cot(double x)
 {
     return 1.0/tan(x);
@@ -127,11 +120,11 @@ double gammaln(double x)
     assert(x > 0.0);
 
     //0 <= x <= eps
-    if (x < double_epsilon)
+    if (x < DOUBLE_EPSILON)
         return -log(x);
 
     // eps < x <= 0.5
-    if ((x > double_epsilon) && (x <= 0.5))
+    if ((x > DOUBLE_EPSILON) && (x <= 0.5))
     {
         double y = x;
         double xden = 1;
@@ -230,7 +223,7 @@ double digamma(double x)
 {
     const double large = 9.5;
     const double d1 = -0.5772156649015328606065121;  // digamma(1)
-    const double d2 = (pi*pi)/6.0;
+    const double d2 = (PI*PI)/6.0;
     const double small = 1e-6;
     const double s3 = 1.0/12.0;
     const double s4 = 1.0/120.0;
@@ -244,7 +237,7 @@ double digamma(double x)
     double y = 0.0;
 
     if(x < 0.0)
-        y = digamma(-x+1.0) + pi*cot(-pi*x);
+        y = digamma(-x+1.0) + PI*cot(-PI*x);
 
     if (x == 0.0)
         y = -HUGE_VAL;
@@ -301,38 +294,6 @@ double binom(unsigned int k, unsigned int n, double p)
     }
 }
 
-unsigned int solve_quadratic(double a, double b, double c, double &result0, double &result1)
-{
-    double determinant = b * b - 4.0 * a * c;
-
-    if (determinant > smallest_tol)	//has real roots
-    {
-        double d_2 = sqrt(determinant);
-        double t0 = (-b - d_2) / (2.0 * a);
-        double t1 = (-b + d_2) / (2.0 * a);
-
-        if (t0 > t1)
-        {
-            result0 = t0;
-            result1 = t1;
-        }
-        else
-        {
-            result0 = t1;
-            result1 = t0;
-        }
-
-        return 2;
-    }
-    else if (fabs(determinant) < smallest_tol)
-    {
-        result0 = (- b - sqrt(determinant)) / (2.0 * a);
-        return 1;
-    }
-    else
-        return 0;
-}
-
 unsigned int solve_cubic(double o, double p, double q, double r, double &result0, double &result1, double &result2)
 {
     double c2 = p / o;
@@ -344,17 +305,17 @@ unsigned int solve_cubic(double o, double p, double q, double r, double &result0
     double determinant = ((b * b) / 4.0) + ((a * a * a) / 27.0);
 
     double t[3] = {0.0, 0.0, 0.0};
-    if (determinant > smallest_tol)      //only one real root
+    if (determinant > EPSILON)      //only one real root
     {
         double sqrtQ = sqrt(determinant);
         double temp1 = -b / 2.0 + sqrtQ;
         double temp2 = -b / 2.0 - sqrtQ;
 
-        if (fabs(temp1) < smaller_tol) temp1 = 0.0;
-        if (fabs(temp2) < smaller_tol) temp2 = 0.0;
+        if (fabs(temp1) < EPSILON) temp1 = 0.0;
+        if (fabs(temp2) < EPSILON) temp2 = 0.0;
         t[0] = cbrt(temp1) + cbrt(temp2);
     }
-    else if (determinant < -smallest_tol) //three distinct real roots
+    else if (determinant < -EPSILON) //three distinct real roots
     {
         double theta = atan2(sqrt(-determinant), -b / 2.0);
         double phi = sqrt((b * b) / 4.0 - determinant);
@@ -378,14 +339,14 @@ unsigned int solve_cubic(double o, double p, double q, double r, double &result0
     t[1] -= c2 / 3.0;
     t[2] -= c2 / 3.0;
 
-    if (determinant > smallest_tol)      //only one real root
+    if (determinant > EPSILON)      //only one real root
     {
         result0 = t[0];
         result1 = 0.0;
         result2 = 0.0;
         return 1;
     }
-    else if (determinant < -smallest_tol) //three distinct real roots
+    else if (determinant < -EPSILON) //three distinct real roots
     {
         while ((t[0] < t[1]) || (t[1] < t[2]))
         {

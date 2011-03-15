@@ -10,10 +10,6 @@
 #include <cassert>
 #include <iostream>
 
-// #define RIGHT -1
-// #define LEFT 1
-// #define ON_LINE 0
-
 
 // simple LineSegment class
 template <typename T>
@@ -90,7 +86,7 @@ class ConvexPolygon
 
 
 // point-line relation
-extern const int left_of_line, on_the_line, right_of_line;
+extern const int LEFT_OF_LINE, ON_THE_LINE, RIGHT_FLINE;
 int pointLineRelation(const Vector2D &start, const Vector2D &end, const Vector2D &point);
 int pointLineRelation(const LineSegment<Vector2D> &line, const Vector2D &point);
 int pointLineRelationXY(const Vector3D &start, const Vector3D &end, const Vector3D &point);

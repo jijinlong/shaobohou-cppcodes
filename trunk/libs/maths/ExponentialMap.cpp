@@ -1,9 +1,7 @@
 #include "ExponentialMap.h"
 
-#include "special.h"
-
 const double minAngle = 1.0e-7;
-const double cutoffAngle = pi;
+const double cutoffAngle = PI;
 
 Quaternion exp(const Vector3D &v)
 {
@@ -22,7 +20,7 @@ Quaternion exp(const Vector3D &v)
 
 Vector3D log(const Quaternion &q)
 {
-    Vector3D axis = q.getAxis();
+    Vector3D axis = q.axis();
     double angle = 2.0 * acos(q[0]);
 
     return axis * angle;
@@ -36,9 +34,9 @@ bool reparameterise(Vector3D &v)
     if (theta > cutoffAngle)
     {
         double scale = theta;
-        if (theta > twoPi)
+        if (theta > TWO_PI)
         {
-            theta = fmod(theta, twoPi);
+            theta = fmod(theta, TWO_PI);
             scale = theta / scale;
             v = v * scale;
             status = true;
@@ -46,8 +44,8 @@ bool reparameterise(Vector3D &v)
         if (theta > cutoffAngle)
         {
             scale = theta;
-            theta = twoPi - theta;
-            scale = 1.0 - (twoPi / scale);
+            theta = TWO_PI - theta;
+            scale = 1.0 - (TWO_PI / scale);
             v  = v * scale;
             status = true;
         }

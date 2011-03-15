@@ -1,25 +1,56 @@
 #include "GraphicsMaths.h"
 
-#include "special.h"
-
 #include <cassert>
 #include <algorithm>
 
 using std::vector;
 
-const int left_of_line = 1;
-const int on_the_line = 0;
-const int right_of_line = -1;
+const int LEFT_OF_LINE = 1;
+const int ON_THE_LINE = 0;
+const int RIGHT_OF_LINE = -1;
+
+unsigned int solveQuadratic(double a, double b, double c, double &result0, double &result1)
+{
+    double determinant = b * b - 4.0 * a * c;
+
+    if (determinant > EPSILON)	//has real roots
+    {
+        double d_2 = sqrt(determinant);
+        double t0 = (-b - d_2) / (2.0 * a);
+        double t1 = (-b + d_2) / (2.0 * a);
+
+        if (t0 > t1)
+        {
+            result0 = t0;
+            result1 = t1;
+        }
+        else
+        {
+            result0 = t1;
+            result1 = t0;
+        }
+
+        return 2;
+    }
+    else if (fabs(determinant) < EPSILON)
+    {
+        result0 = (- b - sqrt(determinant)) / (2.0 * a);
+        return 1;
+    }
+    else
+        return 0;
+}
+
 int pointLineRelation(const Vector2D &start, const Vector2D &end, const Vector2D &point)
 {
     double orientation = (end[0] - start[0]) * (point[1] - start[1]) - (point[0] - start[0]) * (end[1] - start[1]);
 
-    if (orientation > smallest_tol)
-        return left_of_line;
-    else if (orientation < -smallest_tol)
-        return right_of_line;
+    if (orientation > EPSILON)
+        return LEFT_OF_LINE;
+    else if (orientation < -EPSILON)
+        return RIGHT_OF_LINE;
     else
-        return on_the_line;
+        return ON_THE_LINE;
 }
 
 int pointLineRelation(const LineSegment<Vector2D> &line, const Vector2D &point)
@@ -171,7 +202,7 @@ bool intersectRaySphere(const Ray &ray, const Sphere &sphere, double &t)
     double C = (ray.origin - sphere.position) * (ray.origin - sphere.position) - sphere.radius * sphere.radius;
 
     double t0, t1;
-    unsigned numRoots = solve_quadratic(A, B, C, t0, t1);
+    unsigned numRoots = solveQuadratic(A, B, C, t0, t1);
 
     if(numRoots == 2)
     {
@@ -217,7 +248,7 @@ void polygonClipping(const vector<Vector3D> &clippee, const vector<Vector3D> &cl
         Vector3D prev = polygon[0];
 
         //check first point
-        if (pointLineRelationXY(lineStart, lineEnd, polygon[0]) == right_of_line)
+        if (pointLineRelationXY(lineStart, lineEnd, polygon[0]) == RIGHT_OF_LINE)
             it = polygon.erase(it);
         else
             it++;
@@ -228,8 +259,8 @@ void polygonClipping(const vector<Vector3D> &clippee, const vector<Vector3D> &cl
             int prevStatus = pointLineRelationXY(lineStart, lineEnd, prev);
             int currentStatus = pointLineRelationXY(lineStart, lineEnd, current);
 
-            if (((prevStatus == left_of_line) && (currentStatus == right_of_line)) ||
-                    ((prevStatus == right_of_line) && (currentStatus == left_of_line)))
+            if (((prevStatus == LEFT_OF_LINE) && (currentStatus == RIGHT_OF_LINE)) ||
+                    ((prevStatus == RIGHT_OF_LINE) && (currentStatus == LEFT_OF_LINE)))
             { //intersecting clipping line, need to compute intersection
                 Vector3D intersection;
 //                 lineIntersection(intersection, lineStart, lineEnd, prev, current);
@@ -240,12 +271,12 @@ void polygonClipping(const vector<Vector3D> &clippee, const vector<Vector3D> &cl
                 it = polygon.insert(it, intersection);
                 it++; //move back to current as insert() insert in front of it
 
-                if (currentStatus == right_of_line)
+                if (currentStatus == RIGHT_OF_LINE)
                     it = polygon.erase(it);    //it moved to next element of vector
                 else
                     it++;
             }
-            else if (currentStatus == right_of_line) //current point not in clipper and no intersection
+            else if (currentStatus == RIGHT_OF_LINE) //current point not in clipper and no intersection
                 it = polygon.erase(it);
             else
                 it++;
@@ -258,8 +289,8 @@ void polygonClipping(const vector<Vector3D> &clippee, const vector<Vector3D> &cl
         {
             int prevStatus = pointLineRelationXY(lineStart, lineEnd, prev);
             int firstStatus = pointLineRelationXY(lineStart, lineEnd, first);
-            if (((prevStatus == left_of_line) && (firstStatus == right_of_line)) ||
-                    ((prevStatus == right_of_line) && (firstStatus == left_of_line)))
+            if (((prevStatus == LEFT_OF_LINE) && (firstStatus == RIGHT_OF_LINE)) ||
+                    ((prevStatus == RIGHT_OF_LINE) && (firstStatus == LEFT_OF_LINE)))
             {
                 Vector3D intersection;
 //                 lineIntersection(intersection, lineStart, lineEnd, prev, first);
@@ -287,7 +318,7 @@ bool computePlane(const vector<Vector3D> &points, const Vector3D &normal, Vector
     for (unsigned int i = 1; i < points.size(); i++) //find an abitrary xAxis
     {
         diff =  points[i] - points[0];
-        if ((diff * diff) > tol)
+        if ((diff * diff) > EPSILON)
         {
             xAxis = diff;
             xAxis.normalise();
@@ -295,10 +326,10 @@ bool computePlane(const vector<Vector3D> &points, const Vector3D &normal, Vector
         }
     }
 
-    if ((xAxis * xAxis) < tol)  //all points are too close together
+    if ((xAxis * xAxis) < EPSILON)  //all points are too close together
         return false;
 
-    Quaternion toY = Quaternion::makeFromAxisAngle(normal, halfPi);
+    Quaternion toY = Quaternion::makeFromAxisAngle(normal, HALF_PI);
     yAxis = toY.rotate(xAxis);
 
     return true;
@@ -306,7 +337,7 @@ bool computePlane(const vector<Vector3D> &points, const Vector3D &normal, Vector
 
 bool planeMap(const vector<Vector3D> &points, const Vector3D &origin, const Vector3D &xAxis, const Vector3D &yAxis, vector<Vector3D> &newPoints)
 {
-    if (((xAxis * xAxis) < tol) || ((yAxis * yAxis) < tol))
+    if (((xAxis * xAxis) < EPSILON) || ((yAxis * yAxis) < EPSILON))
         return false;
 
     double x, y;
@@ -323,7 +354,7 @@ bool planeMap(const vector<Vector3D> &points, const Vector3D &origin, const Vect
 
 bool inversePlaneMap(const vector<Vector3D> &points, const Vector3D &origin, const Vector3D &xAxis, const Vector3D &yAxis, vector<Vector3D> &newPoints)
 {
-    if (((xAxis * xAxis) < tol) || ((yAxis * yAxis) < tol))
+    if (((xAxis * xAxis) < EPSILON) || ((yAxis * yAxis) < EPSILON))
         return false;
 
     for (unsigned int i = 0; i < points.size(); i++)

@@ -4,10 +4,24 @@
 #include <cmath>
 #include <string>
 
-#include "special.h"
-
 using std::string;
 using std::ostringstream;
+
+
+const double PI = 3.14159265358979323851280895940618620443274267017841339111328125;
+const double TWO_PI  = PI*2.0;
+const double HALF_PI = PI/2.0;
+
+double deg2rad(double degree)
+{
+    return degree * PI / 180.0;
+}
+
+double rad2deg(double radian)
+{
+    return radian * 180.0 / PI;
+}
+
 
 Quaternion::Quaternion()
 {
@@ -137,20 +151,20 @@ Quaternion operator*(const Vector3D &v, const Quaternion &q)
                        vz*qw + vx*qy - vy*qx);
 }
 
-double Quaternion::getAngle() const
+double Quaternion::angle() const
 {
     return (2.0 * acos(w));
 }
 
-Vector3D Quaternion::getAxis() const
+Vector3D Quaternion::axis() const
 {
-    Vector3D axis(x, y, z);
-    axis.normalise();
+    Vector3D myaxis(x, y, z);
+    myaxis.normalise();
 
-    if (axis.magnitude() < smaller_tol)
-        axis = Vector3D(1.0, 0.0, 0.0);
+    if(myaxis.magnitude() < EPSILON)
+        myaxis = Vector3D(1.0, 0.0, 0.0);
 
-    return axis;
+    return myaxis;
 }
 
 Quaternion Quaternion::rotate(const Quaternion &q) const
@@ -170,7 +184,7 @@ Quaternion Quaternion::makeFromAxisAngle(const Vector3D &axis, double angle)
 {
     double result = sin(0.5 * angle);
 
-    if ((fabs(axis[0]) < smallest_tol) && (fabs(axis[1]) < smallest_tol) && (fabs(axis[2]) < smallest_tol))
+    if ((fabs(axis[0]) < EPSILON) && (fabs(axis[1]) < EPSILON) && (fabs(axis[2]) < EPSILON))
         return Quaternion(1.0, 0.0, 0.0, 0.0);
 
     Vector3D at = axis * result;
@@ -219,9 +233,9 @@ Vector3D Quaternion::makeEulerAngles() const
         r12 = 2.0 * (x*y - w*z);
         r13 = 2.0 * (x*z + w*y);
 
-        u[0] = rad2deg(0.0);                    //roll
-        u[1] = rad2deg(-(pi / 2.0) * r31 / temp);     //pitch
-        u[2] = rad2deg(atan2(-r12, -r31 * r13));//yaw
+        u[0] = 0.0;                    //roll
+        u[1] = -(PI / 2.0) * r31 / temp;     //pitch
+        u[2] = atan2(-r12, -r31 * r13);//yaw
     }
     else
     {

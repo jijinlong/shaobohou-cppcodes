@@ -2,9 +2,11 @@
 
 #include "OBB.h"
 
-#include "special.h"
-
 #include <cmath>
+
+
+const double NEAR_ONE = 0.999999;
+
 
 OBB::OBB()
 {
@@ -134,7 +136,7 @@ bool OBB::testIntersection(const OBB &obb0, const OBB &obb1)
         {
             c[i][j] = (obb0.axes[i]) * (obb1.axes[j]);
             absC[i][j] = fabs(c[i][j]);
-            if (absC[i][j] > near_one) existsParallelPair = true;
+            if (absC[i][j] > NEAR_ONE) existsParallelPair = true;
         }
 
         d[i] = diff * (obb0.axes[i]);

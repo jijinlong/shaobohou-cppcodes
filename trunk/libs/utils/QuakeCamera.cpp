@@ -1,6 +1,5 @@
 #include "QuakeCamera.h"
 
-#include "special.h"
 
 QuakeCamera::QuakeCamera()
 {
@@ -23,17 +22,20 @@ QuakeCamera::~QuakeCamera()
 
 void QuakeCamera::modOrientation(double rotateX, double rotateY, double rotateZ)
 {
+    const double TWO_PI = PI*2.0;
+    const double HALF_PI = PI*0.5;
+
     double newLon = lon + rotateY;
     double newLat = lat + rotateX;
 
     if (newLon < 0.0)
-        lon = newLon + twoPi;
-    else if (newLon > twoPi)
-        lon = newLon - twoPi;
+        lon = newLon + TWO_PI;
+    else if (newLon > TWO_PI)
+        lon = newLon - TWO_PI;
     else
         lon = newLon;
 
-    if ((newLat > -halfPi) && (newLat < halfPi))
+    if ((newLat > -HALF_PI) && (newLat < HALF_PI))
         lat = newLat;
 
     //need to stack rotation this way to achieve desired Quake cam effect
@@ -48,7 +50,7 @@ void QuakeCamera::modOrientation(double changeX, double changeY)
 
 void QuakeCamera::reset()
 {
-    lon = pi;
+    lon = PI;
     lat = 0.0;
     position = Vector3D();
     modOrientation(0.0, 0.0, 0.0);

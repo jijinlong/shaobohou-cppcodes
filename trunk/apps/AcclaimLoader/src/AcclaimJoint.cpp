@@ -1,7 +1,5 @@
 #include "AcclaimJoint.h"
 
-#include "special.h"
-
 #include <cmath>
 #include <cassert>
 

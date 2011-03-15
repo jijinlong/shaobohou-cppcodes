@@ -6,6 +6,7 @@
 #include "collision.h"
 #include "inertia.h"
 #include "GraphicsMaths.h"
+#include "GLUtils.h"
 
 #include <cstdlib>
 
@@ -18,8 +19,8 @@ unsigned int obbLevel = 0;
 
 int main(int argc, char *argv[])
 {
-    first = QuatCamera(Vector3D(), Quaternion::makeFromEulerAngles(0.0, pi / 2.0, 0.0), 10.0, 3.0, 1.0);
-    second = QuakeCamera(Vector3D(), 0.0, pi / 4.0, 10.0, 3.0, 1.0);
+    first = QuatCamera(Vector3D(), Quaternion::makeFromEulerAngles(0.0, PI / 2.0, 0.0), 10.0, 3.0, 1.0);
+    second = QuakeCamera(Vector3D(), 0.0, PI / 4.0, 10.0, 3.0, 1.0);
     current = &first;
 
 //had to use pointer for testShip because otherwise, if use assignment, the RHS will be deleted from stack
@@ -400,7 +401,7 @@ void draw_opengl()
     Vector3D pos = testShip2->pInfo.getPosition();
     Quaternion ori = testShip2->pInfo.getOrientation();
     glTranslatef(pos[0], pos[1] + 2.0, pos[2]);
-    glRotatef(rad2deg(ori.getAngle()), ori.getAxis()[0], ori.getAxis()[1], ori.getAxis()[2]);
+    glRotate(ori);
     glBegin(GL_LINE_LOOP);
     for (unsigned int i = 0; i < hull.getVertices().size(); i++)
     {int size = hull.getVertices().size();

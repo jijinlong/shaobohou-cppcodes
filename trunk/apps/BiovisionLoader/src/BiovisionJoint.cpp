@@ -1,7 +1,5 @@
 #include "BiovisionJoint.h"
 
-#include "special.h"
-
 #include <cmath>
 #include <cassert>
 

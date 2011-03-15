@@ -189,7 +189,7 @@ void Object::loadAC3D(const char *filename, double alpha)
 
     delete [] normalT;
 
-    Quaternion q = Quaternion::makeFromEulerAngles(0.0, pi / 2.0, 0.0);
+    Quaternion q = Quaternion::makeFromEulerAngles(0.0, PI/2.0, 0.0);
 
     vector<Vector3D> points;
     for(int i = 0; i < mInfo.vertexCount; i++)

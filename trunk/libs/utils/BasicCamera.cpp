@@ -1,9 +1,10 @@
 #include "BasicCamera.h"
 
-#include "special.h"
 #include "GLUtils.h"
 
-const Quaternion BasicCamera::cameraOffset = Quaternion::makeFromEulerAngles(0.0, pi, 0.0);
+
+const Quaternion BasicCamera::cameraOffset = Quaternion::makeFromEulerAngles(0.0, PI, 0.0);
+
 
 BasicCamera::BasicCamera()
 {

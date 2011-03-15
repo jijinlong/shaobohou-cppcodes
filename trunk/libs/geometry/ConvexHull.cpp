@@ -12,6 +12,7 @@ using std::swap;
 using std::cout;
 using std::endl;
 
+
 ConvexHull3D::ConvexHull3D()
 {
     surface = 0.0;
@@ -74,7 +75,7 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, double pertur
     for(unsigned int i = 0; i < facets.size(); i++)
     {
         facets[i]->outsideSet.clear();
-        facets[i]->updateOutsideSet(tempPoints, small_tol);
+        facets[i]->updateOutsideSet(tempPoints, EPSILON);
     }
 
     vector<Facet *> visibleFacets;
@@ -225,7 +226,7 @@ bool ConvexHull3D::isWellFormed() const
             }
         }
 
-        if(facets[i]->isInFront(centre, smaller_tol))
+        if(facets[i]->isInFront(centre, EPSILON))
         {
             wellFormed = false;
             cout << "Facet " << facets[i]->index + 1 << " out of " << facets.size() << " at " << facets[i] << " is facing the wrong way" << endl;
@@ -314,10 +315,10 @@ bool ConvexHull3D::setup(vector<Vector3D> &points)
                     Facet *f3 = new Facet(a, b, d, c->position, 2);
                     Facet *f4 = new Facet(b, c, d, a->position, 3);
 
-                    bool coplanar_test = (fabs(f1->distanceToPlane(d->position)) > small_tol) &&
-                                         (fabs(f2->distanceToPlane(b->position)) > small_tol) &&
-                                         (fabs(f3->distanceToPlane(c->position)) > small_tol) &&
-                                         (fabs(f4->distanceToPlane(a->position)) > small_tol);
+                    bool coplanar_test = (fabs(f1->distanceToPlane(d->position)) > EPSILON) &&
+                                         (fabs(f2->distanceToPlane(b->position)) > EPSILON) &&
+                                         (fabs(f3->distanceToPlane(c->position)) > EPSILON) &&
+                                         (fabs(f4->distanceToPlane(a->position)) > EPSILON);
                     bool triangle_test = f1->wellFormed && f2->wellFormed && f3->wellFormed && f4->wellFormed;
                     bool connect_test = f1->connect(f2, a, c) && f1->connect(f3, a, b) && f1->connect(f4, b, c) &&
                                         f2->connect(f3, a, d) && f2->connect(f4, c, d) && f3->connect(f4, b, d);
@@ -372,14 +373,14 @@ bool ConvexHull3D::setup(vector<Vector3D> &points)
 
 bool ConvexHull3D::getVisibleFacets(Facet &startFacet, const Vector3D &point, vector<Facet *> &visibleFacets)
 {
-    if(startFacet.findVisibleFacets(point, visibleFacets, smaller_tol))
+    if(startFacet.findVisibleFacets(point, visibleFacets, EPSILON))
     {
         bool is_valid = true;
         for(unsigned int i = 0; i < facets.size(); i++)
-            if((facets[i]->index >= 0) && facets[i]->isInFront(point, small_tol) && !(facets[i]->marked))   //point in front of facet and not marked by previous algo, error
+            if((facets[i]->index >= 0) && facets[i]->isInFront(point, EPSILON) && !(facets[i]->marked))   //point in front of facet and not marked by previous algo, error
             {
                 is_valid = false;;
-                std::cout << "The point is " << facets[i]->distanceToPlane(point) << " in front of Facet " << i << ", with tolerance " << small_tol << std::endl;
+                std::cout << "The point is " << facets[i]->distanceToPlane(point) << " in front of Facet " << i << ", with tolerance " << EPSILON << std::endl;
             }
 
         return is_valid;
@@ -503,7 +504,7 @@ bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdge
     for(unsigned int i = 0; i < createdFacets.size(); i++)
         for(unsigned int j = 0; j < visibleFacets.size(); j++)
             if(visibleFacets[j]->outsideSet.size() > 0)
-                createdFacets[i]->updateOutsideSet(visibleFacets[j]->outsideSet, small_tol);
+                createdFacets[i]->updateOutsideSet(visibleFacets[j]->outsideSet, EPSILON);
 
     createdFacets.clear();
 
@@ -636,7 +637,7 @@ unsigned int ConvexHull3D::getSupportFeature(vector<Vector3D> &supportFeature, c
     for(unsigned int i = 0; i < vertices.size(); i++)
     {
         distance = vertices[i]->position * direction;
-        if(fabs(max - distance) < small_tol)			//same value for support function, add to feature
+        if(fabs(max - distance) < EPSILON)			//same value for support function, add to feature
             supportFeature.push_back(vertices[i]->position);
         else if(distance > max)				//bette support point found, rebuild support feature
         {
@@ -726,7 +727,7 @@ void ConvexHull2D::computePolarAngles()
     {
         temp = (*it)->position;
 
-        if(fabs(temp[1] - lowestLeft[1]) < tol)
+        if(fabs(temp[1] - lowestLeft[1]) < EPSILON)
         {
             if(temp[0] < lowestLeft[0])
             {
@@ -752,7 +753,7 @@ void ConvexHull2D::computePolarAngles()
     while (it != vertices.end())
     {
         temp = (*it)->position;
-        if(fabs(temp[1] - lowestLeft[1]) < tol)
+        if(fabs(temp[1] - lowestLeft[1]) < EPSILON)
             if((temp[0] > lowestLeft[0]) && (temp[0] < lowestRight[0]))
             {
                 vertices.erase(it);
@@ -814,7 +815,7 @@ void ConvexHull2D::grahamScan()
         //true if the current point is left of the line from prev to next
         //based on cross product (non communtative, direction of resultant dependant on order)
         //z value is calculated here
-        if(pointLineRelationXY(prev, next, current) == left_of_line)
+        if(pointLineRelationXY(prev, next, current) == LEFT_OF_LINE)
         {
             delete *it;
             vertices.erase(it);
