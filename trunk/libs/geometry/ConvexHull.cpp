@@ -618,7 +618,7 @@ unsigned int ConvexHull3D::getSupportPoint(Vector3D &supportPoint, const Vector3
 //new support function = T(S(Bt * x))
 unsigned int ConvexHull3D::getTransformedSupportPoint(Vector3D &supportPoint, const Vector3D &direction) const
 {
-    Matrix3x3 rot = orientation.makeRotationMatrix();
+    Matrix3x3 rot(orientation);
     Matrix3x3 tRot = rot.transpose();
 
     unsigned int index = getSupportPoint(supportPoint, tRot * direction);

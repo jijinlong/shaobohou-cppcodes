@@ -43,7 +43,7 @@ OBB::OBB(const ConvexHull3D &hull, double scaling)
     Matrix3x3 m(eigenvector[0][0], eigenvector[1][0], v[0],
                 eigenvector[0][1], eigenvector[1][1], v[1],
                 eigenvector[0][2], eigenvector[1][2], v[2]);
-    this->orientationOffset = Quaternion::makeFromRotationMatrix(m);
+    this->orientationOffset = m.makeQuaternion();
 
     this->axes[0] = orientationOffset.rotate(Vector3D(1.0, 0.0, 0.0));
     this->axes[1] = orientationOffset.rotate(Vector3D(0.0, 1.0, 0.0));

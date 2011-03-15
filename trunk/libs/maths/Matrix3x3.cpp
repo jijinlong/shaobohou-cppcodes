@@ -26,6 +26,16 @@ Matrix3x3::Matrix3x3(   double e00, double e01, double e02,
     e[2][0] = e20;   e[2][1] = e21;    e[2][2] = e22;
 }
 
+Matrix3x3::Matrix3x3(const Quaternion &quaternion)
+{
+    const double w = quaternion[0], x = quaternion[1], y = quaternion[2], z = quaternion[3];
+    double q00 = w*w, q11 = x*x, q22 = y*y, q33 = z*z;
+
+    e[0][0] = q00 + q11 - q22 - q33;    e[0][1] = 2.0 * (x*y - w*z);        e[0][2] = 2.0 * (x*z + w*y),
+    e[1][0] = 2.0 * (x*y + w*z);        e[1][1] = q00 - q11 + q22 - q33;    e[1][2] = 2.0 * (y*z - w*x),
+    e[2][0] = 2.0 * (x*z - w*y);        e[2][1] = 2.0 * (y*z + w*x);        e[2][2] = q00 - q11 - q22 + q33;
+}
+
 Matrix3x3::~Matrix3x3()
 {
 }
@@ -181,6 +191,50 @@ Vector3D operator*(const Vector3D &u, const Matrix3x3 &m)
     return Vector3D(x*m.e[0][0] + y*m.e[1][0] + z*m.e[2][0],
                     x*m.e[0][1] + y*m.e[1][1] + z*m.e[2][1],
                     x*m.e[0][2] + y*m.e[1][2] + z*m.e[2][2]);
+}
+
+Quaternion Matrix3x3::makeQuaternion() const
+{
+    const Matrix3x3 &matrix = *this;
+    const double m00 = matrix(0, 0), m11 = matrix(1, 1), m22 = matrix(2, 2);
+    const double tr = m00 + m11 + m22 + 1.0;
+
+    double w, x, y, z;
+    if (tr > smallest_tol)
+    {
+        double s = 0.5 / sqrt(tr);
+        w = 0.25 / s;
+
+        x = (matrix(2, 1) - matrix(1, 2)) * s;
+        y = (matrix(0, 2) - matrix(2, 0)) * s;
+        z = (matrix(1, 0) - matrix(0, 1)) * s;
+    }
+    else
+    {
+        unsigned int i = 0;
+        if (m11 > m00) i = 1;
+        if (m22 > matrix(i, i)) i = 2;
+
+        unsigned int j = (i + 1) % 3;
+        unsigned int k = (j + 1) % 3;
+
+        double s = sqrt(matrix(i, i) - matrix(j, j) + matrix(k, k) + 1.0);
+
+        double q[4];
+        q[i] = s * 0.5;
+        if (fabs(s) > smallest_tol) s = 0.5 / s;
+
+        q[3] = (matrix(j, k) - matrix(k, j)) * s;
+        q[j] = (matrix(i, j) + matrix(j, i)) * s;
+        q[k] = (matrix(i, k) + matrix(k, i)) * s;
+
+        w = q[3]; x = q[0]; y = q[1]; z = q[2];
+    }
+
+    Quaternion q(w, Vector3D(x, y, z));
+    q.normalise();
+
+    return q;
 }
 
 void Matrix3x3::computeEigenSystem(Vector3D &eigenvalues, Vector3D &eigenvector0, Vector3D &eigenvector1, Vector3D &eigenvector2) const
