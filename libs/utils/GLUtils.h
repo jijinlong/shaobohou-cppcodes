@@ -11,6 +11,7 @@ void glColor(const Vector3D &c, double alpha);
 void glVertex(const Vector3D &v);
 void glNormal(const Vector3D &v);
 void glTranslate(const Vector3D &t);
+void glRotateRad(const double rad, const Vector3D &axis);
 void glRotate(const Quaternion &R);
 
 void setIdentityModelView();

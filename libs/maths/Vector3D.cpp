@@ -4,10 +4,12 @@
 #include <cmath>
 #include <string>
 
-#include "special.h"
-
 using std::string;
 using std::ostringstream;
+
+
+const double EPSILON = 1.1921e-007;
+
 
 Vector3D::Vector3D()
 {
@@ -40,15 +42,15 @@ void Vector3D::normalise()
 {
     double m = magnitude();
 
-    if (m < smaller_tol) m = 1.0;
+    if (m < EPSILON) m = 1.0;
 
     x /= m;
     y /= m;
     z /= m;
 
-    if (fabs(x) < smallest_tol) x = 0.0;
-    if (fabs(y) < smallest_tol) y = 0.0;
-    if (fabs(z) < smallest_tol) z = 0.0;
+    if (fabs(x) < EPSILON) x = 0.0;
+    if (fabs(y) < EPSILON) y = 0.0;
+    if (fabs(z) < EPSILON) z = 0.0;
 }
 
 Vector3D& Vector3D::operator+=(const Vector3D &u)

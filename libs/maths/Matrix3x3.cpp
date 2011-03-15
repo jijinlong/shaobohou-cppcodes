@@ -10,6 +10,7 @@ using std::endl;
 using std::string;
 using std::ostringstream;
 
+
 Matrix3x3::Matrix3x3()
 {
     e[0][0] = 0.0;   e[0][1] = 0.0;    e[0][2] = 0.0;
@@ -58,7 +59,7 @@ Matrix3x3 Matrix3x3::inverse() const
 {
     double d = determinant();
 
-    if (fabs(d) < smallest_tol) d = 1.0;
+    if (fabs(d) < EPSILON) d = 1.0;
 
     Matrix3x3 m(e[1][1]*e[2][2] - e[1][2]*e[2][1], e[0][2]*e[2][1] - e[0][1]*e[2][2], e[0][1]*e[1][2] - e[0][2]*e[1][1],
                 e[1][2]*e[2][0] - e[1][0]*e[2][2], e[0][0]*e[2][2] - e[0][2]*e[2][0], e[0][2]*e[1][0] - e[0][0]*e[1][2],
@@ -200,7 +201,7 @@ Quaternion Matrix3x3::makeQuaternion() const
     const double tr = m00 + m11 + m22 + 1.0;
 
     double w, x, y, z;
-    if (tr > smallest_tol)
+    if (tr > EPSILON)
     {
         double s = 0.5 / sqrt(tr);
         w = 0.25 / s;
@@ -222,7 +223,7 @@ Quaternion Matrix3x3::makeQuaternion() const
 
         double q[4];
         q[i] = s * 0.5;
-        if (fabs(s) > smallest_tol) s = 0.5 / s;
+        if (fabs(s) > EPSILON) s = 0.5 / s;
 
         q[3] = (matrix(j, k) - matrix(k, j)) * s;
         q[j] = (matrix(i, j) + matrix(j, i)) * s;
@@ -250,7 +251,7 @@ void Matrix3x3::computeEigenSystem(Vector3D &eigenvalues, Vector3D &eigenvector0
     int maxDistinctRealRootsNumber = solve_cubic(-1.0, c2, c1, c0, r[0], r[1], r[2]);
 
     //multiplicity of 3, A = I * r[i]
-    if ((maxDistinctRealRootsNumber == 1) || ((maxDistinctRealRootsNumber == 2) && (fabs(r[0] - r[1]) < smallest_tol)))
+    if ((maxDistinctRealRootsNumber == 1) || ((maxDistinctRealRootsNumber == 2) && (fabs(r[0] - r[1]) < EPSILON)))
     {
         eigenvalues = Vector3D(r[0], 0.0, 0.0);
         eigenvector0 = Vector3D(1.0, 0.0, 0.0);
@@ -269,7 +270,7 @@ void Matrix3x3::computeEigenSystem(Vector3D &eigenvalues, Vector3D &eigenvector0
         int multiplicity = 1;
         if (maxDistinctRealRootsNumber == 2) //given how solve cubic works, if an eigenvalue and the next eigenvalue are the same then multiplicity of 2
         {
-            if (fabs(r[i] - r[(i + 1) % 3]) < smallest_tol)
+            if (fabs(r[i] - r[(i + 1) % 3]) < EPSILON)
                 multiplicity = 2;
         }
 

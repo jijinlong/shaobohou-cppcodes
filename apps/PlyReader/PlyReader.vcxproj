@@ -73,7 +73,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\libs\maths\Quaternion.cpp" />
-    <ClCompile Include="..\..\libs\maths\special.cpp" />
     <ClCompile Include="..\..\libs\maths\Vector3D.cpp" />
     <ClCompile Include="..\..\libs\utils\BasicCamera.cpp" />
     <ClCompile Include="..\..\libs\utils\CrossPlatform.cpp" />
@@ -89,7 +88,6 @@
     <ClInclude Include="..\..\libs\linearalgebra\tnt\array1d.h" />
     <ClInclude Include="..\..\libs\linearalgebra\tnt\array2d.h" />
     <ClInclude Include="..\..\libs\maths\Quaternion.h" />
-    <ClInclude Include="..\..\libs\maths\special.h" />
     <ClInclude Include="..\..\libs\maths\Vector3D.h" />
     <ClInclude Include="..\..\libs\utils\BasicCamera.h" />
     <ClInclude Include="..\..\libs\utils\CrossPlatform.h" />

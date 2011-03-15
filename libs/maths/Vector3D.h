@@ -3,6 +3,8 @@
 
 #include <sstream>
 
+extern const double EPSILON;
+
 class Vector3D
 {
     public:

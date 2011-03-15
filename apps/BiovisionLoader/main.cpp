@@ -5,7 +5,6 @@
 #include "BiovisionDisplay.h"
 #include "QuakeCamera.h"
 #include "MiscUtils.h"
-#include "special.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -217,7 +216,7 @@ void draw_opengl()
             if(models.size() > 1) BiovisionDisplay::draw(models[1], Vector3D(0.0, 1.0, 0.0), false);
             if(models.size() > 2) BiovisionDisplay::draw(models[2], Vector3D(0.0, 0.0, 1.0), false);
             for(unsigned int i = 3; i < models.size(); i++)
-                BiovisionDisplay::draw(models[i], Vector3D(uniform_rand(), uniform_rand(), uniform_rand()), false);
+                BiovisionDisplay::draw(models[i], Vector3D(1.0, 1.0, 0.0), false);
 
 //            glTranslatef(20, 0.0, 0.0);
 //            drawModel(model, Vector3D(0.0, 1.0, 0.0), 10.0, true, true);

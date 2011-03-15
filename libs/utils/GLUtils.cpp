@@ -2,8 +2,6 @@
 
 #include "GLUtils.h"
 
-#include "special.h"
-
 #include <GL/glu.h>
 #include <fstream>
 
@@ -11,6 +9,7 @@ using std::string;
 using std::ofstream;
 using std::ios;
 using std::endl;
+
 
 void glColor(const Vector3D &c)
 {
@@ -37,11 +36,14 @@ void glTranslate(const Vector3D &t)
     glTranslated(t[0], t[1], t[2]);
 }
 
+void glRotateRad(const double angle, const Vector3D &axis)
+{
+    glRotated(rad2deg(angle), axis[0], axis[1], axis[2]);
+}
+
 void glRotate(const Quaternion &R)
 {
-    Vector3D axis = R.getAxis();
-    double angle = R.getAngle();
-    glRotated(rad2deg(angle), axis[0], axis[1], axis[2]);
+    glRotateRad(R.angle(), R.axis());
 }
 
 void setIdentityModelView()

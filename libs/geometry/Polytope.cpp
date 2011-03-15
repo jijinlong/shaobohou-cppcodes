@@ -14,6 +14,7 @@ using std::swap;
 using std::cout;
 using std::endl;
 
+
 //Triangle class
 Triangle::Triangle()
 {
@@ -335,7 +336,7 @@ void Facet::calculateDerivedStates()
     distance = -(normal * vertices[0]->position);
     area = 0.5 * ((vertices[0]->position - vertices[1]->position) ^ (vertices[2]->position - vertices[1]->position)).magnitude();
 
-    if(fabs(normal * normal) < smaller_tol)
+    if(fabs(normal * normal) < EPSILON)
         wellFormed = false;
     else
         wellFormed = true;
@@ -432,7 +433,7 @@ Edge* Facet::getHorizonEdge() const
 
 void Facet::orient(const Vector3D &reference)
 {
-    if(!isBehind(reference, smaller_tol))
+    if(!isBehind(reference, EPSILON))
     {
         swap(vertices[1], vertices[2]);
         normal = -normal;

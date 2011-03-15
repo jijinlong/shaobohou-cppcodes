@@ -1,7 +1,6 @@
 #include "Mesh.h"
 
 #include "MiscUtils.h"
-#include "special.h"
 
 using std::cout;
 using std::endl;
@@ -159,7 +158,7 @@ void Mesh::computeFaceNormals()
         Vector3D v3(vertices(0, faces(2, i)), vertices(1, faces(2, i)), vertices(2, faces(2, i)));
 
         Vector3D n = Vector3D::normal(v1, v2, v3);
-        if((n*n) < small_tol)
+        if((n*n) < EPSILON)
             cout << "Face normal " << i << " not properly computed." << endl;
 
         n.normalise();

@@ -38,7 +38,7 @@ void AcclaimDisplay::draw(const KinematicModel<AcclaimJoint> &model, const Vecto
             Vector3D zAxis = Vector3D(0.0, 0.0, 1.0);
             Vector3D newAxis = zAxis ^ global_direction;
             double newAngle = acos(zAxis *global_direction);
-            glRotated(rad2deg(newAngle), newAxis[0], newAxis[1], newAxis[2]);
+            glRotateRad(newAngle, newAxis);
 
             //draw bone
             GLUquadricObj *qobj = gluNewQuadric();

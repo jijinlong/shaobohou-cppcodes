@@ -3,6 +3,12 @@
 
 #include "Vector3D.h"
 
+extern const double PI;
+extern const double TWO_PI;
+extern const double HALF_PI;
+double deg2rad(double degree);
+double rad2deg(double radian);
+
 class Quaternion
 {
     public:
@@ -32,8 +38,8 @@ class Quaternion
         friend Quaternion operator*(const Quaternion &q, const Vector3D &v);  //q * Quaternnion(0.0, v)
         friend Quaternion operator*(const Vector3D &v, const Quaternion &q);  //Quaternnion(0.0, v) * q
 
-        double getAngle() const;
-        Vector3D getAxis() const;
+        double angle() const;
+        Vector3D axis() const;
         Quaternion rotate(const Quaternion &q) const;	//rotate q by this
         Vector3D rotate(const Vector3D &v) const;		//rotate q by this
 
