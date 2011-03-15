@@ -2,7 +2,6 @@
 
 #include "AcclaimDisplay.h"
 
-#include "special.h"
 #include "GLUtils.h"
 
 

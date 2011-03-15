@@ -1,7 +1,6 @@
 #include "BiovisionReader.h"
 
 #include "MiscUtils.h"
-#include "special.h"
 
 #include <iostream>
 #include <fstream>

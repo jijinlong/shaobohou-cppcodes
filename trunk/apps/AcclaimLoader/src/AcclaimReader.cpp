@@ -1,7 +1,6 @@
 #include "AcclaimReader.h"
 
 #include "MiscUtils.h"
-#include "special.h"
 
 #include <iostream>
 #include <sstream>

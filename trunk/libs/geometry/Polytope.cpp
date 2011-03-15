@@ -2,8 +2,6 @@
 
 #include "Polytope.h"
 
-#include "special.h"
-
 #include <map>
 #include <iostream>
 #include <cassert>

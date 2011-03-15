@@ -2,7 +2,6 @@
 
 #include "main.h"
 
-#include "special.h"
 #include "collision.h"
 #include "inertia.h"
 #include "GraphicsMaths.h"

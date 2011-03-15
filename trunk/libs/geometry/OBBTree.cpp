@@ -2,8 +2,6 @@
 
 #include "OBBTree.h"
 
-#include "special.h"
-
 #include <algorithm>
 #include <iostream>
 
