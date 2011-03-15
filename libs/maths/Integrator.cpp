@@ -1,7 +1,5 @@
 #include "Integrator.h"
 
-#include "special.h"
-
 #include <cassert>
 
 using std::vector;

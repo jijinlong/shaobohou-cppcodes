@@ -2,7 +2,6 @@
 
 #include "Object.h"
 
-#include "special.h"
 #include "GLUtils.h"
 
 #include <cstdlib>

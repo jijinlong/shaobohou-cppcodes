@@ -2,7 +2,6 @@
 
 #include "BiovisionDisplay.h"
 
-#include "special.h"
 #include "GLUtils.h"
 
 #include <iostream>

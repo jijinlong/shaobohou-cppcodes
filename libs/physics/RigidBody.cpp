@@ -1,7 +1,5 @@
 #include "RigidBody.h"
 
-#include "special.h"
-
 #include <cassert>
 
 void RigidBody::init()
