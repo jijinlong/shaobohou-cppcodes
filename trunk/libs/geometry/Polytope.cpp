@@ -611,35 +611,48 @@ bool Polytope::checkConnectivity() const
     {
         if(facets[i]->index < 0) continue;
 
-        if(facets[i]->edges[0]->twin == 0)
+        for(int k = 0; k < 3; k++)
         {
-            std::cout << "Facet " << i << "   Edge 0 has no twin" << std::endl;
-            is_valid = false;
-        }
-        if(facets[i]->edges[1]->twin == 0)
-        {
-            std::cout << "Facet " << i << "   Edge 1 has no twin" << std::endl;
-            is_valid = false;
-        }
-        if(facets[i]->edges[2]->twin == 0)
-        {
-            std::cout << "Facet " << i << "   Edge 2 has no twin" << std::endl;
-            is_valid = false;
-        }
-        if(!(facets[i]->edges[0]->isTwin(facets[i]->edges[0]->twin)))
-        {
-            std::cout << "Facet " << i << "   Edge 0 has no true twin" << std::endl;
-            is_valid = false;
-        }
-        if(!(facets[i]->edges[1]->isTwin(facets[i]->edges[1]->twin)))
-        {
-            std::cout << "Facet " << i << "   Edge 1 has no true twin" << std::endl;
-            is_valid = false;
-        }
-        if(!(facets[i]->edges[2]->isTwin(facets[i]->edges[2]->twin)))
-        {
-            std::cout << "Facet " << i << "   Edge 2 has no true twin" << std::endl;
-            is_valid = false;
+            if(facets[i]->edges[k]->twin == 0)
+            {
+                std::cout << "Facet " << i << "   Edge " << k << " has no twin" << std::endl;
+                is_valid = false;
+            }
+            else if(facets[i]->edges[k]->twin->facet == 0)
+            {
+                std::cout << "Facet " << i << "   Edge " << k << " has twin with no facet" << std::endl;
+                is_valid = false;
+            }
+            else if(facets[i]->edges[k]->twin->facet->index < 0)
+            {
+                std::cout << "Facet " << i << "   Edge " << k << " has twin with invalid facet" << std::endl;
+                is_valid = false;
+            }
+            else if(facets[i]->edges[k]->twin->twin == 0)
+            {
+                std::cout << "Facet " << i << "   Edge " << k << " has twin with no twin" << std::endl;
+                is_valid = false;
+            }
+            else if(facets[i]->edges[k]->twin->twin != facets[i]->edges[k])
+            {
+                std::cout << "Facet " << i << "   Edge " << k << " has bad twin" << std::endl;
+                is_valid = false;
+            }
+            else if(!facets[i]->edges[k]->isTwin(facets[i]->edges[k]->twin))
+            {
+                std::cout << "Facet " << i << "   Edge " << k << " has no true twin" << std::endl;
+                is_valid = false;
+            }
+            else if(facets[i]->edges[k]->twin->twin->facet != facets[i])
+            {
+                std::cout << "Facet " << i << "   Edge " << k << " has bad twin connected to wrong facet" << std::endl;
+                is_valid = false;
+            }
+            else if(facets[i]->edges[k]->twin->twin->facet->index < 0)
+            {
+                std::cout << "Facet " << i << "   Edge " << k << " has bad twin with invalid facet" << std::endl;
+                is_valid = false;
+            }
         }
     }
     return is_valid;
