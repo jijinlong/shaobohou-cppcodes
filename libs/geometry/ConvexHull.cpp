@@ -56,8 +56,9 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, double pertur
         }
 
         if(!setup_success)
-        {for(unsigned int i = 0; i < tempPoints.size(); i++)
-            std::cout << tempPoints[i] << std::endl;
+        {
+            for(unsigned int i = 0; i < tempPoints.size(); i++)
+                std::cout << tempPoints[i] << std::endl;
             //if setup failed, cleanup rountine follows
             for(unsigned int i = 0; i < vertices.size(); i++)
                 vertices[i]->marked = true;
@@ -78,24 +79,33 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, double pertur
         facets[i]->updateOutsideSet(tempPoints, EPSILON);
     }
 
-    vector<Facet *> visibleFacets;
-    vector<Edge *> horizonEdges;
+
+    assert(checkConnectivity());
     for(unsigned int i = 0; i < facets.size(); i++)
     {
         if((facets[i]->index >= 0) && (facets[i]->outsideSet.size() > 0))
         {
-            Vector3D furthestPoint;
+            bool success = true;
 
-            if(facets[i]->getFurthestOutsidePoint(furthestPoint))
+            Vector3D furthestPoint;
+            if(success)
             {
+                assert(checkConnectivity());
+                if(!facets[i]->getFurthestOutsidePoint(furthestPoint))
+                {
+                    cout << "Doh, there should be a furthest point if the outside set is non-empty" << endl;
+                    exit(1);
+                }
+            }
+
+            vector<Facet *> visibleFacets;
+            if(success)
+            {
+                assert(checkConnectivity());
                 if(!getVisibleFacets(*(facets[i]), furthestPoint, visibleFacets))//get visible facets error
                 {
                     cout << "Get Visible Facets error!" << endl;
-
-                    for(unsigned int j = 0; j < visibleFacets.size(); j++) visibleFacets[j]->marked = false;
-                    visibleFacets.clear();
-
-                    return false;
+                    success = false;
                 }
                 else if(visibleFacets.size() == 0)
                 {
@@ -103,48 +113,54 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, double pertur
                     exit(1);
                 }
             }
-            else
+
+            vector<Edge *> horizonEdges;
+            if(success)
             {
-                cout << "Doh, there is should be a furthest point if the outside set is non-empty" << endl;
-                exit(1);
+                assert(checkConnectivity());
+                if(!getHorizonEdges(visibleFacets, horizonEdges))
+                {
+                    cout << "Get Horizon Edges error!" << endl;
+                    success = false;
+                }
+            }
+            
+            if(success)
+            {
+                assert(checkConnectivity());
+                if(!remakeHull(furthestPoint, horizonEdges, visibleFacets))
+                {
+                    std::vector<double> d2(facets[i]->outsideSet.size(), 1e9);
+                    for(unsigned int f = 0; f < facets[i]->outsideSet.size(); f++)
+                    {
+                        d2[f] = facets[f]->distanceToPlane(facets[i]->outsideSet[f]);
+                    }
+
+                    cout << "Remake Hull error!" << endl;
+                    success = false;
+                }
             }
 
-            if(!getHorizonEdges(visibleFacets, horizonEdges))
+            if(success)
             {
-                cout << "Get Horizon Edges error!" << endl;
-
-                for(unsigned int j = 0; j < visibleFacets.size(); j++) visibleFacets[j]->marked = false;
-                for(unsigned int j = 0; j < horizonEdges.size(); j++) horizonEdges[j]->marked = false;
-
-                visibleFacets.clear();
-                horizonEdges.clear();
-                return false;
+                assert(checkConnectivity());
+                for(unsigned int j = 0; j < visibleFacets.size(); j++) visibleFacets[j]->index = -1;
             }
-
-            if(!remakeHull(furthestPoint, horizonEdges, visibleFacets))
-            {
-                cout << "Remake Hull error!" << endl;
-
-                for(unsigned int j = 0; j < visibleFacets.size(); j++) visibleFacets[j]->marked = false;
-                for(unsigned int j = 0; j < horizonEdges.size(); j++) horizonEdges[j]->marked = false;
-
-                visibleFacets.clear();
-                horizonEdges.clear();
-                return false;
-            }
-
             for(unsigned int j = 0; j < visibleFacets.size(); j++) visibleFacets[j]->marked = false;
-            for(unsigned int j = 0; j < visibleFacets.size(); j++) visibleFacets[j]->index = -1;
             for(unsigned int j = 0; j < horizonEdges.size(); j++) horizonEdges[j]->marked = false;
 
             visibleFacets.clear();
             horizonEdges.clear();
+
+            assert(checkConnectivity());
         }
     }
 
     //clean up by removing non-hull vertices and facets
+    assert(checkConnectivity());
     compactFacets();
     compactVertices();
+    assert(checkConnectivity());
 
     //check for well formedness
     if(!isWellFormed())
@@ -449,11 +465,17 @@ bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdge
 
         if(!(f->wellFormed))
         {
+            assert(checkConnectivity());
+            const double d = visibleFacets[0]->distanceToPlane(point);
+            Vector3D norm = Vector3D::normal(newVertex->position, e->end->position, e->start->position);
+            //assert(false);
+
             for(unsigned int j = 0; j < createdFacets.size(); j++)
                 delete createdFacets[j];
 
             delete newVertex;
 
+            assert(checkConnectivity());
             return false;
         }
     }
@@ -518,6 +540,7 @@ bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdge
 void ConvexHull3D::compactFacets()
 {
     vector<Facet *>::iterator it = facets.begin();
+        assert(checkConnectivity());
 
     while (it != facets.end())
     {
@@ -525,8 +548,10 @@ void ConvexHull3D::compactFacets()
 
         if(f->index < 0)
         {
+                assert(checkConnectivity());
             delete f;
             it = facets.erase(it);
+                assert(checkConnectivity());
         }
         else
             it++;
