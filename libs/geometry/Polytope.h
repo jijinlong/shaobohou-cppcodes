@@ -59,6 +59,9 @@ class Edge  //possibly add static list of dynamically allocated pointer to edges
         bool findHorizon(std::vector<Edge *> &horizonEdges);  //true if the return horizon edges is a complete loop and nothing went wrong
         bool match(const Vertex *const start, const Vertex *const end) const;
         bool isTwin(const Edge *const other) const;
+        double distanceToLine(const Vector3D &point, double &t) const;
+        double distanceToLine(const Vector3D &point) const;
+        double distanceToSegment(const Vector3D &point) const;
 
     private:
         void deepCopy(const Edge &other);

@@ -130,6 +130,34 @@ void Edge::calculateDerivedStates()
     direction.normalise();
 }
 
+double Edge::distanceToLine(const Vector3D &point, double &t) const
+{
+    Vector3D lineOriginToPoint = point - start->position;
+    t = lineOriginToPoint * this->direction;
+
+    Vector3D nearestPoint = start->position + (this->direction * t);
+
+    return Vector3D::distance(point, nearestPoint);
+}
+
+double Edge::distanceToLine(const Vector3D &point) const
+{
+    double t = 0;
+
+    return distanceToLine(point, t);
+}
+
+double Edge::distanceToSegment(const Vector3D &point) const
+{
+    Vector3D lineOriginToPoint = point - start->position;
+    double t = lineOriginToPoint * this->direction;
+    t = std::max(0.0, std::min(t, 1.0));
+
+    Vector3D nearestPoint = start->position + (this->direction * t);
+
+    return Vector3D::distance(point, nearestPoint);
+}
+
 bool Edge::connect(Edge *edge)
 {
     if(match(edge->start, edge->end))

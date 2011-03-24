@@ -297,7 +297,7 @@ void Object::draw(bool drawHull, unsigned int obbLevel) const
         glPopMatrix();
 
         unsigned int maxDepth =  tree.getMaxDepth();
-        vector<OBB> obbs = tree.getOBBs(obbLevel%maxDepth);
+        vector<OBB> obbs = tree.getOBBs(obbLevel%(maxDepth+1));
         for(unsigned int i = 0; i < obbs.size(); i++)
             drawOBB(obbs[i]);
 
