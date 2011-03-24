@@ -14,6 +14,7 @@ using std::cout;
 using std::endl;
 
 bool drawHull = true;
+bool fixPointer = false;
 unsigned int obbLevel = 0;
 
 int main(int argc, char *argv[])
@@ -119,6 +120,8 @@ void keyboard(unsigned char key, int x, int y)
         case '.':
             obbLevel++;
             break;
+        case (int)('f'):fixPointer = !fixPointer;
+                        break;
 //         case 'k':
 //             currentShip->update(TURN_UP, true);
 //             break;
@@ -165,12 +168,15 @@ void keyboardUp(unsigned char key, int x, int y)
 
 void motion(int x, int y)
 {
-    double diffX = (double)(x - (windowWidth / 2.0))/ (double)windowWidth;
-    double diffY = (double)(windowHeight - y - (windowHeight / 2.0))/ (double)windowHeight;
-    current->modOrientation(diffX, diffY);
+    if (fixPointer)
+    {
+        double diffX = (double)(x - (windowWidth / 2.0))/ (double)windowWidth;
+        double diffY = (double)(windowHeight - y - (windowHeight / 2.0))/ (double)windowHeight;
+        current->modOrientation(diffX, diffY);
 
-    if (((x - windowWidth / 2) != 0) || ((y - windowHeight / 2) != 0))
-        glutWarpPointer(windowWidth / 2, windowHeight / 2);
+        if (((x - windowWidth / 2) != 0) || ((y - windowHeight / 2) != 0))
+            glutWarpPointer(windowWidth / 2, windowHeight / 2);
+    }
 }
 
 void resize(int width, int height)
