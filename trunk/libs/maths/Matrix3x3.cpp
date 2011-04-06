@@ -27,6 +27,13 @@ Matrix3x3::Matrix3x3(   double e00, double e01, double e02,
     e[2][0] = e20;   e[2][1] = e21;    e[2][2] = e22;
 }
 
+Matrix3x3::Matrix3x3(const Vector3D &col, const Vector3D &row)
+{
+    e[0][0] = col[0]*row[0];   e[0][1] = col[0]*row[1];    e[0][2] = col[0]*row[2];
+    e[1][0] = col[1]*row[0];   e[1][1] = col[1]*row[1];    e[1][2] = col[1]*row[2];
+    e[2][0] = col[2]*row[0];   e[2][1] = col[2]*row[1];    e[2][2] = col[2]*row[2];
+}
+
 Matrix3x3::Matrix3x3(const Quaternion &quaternion)
 {
     const double w = quaternion[0], x = quaternion[1], y = quaternion[2], z = quaternion[3];

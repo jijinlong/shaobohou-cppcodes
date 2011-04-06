@@ -11,6 +11,7 @@ class Matrix3x3
         Matrix3x3(double e00, double e01, double e02,
                   double e10, double e11, double e12,
                   double e20, double e21, double e22);
+        Matrix3x3(const Vector3D &col, const Vector3D &row);
         Matrix3x3(const Quaternion &quaternion);
         ~Matrix3x3();
 
