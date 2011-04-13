@@ -65,23 +65,12 @@ ConvexHull3D::~ConvexHull3D()
 bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, double perturb_scale, bool verbose)
 {
     // cast to float
-    vector<Vector3D> tempPoints;
-    for(unsigned int i = 0; i < points.size(); i++)
-        tempPoints.push_back(Vector3D::getFloatVersion(points[i]));
+    vector<Vector3D> tempPoints = points;
+    centre = mean(tempPoints);
 
     if((vertices.size() == 0) && (facets.size() == 0))
     {
         bool setup_success = setup(tempPoints);
-
-        // perturb points and try again
-        if(!setup_success && (perturb_scale > 0.0))
-        {
-            if(verbose) cout << "Initial setup failed, perturb points with scale " << perturb_scale << std::endl;
-
-            for(unsigned int i = 0; i < tempPoints.size(); i++)
-                tempPoints[i] += Vector3D(uniform_rand(), uniform_rand(), uniform_rand())*perturb_scale;
-            setup_success = setup(tempPoints);
-        }
 
         if(!setup_success)
         {
@@ -122,10 +111,6 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, double pertur
         {
             bool success = true;
 
-            //////////////////////////////////////
-            // REMOVE OUTSIDE POINTS WITHIN EPSILON*10 DISTANCE OF EACH FACET
-            //////////////////////////////////////
-
             Vector3D furthestPoint;
             if(success)
             {
@@ -149,11 +134,6 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, double pertur
                     cout << "Get Visible Facets error!  " << d << "  " << facets[i] << endl;
 #endif HULL_DEBUG
                     success = false;
-                }
-                else if(visibleFacets.size() == 0)
-                {
-                    cout << "Bah, there should be at least one visible facet, the one that contained the point in its outside set" << endl;
-                    exit(1);
                 }
             }
 
@@ -255,8 +235,10 @@ bool ConvexHull3D::isWellFormed() const
         }
     }
 
-    for(unsigned int i = 0; (i < facets.size()) && (facets[i]->index >= 0); i++)
+    for(unsigned int i = 0; i < facets.size(); i++)
     {
+        if(facets[i]->index < 0) continue;
+
         for(int k = 0; k < 3; k++)
         {
             if(facets[i]->edges[k]->twin == 0)
@@ -374,62 +356,42 @@ bool ConvexHull3D::setup(vector<Vector3D> &points)
         {
             for(unsigned int k = j+1; k < points.size()-1; k++)
             {
-                for(unsigned int l = k+1; l < points.size()-0; l++)
+                //begin constructing the two triangles
+                Vertex *a = new Vertex(points[i], 0);
+                Vertex *b = new Vertex(points[j], 1);
+                Vertex *c = new Vertex(points[k], 2);
+
+                Facet *f1 = new Facet(a, b, c, 0);
+                Facet *f2 = new Facet(c, b, a, 1);
+
+                bool coplanar_test = true;
+                bool triangle_test = f1->wellFormed && f2->wellFormed;
+                bool connect_test = f1->connect(f2, a, b) && f1->connect(f2, a, c) && f1->connect(f2, b, c);
+                bool connect_test2 = checkConnectivity();
+
+                if(coplanar_test && triangle_test && connect_test && connect_test2)
                 {
-                    //begin constructing the two triangles
-                    Vertex *a = new Vertex(points[i], 0);
-                    Vertex *b = new Vertex(points[j], 1);
-                    Vertex *c = new Vertex(points[k], 2);
-                    Vertex *d = new Vertex(points[l], 2);
+                    //std::cout << i << "  " << j << "  " << k << "  " << l << std::endl;
+                    success = true;
 
+                    vertices.push_back(a);
+                    vertices.push_back(b);
+                    vertices.push_back(c);
 
-                    Facet *f1 = new Facet(a, b, c, d->position, 0);
-                    Facet *f2 = new Facet(a, c, d, b->position, 1);
-                    Facet *f3 = new Facet(a, b, d, c->position, 2);
-                    Facet *f4 = new Facet(b, c, d, a->position, 3);
+                    facets.push_back(f1);
+                    facets.push_back(f2);
 
-                    bool coplanar_test = (fabs(f1->distanceToPlane(d->position)) > EPSILON) &&
-                                         (fabs(f2->distanceToPlane(b->position)) > EPSILON) &&
-                                         (fabs(f3->distanceToPlane(c->position)) > EPSILON) &&
-                                         (fabs(f4->distanceToPlane(a->position)) > EPSILON);
-                    bool triangle_test = f1->wellFormed && f2->wellFormed && f3->wellFormed && f4->wellFormed;
-                    bool connect_test = f1->connect(f2, a, c) && f1->connect(f3, a, b) && f1->connect(f4, b, c) &&
-                                        f2->connect(f3, a, d) && f2->connect(f4, c, d) && f3->connect(f4, b, d);
-                    bool connect_test2 = checkConnectivity();
-
-                    if(coplanar_test && triangle_test && connect_test && connect_test2)
-                    {
-                        //std::cout << i << "  " << j << "  " << k << "  " << l << std::endl;
-                        success = true;
-
-                        vertices.push_back(a);
-                        vertices.push_back(b);
-                        vertices.push_back(c);
-                        vertices.push_back(d);
-
-                        facets.push_back(f1);
-                        facets.push_back(f2);
-                        facets.push_back(f3);
-                        facets.push_back(f4);
-
-                        points.erase(points.begin() + l);
-                        points.erase(points.begin() + k);
-                        points.erase(points.begin() + j);
-                        points.erase(points.begin() + i);
-                    }
-                    else
-                    {
-                        delete f4;
-                        delete f3;
-                        delete f2;
-                        delete f1;
-                        delete d;
-                        delete c;
-                        delete b;
-                        delete a;
-                    }
-
-                    if(success) break;
+                    points.erase(points.begin() + k);
+                    points.erase(points.begin() + j);
+                    points.erase(points.begin() + i);
+                }
+                else
+                {
+                    delete f2;
+                    delete f1;
+                    delete c;
+                    delete b;
+                    delete a;
                 }
 
                 if(success) break;
@@ -444,107 +406,24 @@ bool ConvexHull3D::setup(vector<Vector3D> &points)
     return success;
 }
 
-////bool ConvexHull3D::setup(vector<Vector3D> &points)
-////{
-////    assert(points.size() > 3);
-////
-////    bool success = false;
-////    for(unsigned int i = 0; i < points.size()-3; i++)
-////    {
-////        for(unsigned int j = i+1; j < points.size()-2; j++)
-////        {
-////            for(unsigned int k = j+1; k < points.size()-1; k++)
-////            {
-////                ////for(unsigned int l = k+1; l < points.size()-0; l++)
-////                ////{
-////                    //begin constructing the two triangles
-////                    Vertex *a = new Vertex(points[i], 0);
-////                    Vertex *b = new Vertex(points[j], 1);
-////                    Vertex *c = new Vertex(points[k], 2);
-////                    ////Vertex *d = new Vertex(points[l], 2);
-////
-////
-////                    ////Facet *f1 = new Facet(a, b, c, d->position, 0);
-////                    ////Facet *f2 = new Facet(a, c, d, b->position, 1);
-////                    ////Facet *f3 = new Facet(a, b, d, c->position, 2);
-////                    ////Facet *f4 = new Facet(b, c, d, a->position, 3);
-////
-////                    Facet *f1 = new Facet(a, b, c, 0);
-////                    Facet *f2 = new Facet(c, b, a, 1);
-////                    ////Facet *f3 = new Facet(a, b, d, 2);
-////
-////                    ////bool coplanar_test = (fabs(f1->distanceToPlane(d->position)) > EPSILON) &&
-////                    ////                     (fabs(f2->distanceToPlane(b->position)) > EPSILON) &&
-////                    ////                     (fabs(f3->distanceToPlane(c->position)) > EPSILON) &&
-////                    ////                     (fabs(f4->distanceToPlane(a->position)) > EPSILON);
-////                    bool coplanar_test = true;
-////                    ////bool triangle_test = f1->wellFormed && f2->wellFormed && f3->wellFormed && f4->wellFormed;
-////                    bool triangle_test = f1->wellFormed && f2->wellFormed;
-////                    ////bool connect_test = f1->connect(f2, a, c) && f1->connect(f3, a, b) && f1->connect(f4, b, c) &&
-////                    ////                    f2->connect(f3, a, d) && f2->connect(f4, c, d) && f3->connect(f4, b, d);
-////                    bool connect_test = f1->connect(f2, a, b) && f1->connect(f2, a, c) && f1->connect(f2, b, c);
-////                    bool connect_test2 = checkConnectivity();
-////
-////                    if(coplanar_test && triangle_test && connect_test && connect_test2)
-////                    {
-////                        //std::cout << i << "  " << j << "  " << k << "  " << l << std::endl;
-////                        success = true;
-////
-////                        vertices.push_back(a);
-////                        vertices.push_back(b);
-////                        vertices.push_back(c);
-////                        ////vertices.push_back(d);
-////
-////                        facets.push_back(f1);
-////                        facets.push_back(f2);
-////                        ////facets.push_back(f3);
-////                        ////facets.push_back(f4);
-////
-////                        ////points.erase(points.begin() + l);
-////                        points.erase(points.begin() + k);
-////                        points.erase(points.begin() + j);
-////                        points.erase(points.begin() + i);
-////                    }
-////                    else
-////                    {
-////                        ////delete f4;
-////                        ////delete f3;
-////                        delete f2;
-////                        delete f1;
-////                        ////delete d;
-////                        delete c;
-////                        delete b;
-////                        delete a;
-////                    }
-////
-////                ////    if(success) break;
-////                ////}
-////
-////                if(success) break;
-////            }
-////
-////            if(success) break;
-////        }
-////
-////        if(success) break;
-////    }
-////
-////    return success;
-////}
-
 bool ConvexHull3D::getVisibleFacets(Facet &startFacet, const Vector3D &point, vector<Facet *> &visibleFacets)
 {
-    if(startFacet.findVisibleFacets(point, visibleFacets, -EPSILON))    // negative tolerance
+    if(startFacet.findVisibleFacets(point, visibleFacets, 0.0))    // negative tolerance
     {
         bool is_valid = true;
-        for(unsigned int i = 0; i < facets.size(); i++)
-        {
-            if((facets[i]->index >= 0) && facets[i]->isInFront(point, -EPSILON) && !(facets[i]->marked))   //point in front of facet and not marked by previous algo, error
-            {
-                is_valid = false;;
-                std::cout << "The point is " << facets[i]->distanceToPlane(point) << " in front of Facet " << i << ", with tolerance " << EPSILON << std::endl;
-            }
-        }
+        //for(unsigned int i = 0; i < facets.size(); i++)
+        //{
+        //    if((facets[i]->index >= 0) && facets[i]->isInFront(point, 0.0) && !(facets[i]->marked))   //point in front of facet and not marked by previous algo, error
+        //    {
+        //        is_valid = false;;
+        //        std::cout << "The point is " << facets[i]->distanceToPlane(point) << " in front of Facet " << i << ", with tolerance " << EPSILON << std::endl;
+        //    }
+        //}
+        //if(!is_valid)
+        //{
+        //    std::cout << startFacet.distanceToPlane(point) << endl;
+        //    std::cout << endl;
+        //}
 
         is_valid = is_valid & startFacet.isInFront(point, EPSILON);
 
