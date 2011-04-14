@@ -14,6 +14,9 @@ using std::cout;
 using std::endl;
 
 
+#define HULL_DEBUG
+
+
 Vector3D mean(const std::vector<Vector3D> &vecs)
 {
     assert(vecs.size() > 0);
@@ -100,7 +103,7 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, double pertur
     for(unsigned int i = 0; i < facets.size(); i++)
     {
         facets[i]->outsideSet.clear();
-        facets[i]->updateOutsideSet(tempPoints, -EPSILON);      // negative tolerance
+        facets[i]->updateOutsideSet(tempPoints, EPSILON);      // negative tolerance
     }
 
 
@@ -111,13 +114,13 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, double pertur
         {
             bool success = true;
 
-            Vector3D furthestPoint;
+            Vector3D farthestPoint;
             if(success)
             {
                 assert(checkConnectivity());
-                if(!facets[i]->getFurthestOutsidePoint(furthestPoint))
+                if(!facets[i]->getFarthestOutsidePoint(farthestPoint))
                 {
-                    cout << "Doh, there should be a furthest point if the outside set is non-empty" << endl;
+                    cout << "Doh, there should be a farthest point if the outside set is non-empty" << endl;
                     exit(1);
                 }
             }
@@ -126,10 +129,10 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, double pertur
             if(success)
             {
                 assert(checkConnectivity());
-                if(!getVisibleFacets(*(facets[i]), furthestPoint, visibleFacets))//get visible facets error
+                if(!getVisibleFacets(*(facets[i]), farthestPoint, visibleFacets))//get visible facets error
                 {
                     facets[i]->outsideSet.clear();
-                    double d = facets[i]->distanceToPlane(furthestPoint);
+                    double d = facets[i]->distanceToPlane(farthestPoint);
 #ifdef HULL_DEBUG
                     cout << "Get Visible Facets error!  " << d << "  " << facets[i] << endl;
 #endif HULL_DEBUG
@@ -153,14 +156,14 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, double pertur
                 const int npoints = facets[i]->outsideSet.size();
 
                 assert(checkConnectivity());
-                if(!remakeHull(furthestPoint, horizonEdges, visibleFacets))
+                if(!remakeHull(farthestPoint, horizonEdges, visibleFacets))
                 {
                     std::vector<double> d2(facets[i]->outsideSet.size(), 1e9);
                     for(unsigned int f = 0; f < facets[i]->outsideSet.size(); f++)
                     {
                         d2[f] = facets[i]->distanceToPlane(facets[i]->outsideSet[f]);
                     }
-                    const double dd = facets[i]->distanceToPlane(furthestPoint);
+                    const double dd = facets[i]->distanceToPlane(farthestPoint);
 
                     const int nverts = facets[i]->outsideSet.size();
                     cout << "Remake Hull error!" << endl;
@@ -280,7 +283,7 @@ bool ConvexHull3D::isWellFormed() const
         if(facets[i]->isInFront(centre, EPSILON))
         {
             wellFormed = false;
-            cout << "Facet " << facets[i]->index + 1 << " out of " << facets.size() << " at " << facets[i] << " is facing the wrong way" << endl;
+            cout << "Facet " << facets[i]->index + 1 << " out of " << facets.size() << " at " << facets[i] << " is facing the wrong way with distance " << facets[i]->distanceToPlane(centre) << endl;
         }
 
         if(facets[i]->marked)
@@ -302,7 +305,7 @@ bool ConvexHull3D::isWellFormed() const
             double d = -1.0;
             for(unsigned int t = 0; t < facets[i]->outsideSet.size(); t++)
                 d = std::max(d, facets[i]->distanceToPlane(facets[i]->outsideSet[t]));
-            cout << "Facet " << i << " at " << facets[i] << " has furthest at " << d << endl;
+            cout << "Facet " << i << " at " << facets[i] << " has farthest at " << d << endl;
         }
     }
 
@@ -408,7 +411,7 @@ bool ConvexHull3D::setup(vector<Vector3D> &points)
 
 bool ConvexHull3D::getVisibleFacets(Facet &startFacet, const Vector3D &point, vector<Facet *> &visibleFacets)
 {
-    if(startFacet.findVisibleFacets(point, visibleFacets, 0.0))    // negative tolerance
+    if(startFacet.findVisibleFacets(point, visibleFacets, -EPSILON))    // negative tolerance
     {
         bool is_valid = true;
         //for(unsigned int i = 0; i < facets.size(); i++)
@@ -425,6 +428,7 @@ bool ConvexHull3D::getVisibleFacets(Facet &startFacet, const Vector3D &point, ve
         //    std::cout << endl;
         //}
 
+        // SHOULD TEST DISTANCE WITH THE MOST DISTANCE VISIBLE FACET
         is_valid = is_valid & startFacet.isInFront(point, EPSILON);
 
         return is_valid;
@@ -583,7 +587,7 @@ bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdge
     for(unsigned int i = 0; i < createdFacets.size(); i++)
         for(unsigned int j = 0; j < visibleFacets.size(); j++)
             if(visibleFacets[j]->outsideSet.size() > 0)
-                createdFacets[i]->updateOutsideSet(visibleFacets[j]->outsideSet, -EPSILON);     // negative tolerance
+                createdFacets[i]->updateOutsideSet(visibleFacets[j]->outsideSet, EPSILON);     // negative tolerance
 
     createdFacets.clear();
 
@@ -880,35 +884,35 @@ void ConvexHull2D::polarAngleQuickSort(int begin, int end)
 
 void ConvexHull2D::grahamScan()
 {
-    vector<Vertex *>::iterator it = vertices.begin();
-    vector<double>::iterator itPolar = polarAngles.begin();
+    //vector<Vertex *>::iterator it = vertices.begin();
+    //vector<double>::iterator itPolar = polarAngles.begin();
 
-    it++;
-    while (it != vertices.end())
-    {
-        Vector3D prev = (*(it - 1))->position;
-        Vector3D current = (*it)->position;
-        Vector3D next;
-        if((it + 1) != vertices.end())
-            next = (*(it + 1))->position;
-        else
-            next = (*(vertices.begin()))->position;
+    //it++;
+    //while (it != vertices.end())
+    //{
+    //    Vector3D prev = (*(it - 1))->position;
+    //    Vector3D current = (*it)->position;
+    //    Vector3D next;
+    //    if((it + 1) != vertices.end())
+    //        next = (*(it + 1))->position;
+    //    else
+    //        next = (*(vertices.begin()))->position;
 
-        //true if the current point is left of the line from prev to next
-        //based on cross product (non communtative, direction of resultant dependant on order)
-        //z value is calculated here
-        if(pointLineRelationXY(prev, next, current) == LEFT_OF_LINE)
-        {
-            delete *it;
-            vertices.erase(it);
-            polarAngles.erase(itPolar);
-        }
-        else
-        {
-            it++;
-            itPolar++;
-        }
-    }
+    //    //true if the current point is left of the line from prev to next
+    //    //based on cross product (non communtative, direction of resultant dependant on order)
+    //    //z value is calculated here
+    //    if(pointLineRelationXY(prev, next, current) == LEFT_OF_LINE)
+    //    {
+    //        delete *it;
+    //        vertices.erase(it);
+    //        polarAngles.erase(itPolar);
+    //    }
+    //    else
+    //    {
+    //        it++;
+    //        itPolar++;
+    //    }
+    //}
 }
 
 const vector<Vertex *> &ConvexHull2D::getVertices() const

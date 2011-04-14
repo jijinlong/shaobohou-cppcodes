@@ -499,35 +499,25 @@ void Facet::updateOutsideSet(vector<Vector3D> &points, double tolerance)
     }
 }
 
-bool Facet::getFurthestOutsidePoint(Vector3D &furthestPoint)
+bool Facet::getFarthestOutsidePoint(Vector3D &farthestPoint) const
 {
     if(outsideSet.size() > 0)
     {
-        vector<Vector3D>::iterator it = outsideSet.begin();
-        vector<Vector3D>::iterator furthest = outsideSet.begin();
-        double currentFurthest = distanceToPlane(*it);
+        farthestPoint = *outsideSet.begin();
+        double farthestDistance = distanceToPlane(farthestPoint);
 
-        while (it != outsideSet.end())
+        for(vector<Vector3D>::const_iterator it = outsideSet.begin(); it != outsideSet.end(); it++)
         {
-            Vector3D point = *it;
-            double distance = distanceToPlane(point);
-
-            if(distance > currentFurthest)
+            double tempDistance = distanceToPlane(*it);
+            if(tempDistance > farthestDistance)
             {
-                currentFurthest = distance;
-                furthest = it;
+                farthestPoint = *it;
+                farthestDistance = tempDistance;
             }
-
-            it++;
         }
-
-        furthestPoint = *furthest;
-        outsideSet.erase(furthest);
 
         return true;
     }
-    else
-        return false;
 
 
     return true;
