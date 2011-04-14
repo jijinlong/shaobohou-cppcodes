@@ -50,7 +50,7 @@ OBBNode::OBBNode(const std::vector<Vector3D> &vertices, const std::vector<Triang
         return;
     }
 
-    hull = ConvexHull3D(points, 1e-5, verbose);
+    hull = ConvexHull3D(points, verbose);
     assert(hull.isWellFormed());
     assert(points.size() > 3);
     obb = OBB(hull, scaling);

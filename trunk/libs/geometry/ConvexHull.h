@@ -10,11 +10,10 @@ class ConvexHull3D: public Polytope, public SupportMappable
 {
     public:
         ConvexHull3D();
-        ConvexHull3D(const std::vector<Vector3D> &points);
-        ConvexHull3D(const std::vector<Vector3D> &points, double perturb_scale, bool verbose);
+        ConvexHull3D(const std::vector<Vector3D> &points, bool verbose=true);
         virtual ~ConvexHull3D();
 
-        bool addPointsToHull(const std::vector<Vector3D> &points, double perturb_scale, bool verbose);
+        bool addPointsToHull(const std::vector<Vector3D> &points, bool verbose);
 
         void sync(const Vector3D &position, const Quaternion & orientation);
         const Vector3D& getPosition() const;
