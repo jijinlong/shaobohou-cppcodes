@@ -111,8 +111,8 @@ class Facet
         // update outside set for a facet, note this function does not assume
         // that the outside set is empty to start with, it only push
         void updateOutsideSet(std::vector<Vector3D> &points, double tolerance);
-        // get the furthest point in a facet's outside set
-        bool getFurthestOutsidePoint(Vector3D &furthestPoint);
+        // get the farthest point in a facet's outside set
+        bool getFarthestOutsidePoint(Vector3D &farthestPoint) const;
 
     private:
         void deallocateMemory();
