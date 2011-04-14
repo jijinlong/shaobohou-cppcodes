@@ -130,7 +130,6 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
 #ifdef HULL_DEBUG
                 cout << "Get Visible Facets error!  " << facets[i]->distanceToPlane(farthestPoint) << "  " << facets[i] << endl;
 #endif
-                facets[i]->outsideSet.clear();
                 success = false;
             }
         }
@@ -149,6 +148,8 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
             }
         }
 
+
+        // replace visible facets with new facets connectint a vertex at the farthest point
         if(success)
         {
             if(!remakeHull(farthestPoint, horizonEdges, visibleFacets))
@@ -160,24 +161,18 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
             }
         }
 
-        // empty outside set
-        for(unsigned int f = 0; f < visibleFacets.size(); f++)
-        {
-            visibleFacets[f]->outsideSet.clear();
-        }
 
+        // mark visible facets for deletion
         if(success)
         {
-            assert(checkConnectivity());
             for(unsigned int j = 0; j < visibleFacets.size(); j++) visibleFacets[j]->index = -1;
         }
+
+
+        // clean up
+        facets[i]->outsideSet.clear();
         for(unsigned int j = 0; j < visibleFacets.size(); j++) visibleFacets[j]->marked = false;
         for(unsigned int j = 0; j < horizonEdges.size(); j++) horizonEdges[j]->marked = false;
-
-        visibleFacets.clear();
-        horizonEdges.clear();
-
-        assert(checkConnectivity());
     }
 
     //clean up by removing non-hull vertices and facets
@@ -575,8 +570,7 @@ bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdge
     //this updates the outside set of new facets
     for(unsigned int i = 0; i < createdFacets.size(); i++)
         for(unsigned int j = 0; j < visibleFacets.size(); j++)
-            if(visibleFacets[j]->outsideSet.size() > 0)
-                createdFacets[i]->updateOutsideSet(visibleFacets[j]->outsideSet, EPSILON);     // negative tolerance
+            createdFacets[i]->updateOutsideSet(visibleFacets[j]->outsideSet, EPSILON);     // negative tolerance
 
     createdFacets.clear();
 
