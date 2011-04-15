@@ -105,7 +105,7 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
     for(unsigned int i = 0; i < facets.size(); i++)
     {
         facets[i]->outsideSet.clear();
-        facets[i]->updateOutsideSet(tempPoints, -EPSILON);
+        facets[i]->updateOutsideSet(tempPoints, EPSILON);
     }
 
 
