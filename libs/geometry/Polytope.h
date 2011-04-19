@@ -59,9 +59,12 @@ class Edge  //possibly add static list of dynamically allocated pointer to edges
         bool findHorizon(std::vector<Edge *> &horizonEdges);  //true if the return horizon edges is a complete loop and nothing went wrong
         bool match(const Vertex *const start, const Vertex *const end) const;
         bool isTwin(const Edge *const other) const;
-        double distanceToLine(const Vector3D &point, double &t) const;
+
+        Vector3D pointOnLine(const double t) const;
+        double projectToLine(const Vector3D &point) const;
+        Vector3D nearestPointOnLine(const Vector3D &point) const;
         double distanceToLine(const Vector3D &point) const;
-        double distanceToSegment(const Vector3D &point) const;
+        double distanceToEdge(const Vector3D &point) const;
 
     private:
         void deepCopy(const Edge &other);
@@ -100,7 +103,9 @@ class Facet
         bool findVisibleFacets(const Vector3D &point, std::vector<Facet *> &visibleFacets, double tolerance);
         Edge* getHorizonEdge() const;
         Edge* getMatchingEdge(const Vertex *const start, const Vertex *const end) const;
+
         double distanceToPlane(const Vector3D &point) const;
+        double distanceToFacet(const Vector3D &point) const;
 
         bool isInFront(const Vector3D &point, double tolerance) const;
         bool isBehind(const Vector3D &point, double tolerance) const;

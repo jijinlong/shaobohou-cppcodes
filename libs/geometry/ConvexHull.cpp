@@ -107,6 +107,7 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
         facets[i]->outsideSet.clear();
         facets[i]->updateOutsideSet(tempPoints, EPSILON);
     }
+    const int nremains = tempPoints.size();
 
 
     // update each facet
@@ -198,6 +199,22 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
         cout << "Convex Hull's centre = " << centre.toString() << endl;
         cout << "Convex Hull's covariance matrix = " << endl << covariance.toString() << endl;
     }
+
+#ifdef HULL_DEBUG
+    double farthestDist = distance2hull(points[0]);
+    for(unsigned int i = 0; i < points.size(); i++)
+    {
+        const double dist = distance2hull(points[i]);
+        farthestDist = std::max(farthestDist, dist);
+
+        if(dist > -EPSILON)
+        {
+            cout << "Point " << i << " is " << dist << "away from hull." << endl;
+        }
+    }
+#endif
+
+    double bah = distance2hull(vertices[0]->position);
 
     return true;
 }
@@ -489,38 +506,10 @@ bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdge
 
     if(std::accumulate(valids.begin(), valids.end(), 0) > 0)
     {
-        assert(checkConnectivity());
-        std::vector<double> dist2;
-        for(unsigned int j = 0; j < visibleFacets.size(); j++)
-            dist2.push_back(visibleFacets[j]->distanceToPlane(point));
-
-        for(unsigned int j = 0; j < horizonEdges.size(); j++)
-        {
-            cout << horizonEdges[j]->start->position << endl;
-        }
-
-        cout << endl << point << endl << endl;
-
         for(unsigned int j = 0; j < createdFacets.size(); j++)
-        {
-            if(valids[j] > 0)
-            {
-                cout << j << endl;
-                cout << horizonEdges[j]->start->position << endl;
-                cout << horizonEdges[j]->end->position << endl;
-                cout << endl;
-                
-                double t = 0.0;
-                double d = horizonEdges[j]->distanceToLine(point, t);
-                cout << t << "  --  " << d << endl;
-                cout << point << endl << endl;
-            }
-            
             delete createdFacets[j];
-        }
         delete newVertex;
 
-        assert(checkConnectivity());
         return false;
     }
 
@@ -662,6 +651,19 @@ const Vector3D& ConvexHull3D::getPosition() const
 const Quaternion& ConvexHull3D::getOrientation() const
 {
     return orientation;
+}
+
+double ConvexHull3D::distance2hull(const Vector3D &point) const
+{
+    assert(vertices.size() > 0);
+
+    double dist = Vector3D::distance(vertices[0]->position, point);
+    for(unsigned int f = 0; f < facets.size(); f++)
+    {
+        dist = std::min(dist, facets[f]->distanceToFacet(point));
+    }
+
+    return dist;
 }
 
 //naive implemetation for testing purpose
