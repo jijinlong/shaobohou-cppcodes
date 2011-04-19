@@ -147,11 +147,6 @@ double Vector3D::distance(const Vector3D &v1, const Vector3D &v2)
     return sqrt(vt * vt);
 }
 
-Vector3D Vector3D::getFloatVersion(const Vector3D &doubleVersion)
-{
-    return Vector3D((float)doubleVersion.x, (float)doubleVersion.y, (float)doubleVersion.z);
-}
-
 double& Vector3D::operator[](unsigned int selection)
 {
     switch (selection)

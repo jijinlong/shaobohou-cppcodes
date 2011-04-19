@@ -130,32 +130,30 @@ void Edge::calculateDerivedStates()
     direction.normalise();
 }
 
-double Edge::distanceToLine(const Vector3D &point, double &t) const
+Vector3D Edge::pointOnLine(const double t) const
 {
-    Vector3D lineOriginToPoint = point - start->position;
-    t = lineOriginToPoint * this->direction;
+    return this->direction * t + start->position;
+}
 
-    Vector3D nearestPoint = start->position + (this->direction * t);
+double Edge::projectToLine(const Vector3D &point) const
+{
+    return this->direction * (point - start->position);
+}
 
-    return Vector3D::distance(point, nearestPoint);
+Vector3D Edge::nearestPointOnLine(const Vector3D &point) const
+{
+    return pointOnLine(projectToLine(point));
 }
 
 double Edge::distanceToLine(const Vector3D &point) const
 {
-    double t = 0;
-
-    return distanceToLine(point, t);
+    return Vector3D::distance(point, nearestPointOnLine(point));
 }
 
-double Edge::distanceToSegment(const Vector3D &point) const
+double Edge::distanceToEdge(const Vector3D &point) const
 {
-    Vector3D lineOriginToPoint = point - start->position;
-    double t = lineOriginToPoint * this->direction;
-    t = std::max(0.0, std::min(t, 1.0));
-
-    Vector3D nearestPoint = start->position + (this->direction * t);
-
-    return Vector3D::distance(point, nearestPoint);
+    double t = projectToLine(point);
+    return Vector3D::distance(point, pointOnLine(std::max(0.0, std::min(t, 1.0))));
 }
 
 bool Edge::connect(Edge *edge)
@@ -369,6 +367,11 @@ void Facet::calculateDerivedStates()
 }
 
 double Facet::distanceToPlane(const Vector3D &point) const
+{
+    return (normal * point) + distance;
+}
+
+double Facet::distanceToFacet(const Vector3D &point) const
 {
     return (normal * point) + distance;
 }
