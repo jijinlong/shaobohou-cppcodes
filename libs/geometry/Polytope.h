@@ -107,7 +107,6 @@ class Facet
         Edge* getMatchingEdge(const Vertex *const start, const Vertex *const end) const;
 
         double distanceToPlane(const Vector3D &point) const;
-        double distanceToFacet(const Vector3D &point) const;
 
         bool isBefore(const Vector3D &point, double tolerance) const;
         bool isBehind(const Vector3D &point, double tolerance) const;

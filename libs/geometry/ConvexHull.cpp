@@ -204,12 +204,11 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
     double farthestDist = distance2hull(points[0]);
     for(unsigned int i = 0; i < points.size(); i++)
     {
-        const double dist = distance2hull(points[i]);
-        farthestDist = std::max(farthestDist, dist);
+        const Vector3D &tempPoint = points[i];
 
-        if(dist > EPSILON)
+        if(!insideHull(tempPoint, EPSILON))
         {
-            bool bah = insideHull(points[i], EPSILON);
+            const double dist = distance2hull(tempPoint);
             cout << "Point " << i << " is " << dist << " away from hull." << endl;
         }
     }
@@ -656,22 +655,9 @@ const Quaternion& ConvexHull3D::getOrientation() const
 
 bool ConvexHull3D::insideHull(const Vector3D &point, const double tol) const
 {
-    double dist = -std::numeric_limits<double>::max();
-
     bool inside =  true;
     for(unsigned int f = 0; f < facets.size(); f++)
-    {
-        inside = inside & facets[f]->isBehind(point, tol);
-
-        dist = std::max(dist, facets[f]->distanceToPlane(point));
-        double planeDist = facets[f]->distanceToPlane(point);
-        double facetDist = facets[f]->distanceToFacet(point);
-        if((planeDist-facetDist) > EPSILON)
-        {
-            const int bah = 0;
-            const double rah = facets[f]->distanceToFacet(point);
-        }
-    }
+        inside = inside && facets[f]->isBehind(point, -tol);
 
     return inside;
 }
@@ -680,11 +666,17 @@ double ConvexHull3D::distance2hull(const Vector3D &point) const
 {
     assert(vertices.size() > 0);
 
-    double dist = Vector3D::distance(vertices[0]->position, point);
+    double dist = -std::numeric_limits<double>::max();
+
+    // test facets
     for(unsigned int f = 0; f < facets.size(); f++)
-    {
-        dist = std::min(dist, facets[f]->distanceToFacet(point));
-    }
+        dist = std::max(dist, facets[f]->distanceToPlane(point));
+
+    // test all edges (unimplemented)
+
+    // test all vertices
+    for(unsigned int v = 0; v < vertices.size(); v++)
+        dist = std::min(dist, Vector3D::distance(point, vertices[v]->position));
 
     return dist;
 }
