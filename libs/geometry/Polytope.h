@@ -39,6 +39,8 @@ class Edge  //possibly add static list of dynamically allocated pointer to edges
     public:
         // derived variable
         Vector3D direction;
+        double length;
+
         // external pointers
         Vertex *start, *end;
         Facet *facet;
@@ -107,7 +109,7 @@ class Facet
         double distanceToPlane(const Vector3D &point) const;
         double distanceToFacet(const Vector3D &point) const;
 
-        bool isInFront(const Vector3D &point, double tolerance) const;
+        bool isBefore(const Vector3D &point, double tolerance) const;
         bool isBehind(const Vector3D &point, double tolerance) const;
         void orient(const Vector3D &reference);
         void createEdges();
