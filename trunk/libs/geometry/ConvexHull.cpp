@@ -207,9 +207,10 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
         const double dist = distance2hull(points[i]);
         farthestDist = std::max(farthestDist, dist);
 
-        if(dist > -EPSILON)
+        if(dist > EPSILON)
         {
-            cout << "Point " << i << " is " << dist << "away from hull." << endl;
+            bool bah = insideHull(points[i], EPSILON);
+            cout << "Point " << i << " is " << dist << " away from hull." << endl;
         }
     }
 #endif
@@ -280,7 +281,7 @@ bool ConvexHull3D::isWellFormed() const
             }
         }
 
-        if(facets[i]->isInFront(centre, EPSILON))
+        if(facets[i]->isBefore(centre, EPSILON))
         {
             wellFormed = false;
             cout << "Facet " << facets[i]->index + 1 << " out of " << facets.size() << " at " << facets[i] << " is facing the wrong way with distance " << facets[i]->distanceToPlane(centre) << endl;
@@ -418,7 +419,7 @@ bool ConvexHull3D::getVisibleFacets(Facet &startFacet, const Vector3D &point, ve
 #ifdef HULL_DEBUG
         for(unsigned int i = 0; i < facets.size(); i++)
         {
-            if((facets[i]->index >= 0) && facets[i]->isInFront(point, EPSILON) && !(facets[i]->marked))   //point in front of facet and not marked by previous algo, error
+            if((facets[i]->index >= 0) && facets[i]->isBefore(point, EPSILON) && !(facets[i]->marked))   //point in front of facet and not marked by previous algo, error
             {
                 is_valid = false;;
                 std::cout << "The point is " << facets[i]->distanceToPlane(point) << " in front of Facet " << i << ", with tolerance " << EPSILON << std::endl;
@@ -429,7 +430,7 @@ bool ConvexHull3D::getVisibleFacets(Facet &startFacet, const Vector3D &point, ve
         // compute distance to farthest visible facet
         for(unsigned int i = 0; i < visibleFacets.size(); i++)
         {
-            is_valid = is_valid || visibleFacets[i]->isInFront(point, EPSILON);
+            is_valid = is_valid || visibleFacets[i]->isBefore(point, EPSILON);
         }
 
         return is_valid;
@@ -651,6 +652,28 @@ const Vector3D& ConvexHull3D::getPosition() const
 const Quaternion& ConvexHull3D::getOrientation() const
 {
     return orientation;
+}
+
+bool ConvexHull3D::insideHull(const Vector3D &point, const double tol) const
+{
+    double dist = -std::numeric_limits<double>::max();
+
+    bool inside =  true;
+    for(unsigned int f = 0; f < facets.size(); f++)
+    {
+        inside = inside & facets[f]->isBehind(point, tol);
+
+        dist = std::max(dist, facets[f]->distanceToPlane(point));
+        double planeDist = facets[f]->distanceToPlane(point);
+        double facetDist = facets[f]->distanceToFacet(point);
+        if((planeDist-facetDist) > EPSILON)
+        {
+            const int bah = 0;
+            const double rah = facets[f]->distanceToFacet(point);
+        }
+    }
+
+    return inside;
 }
 
 double ConvexHull3D::distance2hull(const Vector3D &point) const

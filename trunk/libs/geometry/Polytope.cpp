@@ -59,6 +59,8 @@ Vertex::~Vertex()
 //Edge class implementation
 Edge::Edge()
 {
+    this->length = 0;
+
     this->start = 0;
     this->end = 0;
     this->facet = 0;
@@ -127,6 +129,7 @@ void Edge::deepCopy(const Edge &other)
 void Edge::calculateDerivedStates()
 {
     this->direction = end->position - start->position;
+    this->length = this->direction.magnitude();
     direction.normalise();
 }
 
@@ -373,10 +376,31 @@ double Facet::distanceToPlane(const Vector3D &point) const
 
 double Facet::distanceToFacet(const Vector3D &point) const
 {
-    return (normal * point) + distance;
+    double dist = std::numeric_limits<double>::max();
+
+    // distance to vertices
+    dist = std::min(dist, Vector3D::distance(point, vertices[0]->position));
+    dist = std::min(dist, Vector3D::distance(point, vertices[1]->position));
+    dist = std::min(dist, Vector3D::distance(point, vertices[2]->position));
+
+    // distance to edges
+    const double t0 = edges[0]->projectToLine(point);
+    const double t1 = edges[1]->projectToLine(point);
+    const double t2 = edges[2]->projectToLine(point);
+    if(t0 > 0.0 && t0 < edges[0]->length) dist = std::min(dist, Vector3D::distance(point, edges[0]->pointOnLine(t0)));
+    if(t1 > 0.0 && t1 < edges[1]->length) dist = std::min(dist, Vector3D::distance(point, edges[1]->pointOnLine(t1)));
+    if(t2 > 0.0 && t2 < edges[2]->length) dist = std::min(dist, Vector3D::distance(point, edges[2]->pointOnLine(t2)));
+
+    // distance to plane
+    if(t0 > 0.0 && t0 < edges[0]->length && 
+       t1 > 0.0 && t1 < edges[1]->length && 
+       t2 > 0.0 && t2 < edges[2]->length)
+        dist = std::min(dist, distanceToPlane(point));
+
+    return dist;
 }
 
-bool Facet::isInFront(const Vector3D &point, double tolerance) const
+bool Facet::isBefore(const Vector3D &point, double tolerance) const
 {
     return distanceToPlane(point) > tolerance;
 }
@@ -417,7 +441,7 @@ bool Facet::findVisibleFacets(const Vector3D &point, vector<Facet *> &visibleFac
 {
     if(marked)
         return true;
-    else if(isInFront(point, tolerance))
+    else if(isBefore(point, tolerance))
     {
         this->marked = true;
         visibleFacets.push_back(this);
@@ -492,7 +516,7 @@ void Facet::updateOutsideSet(vector<Vector3D> &points, double tolerance)
     {
         Vector3D point = *it;
 
-        if(isInFront(point, tolerance))
+        if(isBefore(point, tolerance))
         {
             outsideSet.push_back(point);
             it = points.erase(it);

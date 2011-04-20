@@ -19,6 +19,7 @@ class ConvexHull3D: public Polytope, public SupportMappable
         const Vector3D& getPosition() const;
         const Quaternion& getOrientation() const;
 
+        bool insideHull(const Vector3D &point, const double tol) const;
         double distance2hull(const Vector3D &point) const;
 
         //supportmapping
