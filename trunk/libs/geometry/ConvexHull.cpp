@@ -107,7 +107,6 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
         facets[i]->outsideSet.clear();
         facets[i]->updateOutsideSet(tempPoints, EPSILON);
     }
-    const int nremains = tempPoints.size();
 
 
     // update each facet
@@ -201,20 +200,19 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
     }
 
 #ifdef HULL_DEBUG
-    double farthestDist = distance2hull(points[0]);
+    bool somePointsOutsideOfHull = false;
     for(unsigned int i = 0; i < points.size(); i++)
     {
         const Vector3D &tempPoint = points[i];
 
         if(!insideHull(tempPoint, EPSILON))
         {
+            somePointsOutsideOfHull = true;
             const double dist = distance2hull(tempPoint);
             cout << "Point " << i << " is " << dist << " away from hull." << endl;
         }
     }
 #endif
-
-    double bah = distance2hull(vertices[0]->position);
 
     return true;
 }
