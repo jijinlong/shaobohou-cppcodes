@@ -3,9 +3,7 @@
 
 #include "Vector3D.h"
 
-extern const double PI;
-extern const double TWO_PI;
-extern const double HALF_PI;
+
 double deg2rad(double degree);
 double rad2deg(double radian);
 

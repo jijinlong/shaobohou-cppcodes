@@ -1,5 +1,7 @@
 #include "special.h"
 
+#include "Constants.h"
+
 #include <cassert>
 #include <cstdlib>
 #include <vector>
@@ -10,10 +12,6 @@
 using std::swap;
 using std::vector;
 
-
-const double EPSILON = 1.1921e-007;
-const double DOUBLE_EPSILON = 2.2204e-016;
-const double PI = 3.14159265358979323851280895940618620443274267017841339111328125;
 const double INV_RAND_MAX = 1.0 / static_cast<double>(RAND_MAX);
 const double realmin = std::numeric_limits<double>::min();
 const double realmax = std::numeric_limits<double>::max();

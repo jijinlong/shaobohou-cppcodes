@@ -1,5 +1,7 @@
 #include "Quaternion.h"
 
+#include "Constants.h"
+
 #include <cassert>
 #include <cmath>
 #include <string>
@@ -7,10 +9,6 @@
 using std::string;
 using std::ostringstream;
 
-
-const double PI = 3.14159265358979323851280895940618620443274267017841339111328125;
-const double TWO_PI  = PI*2.0;
-const double HALF_PI = PI/2.0;
 
 double deg2rad(double degree)
 {

@@ -19,19 +19,6 @@ double cot(double x);
 double gammaln(double x);
 double digamma(double x);
 
-template <typename T>
-T gammaln(const T &nu, unsigned int N)
-{
-    std::vector<T> args(N);
-    iota(args.begin(), args.end(), nu-N+1);
-
-    T res = (N*(N-1)*0.25)*log(pi);
-    for(unsigned int i = 0; i < args.size(); i++)
-        res += gammaln(args[i]*0.5);
-
-    return res;
-}
-
 double factln(unsigned int n);
 double binom(unsigned int k, unsigned int n, double p);
 

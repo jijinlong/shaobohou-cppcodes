@@ -6,8 +6,11 @@
 #include "inertia.h"
 #include "GraphicsMaths.h"
 #include "GLUtils.h"
+#include "TimeFuncs.h"
+#include "Constants.h"
 
 #include <cstdlib>
+#include <cmath>
 
 using std::vector;
 using std::cout;
