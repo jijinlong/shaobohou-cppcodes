@@ -1,9 +1,13 @@
 #include "GraphicsMaths.h"
 
+#include "Constants.h"
+
+#include <cmath>
 #include <cassert>
 #include <algorithm>
 
 using std::vector;
+
 
 const int LEFT_OF_LINE = 1;
 const int ON_THE_LINE = 0;
@@ -329,7 +333,7 @@ bool computePlane(const vector<Vector3D> &points, const Vector3D &normal, Vector
     if ((xAxis * xAxis) < EPSILON)  //all points are too close together
         return false;
 
-    Quaternion toY = Quaternion::makeFromAxisAngle(normal, HALF_PI);
+    Quaternion toY = Quaternion::makeFromAxisAngle(normal, PI*0.5);
     yAxis = toY.rotate(xAxis);
 
     return true;

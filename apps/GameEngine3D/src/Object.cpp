@@ -3,6 +3,8 @@
 #include "Object.h"
 
 #include "GLUtils.h"
+#include "TimeFuncs.h"
+#include "Constants.h"
 
 #include <cstdlib>
 #include <cstring>

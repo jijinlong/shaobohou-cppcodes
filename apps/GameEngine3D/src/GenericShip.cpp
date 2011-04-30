@@ -1,5 +1,7 @@
 #include "GenericShip.h"
 
+#include "Constants.h"
+
 
 void GenericShip::init()
 {

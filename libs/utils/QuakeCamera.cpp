@@ -1,5 +1,7 @@
 #include "QuakeCamera.h"
 
+#include "Constants.h"
+
 
 QuakeCamera::QuakeCamera()
 {
@@ -22,7 +24,7 @@ QuakeCamera::~QuakeCamera()
 
 void QuakeCamera::modOrientation(double rotateX, double rotateY, double rotateZ)
 {
-    const double TWO_PI = PI*2.0;
+    const double TWO_PI  = PI*2.0;
     const double HALF_PI = PI*0.5;
 
     double newLon = lon + rotateY;

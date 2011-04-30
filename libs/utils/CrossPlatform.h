@@ -6,8 +6,4 @@
 #include <windows.h>
 #endif
 
-//return system time in seconds,
-double getTime();
-unsigned int getSeedFromTime();
-
-#endif CROSS_PLATFORM_H
+#endif

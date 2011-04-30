@@ -1,10 +1,11 @@
 #include "Matrix3x3.h"
 
+#include "Constants.h"
+#include "special.h"
+
 #include <cassert>
 #include <cmath>
 #include <string>
-
-#include "special.h"
 
 using std::endl;
 using std::string;

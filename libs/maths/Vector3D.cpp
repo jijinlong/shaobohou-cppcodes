@@ -1,14 +1,13 @@
 #include "Vector3D.h"
 
+#include "Constants.h"
+
 #include <cassert>
 #include <cmath>
 #include <string>
 
 using std::string;
 using std::ostringstream;
-
-
-const double EPSILON = 1.1921e-007;
 
 
 Vector3D::Vector3D()

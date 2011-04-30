@@ -2,8 +2,11 @@
 
 #include "Polytope.h"
 
+#include "Constants.h"
+
 #include <map>
 #include <iostream>
+#include <cmath>
 #include <cassert>
 
 using std::vector;
