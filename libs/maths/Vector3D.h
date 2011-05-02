@@ -9,7 +9,7 @@ class Vector3D
     public:
         Vector3D();
         Vector3D(double x, double y, double z);
-        ~Vector3D();
+        virtual ~Vector3D();
 
         double magnitude() const;
         Vector3D direction() const;
