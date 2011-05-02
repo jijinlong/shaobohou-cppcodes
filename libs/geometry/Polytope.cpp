@@ -485,22 +485,33 @@ void Facet::createEdges()
     edges[2]->prev = edges[1];
 }
 
-void Facet::updateOutsideSet(vector<Vector3D> &points, double tolerance)
+void Facet::updateOutsideSets(std::vector<Facet*> &facets, std::vector<Vector3D> &points, const double tolerance)
 {
-    vector<Vector3D>::iterator it = points.begin();
-
-    while (it != points.end())
+    int count = 0;
+    for(vector<Vector3D>::const_iterator it = points.begin(); it != points.end(); it++)
     {
-        Vector3D point = *it;
-
-        if(isBefore(point, tolerance))
+        // assign as outside point
+        bool success = false;
+        for(unsigned int f = 0; f < facets.size(); f++)
         {
-            outsideSet.push_back(point);
-            it = points.erase(it);
+            if(facets[f]->isBefore(*it, tolerance))
+            {
+                success = true;
+                facets[f]->outsideSet.push_back(*it);
+                break;
+            }
         }
-        else
-            it++;
+        
+        // store as inside point
+        if(!success)
+        {
+            points[count] = *it;
+            count++;
+        }
     }
+    
+    // erase all outside points
+    points.erase(points.begin()+count, points.end());
 }
 
 bool Facet::getFarthestOutsidePoint(Vector3D &farthestPoint) const
