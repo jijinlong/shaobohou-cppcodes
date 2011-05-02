@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 {
     first = QuatCamera(Vector3D(), Quaternion::makeFromEulerAngles(0.0, PI / 2.0, 0.0), 10.0, 3.0, 1.0);
     second = QuakeCamera(Vector3D(), 0.0, PI / 4.0, 10.0, 3.0, 1.0);
-    current = &first;
+    current = &second;
 
 //had to use pointer for testShip because otherwise, if use assignment, the RHS will be deleted from stack
 //and consequently any other allocated objects(integrators) will be also be deallocated
