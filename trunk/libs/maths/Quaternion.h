@@ -13,7 +13,7 @@ class Quaternion
         Quaternion();
         Quaternion(double w, const Vector3D &v);
         Quaternion(double w, double x, double y, double z);
-        ~Quaternion();
+        virtual ~Quaternion();
 
         double magnitude() const;
         Vector3D getVector() const;

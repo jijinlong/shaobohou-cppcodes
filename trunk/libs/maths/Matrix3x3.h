@@ -13,7 +13,7 @@ class Matrix3x3
                   double e20, double e21, double e22);
         Matrix3x3(const Vector3D &col, const Vector3D &row);
         Matrix3x3(const Quaternion &quaternion);
-        ~Matrix3x3();
+        virtual ~Matrix3x3();
 
         double determinant() const;
         Matrix3x3 transpose() const;
