@@ -102,11 +102,7 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
 
 
     // update outside sets
-    for(unsigned int i = 0; i < facets.size(); i++)
-    {
-        facets[i]->outsideSet.clear();
-        facets[i]->updateOutsideSet(tempPoints, EPSILON);
-    }
+    Facet::updateOutsideSets(facets, tempPoints, EPSILON);
 
 
     // update each facet
@@ -482,8 +478,6 @@ bool ConvexHull3D::getHorizonEdges(vector<Facet *> &visibleFacets, vector<Edge *
 
 bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdges, const vector<Facet *> &visibleFacets)
 {
-    assert(checkConnectivity());
-
     vector<Facet *> createdFacets;
     Vertex *newVertex = new Vertex(point, vertices.size());
 
@@ -555,23 +549,20 @@ bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdge
     }
 
     //this updates the outside set of new facets
-    for(unsigned int i = 0; i < createdFacets.size(); i++)
-        for(unsigned int j = 0; j < visibleFacets.size(); j++)
-            createdFacets[i]->updateOutsideSet(visibleFacets[j]->outsideSet, EPSILON);     // negative tolerance
-
+    for(unsigned int f = 0; f < visibleFacets.size(); f++)
+        Facet::updateOutsideSets(createdFacets, visibleFacets[f]->outsideSet, EPSILON);
+    
     createdFacets.clear();
 
     for(unsigned int i = 0; i < visibleFacets.size(); i++)
         visibleFacets[i]->index = -1;
 
-    assert(checkConnectivity());
     return true;
 }
 
 void ConvexHull3D::compactFacets()
 {
     vector<Facet *>::iterator it = facets.begin();
-        assert(checkConnectivity());
 
     while (it != facets.end())
     {
@@ -579,10 +570,8 @@ void ConvexHull3D::compactFacets()
 
         if(f->index < 0)
         {
-                assert(checkConnectivity());
             delete f;
             it = facets.erase(it);
-                assert(checkConnectivity());
         }
         else
             it++;

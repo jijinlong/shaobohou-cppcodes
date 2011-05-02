@@ -1,10 +1,10 @@
 #ifndef POLYTOPE_H
 #define POLYTOPE_H
 
+#include "Vector3D.h"
+
 #include <vector>
 #include <GL/gl.h>
-
-#include "Vector3D.h"
 
 class Triangle
 {
@@ -114,9 +114,8 @@ class Facet
         void createEdges();
 
         // functions that helps implements quickhull
-        // update outside set for a facet, note this function does not assume
-        // that the outside set is empty to start with, it only push
-        void updateOutsideSet(std::vector<Vector3D> &points, double tolerance);
+        // update the outside set of each facet
+        static void updateOutsideSets(std::vector<Facet*> &facets, std::vector<Vector3D> &points, const double tolerance);
         // get the farthest point in a facet's outside set
         bool getFarthestOutsidePoint(Vector3D &farthestPoint) const;
 
