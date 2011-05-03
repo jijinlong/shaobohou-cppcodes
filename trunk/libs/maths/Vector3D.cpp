@@ -2,6 +2,8 @@
 
 #include "Constants.h"
 
+using MathConstants::EPSILON;
+
 #include <cassert>
 #include <cmath>
 #include <string>

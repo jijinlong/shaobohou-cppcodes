@@ -1,6 +1,9 @@
 #include "Mesh.h"
 
 #include "MiscUtils.h"
+#include "Constants.h"
+
+using MathConstants::EPSILON;
 
 using std::cout;
 using std::endl;

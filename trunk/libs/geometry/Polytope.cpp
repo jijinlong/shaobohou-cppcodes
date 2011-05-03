@@ -4,6 +4,8 @@
 
 #include "Constants.h"
 
+using MathConstants::EPSILON;
+
 #include <map>
 #include <iostream>
 #include <cmath>

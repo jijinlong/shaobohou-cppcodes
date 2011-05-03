@@ -6,6 +6,8 @@
 #include "TimeFuncs.h"
 #include "Constants.h"
 
+using MathConstants::PI;
+
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -14,6 +16,7 @@ using std::vector;
 using std::ifstream;
 using std::cout;
 using std::endl;
+
 
 void Object::init()
 {

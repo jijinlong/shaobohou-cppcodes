@@ -9,12 +9,15 @@
 #include "TimeFuncs.h"
 #include "Constants.h"
 
+using MathConstants::PI;
+
 #include <cstdlib>
 #include <cmath>
 
 using std::vector;
 using std::cout;
 using std::endl;
+
 
 bool drawHull = true;
 bool fixPointer = false;

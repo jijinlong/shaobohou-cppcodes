@@ -71,7 +71,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\libs\utils\CrossPlatform.cpp" />
+    <ClCompile Include="..\..\libs\utils\TimeFuncs.cpp" />
     <ClCompile Include="maintest.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -85,6 +85,7 @@
     <ClInclude Include="..\..\libs\linearalgebra\tnt\jama_svd.h" />
     <ClInclude Include="..\..\libs\linearalgebra\tnt\jama_svd_funcs.h" />
     <ClInclude Include="..\..\libs\utils\CrossPlatform.h" />
+    <ClInclude Include="..\..\libs\utils\TimeFuncs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,5 +1,12 @@
 #include "ExponentialMap.h"
 
+#include "Constants.h"
+
+using MathConstants::PI;
+using MathConstants::TWO_PI;
+using MathConstants::HALF_PI;
+
+
 const double minAngle = 1.0e-7;
 const double cutoffAngle = PI;
 

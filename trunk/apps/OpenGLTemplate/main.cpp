@@ -6,6 +6,7 @@
 #include "QuatCamera.h"
 #include "MiscUtils.h"
 #include "GLUtils.h"
+#include "TimeFuncs.h"
 
 #include <vector>
 #include <fstream>

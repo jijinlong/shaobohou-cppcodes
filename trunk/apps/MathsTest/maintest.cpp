@@ -1,4 +1,5 @@
 #include "CrossPlatform.h"
+#include "TimeFuncs.h"
 
 #include "tnt/array2d.h"
 #include "tnt/jama_chol.h"

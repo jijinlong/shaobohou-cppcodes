@@ -66,7 +66,7 @@
     <ClCompile Include="..\..\libs\maths\ExponentialMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\libs\utils\CrossPlatform.cpp">
+    <ClCompile Include="..\..\libs\utils\TimeFuncs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -126,6 +126,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\libs\utils\CrossPlatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\maths\constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\utils\TimeFuncs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
