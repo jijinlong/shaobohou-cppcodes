@@ -76,16 +76,17 @@
     <ClCompile Include="..\..\libs\maths\Vector2D.cpp" />
     <ClCompile Include="..\..\libs\maths\Vector3D.cpp" />
     <ClCompile Include="..\..\libs\utils\BasicCamera.cpp" />
-    <ClCompile Include="..\..\libs\utils\CrossPlatform.cpp" />
     <ClCompile Include="..\..\libs\utils\DraggableInterface.cpp" />
     <ClCompile Include="..\..\libs\utils\GLUtils.cpp" />
     <ClCompile Include="..\..\libs\utils\Keybinding.cpp" />
     <ClCompile Include="..\..\libs\utils\QuakeCamera.cpp" />
     <ClCompile Include="..\..\libs\utils\QuatCamera.cpp" />
+    <ClCompile Include="..\..\libs\utils\TimeFuncs.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\libs\geometry\GraphicsMaths.h" />
+    <ClInclude Include="..\..\libs\maths\constants.h" />
     <ClInclude Include="..\..\libs\maths\Quaternion.h" />
     <ClInclude Include="..\..\libs\maths\Vector2D.h" />
     <ClInclude Include="..\..\libs\maths\Vector3D.h" />
@@ -97,6 +98,7 @@
     <ClInclude Include="..\..\libs\utils\Movement.h" />
     <ClInclude Include="..\..\libs\utils\QuakeCamera.h" />
     <ClInclude Include="..\..\libs\utils\QuatCamera.h" />
+    <ClInclude Include="..\..\libs\utils\TimeFuncs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

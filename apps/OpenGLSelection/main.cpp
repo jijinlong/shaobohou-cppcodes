@@ -8,6 +8,7 @@
 #include "GLUtils.h"
 #include "DraggableInterface.h"
 #include "GraphicsMaths.h"
+#include "TimeFuncs.h"
 
 #include <vector>
 #include <fstream>

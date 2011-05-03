@@ -91,12 +91,12 @@
     <ClCompile Include="..\..\libs\physics\inertia.cpp" />
     <ClCompile Include="..\..\libs\physics\RigidBody.cpp" />
     <ClCompile Include="..\..\libs\utils\BasicCamera.cpp" />
-    <ClCompile Include="..\..\libs\utils\CrossPlatform.cpp" />
     <ClCompile Include="..\..\libs\utils\GLUtils.cpp" />
     <ClCompile Include="..\..\libs\utils\Keybinding.cpp" />
     <ClCompile Include="..\..\libs\utils\MiscUtils.cpp" />
     <ClCompile Include="..\..\libs\utils\QuakeCamera.cpp" />
     <ClCompile Include="..\..\libs\utils\QuatCamera.cpp" />
+    <ClCompile Include="..\..\libs\utils\TimeFuncs.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\GenericShip.cpp" />
     <ClCompile Include="src\Object.cpp" />
@@ -109,6 +109,7 @@
     <ClInclude Include="..\..\libs\geometry\OBBTree.h" />
     <ClInclude Include="..\..\libs\geometry\Polytope.h" />
     <ClInclude Include="..\..\libs\geometry\SupportMappable.h" />
+    <ClInclude Include="..\..\libs\maths\constants.h" />
     <ClInclude Include="..\..\libs\maths\Integrator.h" />
     <ClInclude Include="..\..\libs\maths\Matrix3x3.h" />
     <ClInclude Include="..\..\libs\maths\Quaternion.h" />
@@ -126,6 +127,7 @@
     <ClInclude Include="..\..\libs\utils\Movement.h" />
     <ClInclude Include="..\..\libs\utils\QuakeCamera.h" />
     <ClInclude Include="..\..\libs\utils\QuatCamera.h" />
+    <ClInclude Include="..\..\libs\utils\TimeFuncs.h" />
     <ClInclude Include="src\GenericShip.h" />
     <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\SpaceFlightBody.h" />

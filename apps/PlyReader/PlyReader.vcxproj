@@ -75,11 +75,11 @@
     <ClCompile Include="..\..\libs\maths\Quaternion.cpp" />
     <ClCompile Include="..\..\libs\maths\Vector3D.cpp" />
     <ClCompile Include="..\..\libs\utils\BasicCamera.cpp" />
-    <ClCompile Include="..\..\libs\utils\CrossPlatform.cpp" />
     <ClCompile Include="..\..\libs\utils\GLUtils.cpp" />
     <ClCompile Include="..\..\libs\utils\Keybinding.cpp" />
     <ClCompile Include="..\..\libs\utils\MiscUtils.cpp" />
     <ClCompile Include="..\..\libs\utils\QuakeCamera.cpp" />
+    <ClCompile Include="..\..\libs\utils\TimeFuncs.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
     <ClCompile Include="src\PlyReader.cpp" />
@@ -87,6 +87,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\libs\linearalgebra\tnt\array1d.h" />
     <ClInclude Include="..\..\libs\linearalgebra\tnt\array2d.h" />
+    <ClInclude Include="..\..\libs\maths\constants.h" />
     <ClInclude Include="..\..\libs\maths\Quaternion.h" />
     <ClInclude Include="..\..\libs\maths\Vector3D.h" />
     <ClInclude Include="..\..\libs\utils\BasicCamera.h" />
@@ -96,6 +97,7 @@
     <ClInclude Include="..\..\libs\utils\MiscUtils.h" />
     <ClInclude Include="..\..\libs\utils\Movement.h" />
     <ClInclude Include="..\..\libs\utils\QuakeCamera.h" />
+    <ClInclude Include="..\..\libs\utils\TimeFuncs.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\PlyReader.h" />
   </ItemGroup>

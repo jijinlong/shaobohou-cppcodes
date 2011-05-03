@@ -1,7 +1,9 @@
 #include "Matrix3x3.h"
 
-#include "Constants.h"
 #include "special.h"
+#include "Constants.h"
+
+using MathConstants::EPSILON;
 
 #include <cassert>
 #include <cmath>

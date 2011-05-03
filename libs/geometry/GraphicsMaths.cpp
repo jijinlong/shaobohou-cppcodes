@@ -2,6 +2,9 @@
 
 #include "Constants.h"
 
+using MathConstants::EPSILON;
+using MathConstants::PI;
+
 #include <cmath>
 #include <cassert>
 #include <algorithm>

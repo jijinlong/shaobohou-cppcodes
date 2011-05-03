@@ -4,6 +4,7 @@
 #include "QuakeCamera.h"
 #include "Mesh.h"
 #include "PlyReader.h"
+#include "TimeFuncs.h"
 
 #include <vector>
 #include <fstream>

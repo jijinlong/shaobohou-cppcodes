@@ -5,6 +5,7 @@
 #include "BiovisionDisplay.h"
 #include "QuakeCamera.h"
 #include "MiscUtils.h"
+#include "TimeFuncs.h"
 
 #include <cstdlib>
 #include <iostream>

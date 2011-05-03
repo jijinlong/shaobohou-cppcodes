@@ -2,15 +2,19 @@
 
 #include "Constants.h"
 
+using MathConstants::DOUBLE_EPSILON;
+using MathConstants::EPSILON;
+using MathConstants::PI;
+
 #include <cassert>
 #include <cstdlib>
 #include <vector>
 #include <cmath>
 #include <iostream>
 
-
 using std::swap;
 using std::vector;
+
 
 const double INV_RAND_MAX = 1.0 / static_cast<double>(RAND_MAX);
 const double realmin = std::numeric_limits<double>::min();

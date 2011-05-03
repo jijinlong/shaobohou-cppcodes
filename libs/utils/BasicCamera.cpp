@@ -3,6 +3,8 @@
 #include "GLUtils.h"
 #include "Constants.h"
 
+using MathConstants::PI;
+
 
 const Quaternion BasicCamera::cameraOffset = Quaternion::makeFromEulerAngles(0.0, PI, 0.0);
 
