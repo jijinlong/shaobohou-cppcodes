@@ -2,10 +2,10 @@
 
 = Introduction =
 
-Planned features and improvements.
+Features and improvements.
 
 
-= Details =
+= Planned =
 
 Listed in order of priority:
   * Better initialisation of the double-triangle. The initial point set should be processed in linear order, first constructing an edge and then the double-triangle, removing redundant points at each stage.
@@ -13,3 +13,6 @@ Listed in order of priority:
   * Implement the rotating caliper method for determining OBB from convex hulls (2D & 3D)
   * Better subdivision of triangle set for constructing OBB tree
   * Clean up collision detection (GJK) and collision response code
+
+
+= Done =
