@@ -104,75 +104,16 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
     }
 
 
-    // update outside sets
-    Facet::updateOutsideSets(facets, tempPoints, EPSILON);
-
-
-    // update each facet
-    for(unsigned int i = 0; i < facets.size(); i++)
+    // update each facet, maximum two passes
+    for(unsigned int iter = 0; iter < 2; iter++)
     {
-        if(facets[i]->index < 0) continue;
-        if(facets[i]->outsideSet.size() == 0) continue;
+        if(tempPoints.size() == 0) break;
 
-
-        // get farthest point in the facet's outside set
-        Vector3D farthestPoint;
-        bool success = facets[i]->getFarthestOutsidePoint(farthestPoint);
-
-
-        // get all facets visible from the farthest point
-        vector<Facet *> visibleFacets;
-        if(success)
-        {
-            if(!getVisibleFacets(*(facets[i]), farthestPoint, visibleFacets))//get visible facets error
-            {
-#ifdef HULL_DEBUG
-                cout << "Get Visible Facets error!  " << facets[i]->distanceToPlane(farthestPoint) << "  " << facets[i] << endl;
-#endif
-                success = false;
-            }
-        }
-
-
-        // get the horizons from the visible facets
-        vector<Edge *> horizonEdges;
-        if(success)
-        {
-            if(!getHorizonEdges(visibleFacets, horizonEdges))
-            {
-#ifdef HULL_DEBUG
-                cout << "Get Horizon Edges error!" << endl;
-#endif
-                success = false;
-            }
-        }
-
-
-        // replace visible facets with new facets connectint a vertex at the farthest point
-        if(success)
-        {
-            if(!remakeHull(farthestPoint, horizonEdges, visibleFacets))
-            {
-#ifdef HULL_DEBUG
-                cout << "Remake Hull error!" << endl;
-#endif
-                success = false;
-            }
-        }
-
-
-        // mark visible facets for deletion
-        if(success)
-        {
-            for(unsigned int j = 0; j < visibleFacets.size(); j++) visibleFacets[j]->index = -1;
-        }
-
-
-        // clean up
-        facets[i]->outsideSet.clear();
-        for(unsigned int j = 0; j < visibleFacets.size(); j++) visibleFacets[j]->marked = false;
-        for(unsigned int j = 0; j < horizonEdges.size(); j++) horizonEdges[j]->marked = false;
+        Facet::updateOutsideSets(facets, tempPoints, EPSILON);
+        for(unsigned int f = 0; f < facets.size(); f++)
+            updateFacet(facets[f]);
     }
+
 
     //clean up by removing non-hull vertices and facets
     assert(checkConnectivity());
@@ -406,9 +347,75 @@ bool ConvexHull3D::setup(vector<Vector3D> &points)
     return success;
 }
 
-bool ConvexHull3D::getVisibleFacets(Facet &startFacet, const Vector3D &point, vector<Facet *> &visibleFacets)
+void ConvexHull3D::updateFacet(Facet *facet)
 {
-    if(startFacet.findVisibleFacets(point, visibleFacets, -EPSILON))    // negative tolerance
+    if(!facet) return;
+    if( facet->index < 0) return;
+    if( facet->outsideSet.size() == 0) return;
+
+
+    // get farthest point in the facet's outside set
+    Vector3D farthestPoint;
+    bool success = facet->getFarthestOutsidePoint(farthestPoint);
+
+
+    // get all facets visible from the farthest point
+    vector<Facet *> visibleFacets;
+    if(success)
+    {
+        if(!getVisibleFacets(facet, farthestPoint, visibleFacets))//get visible facets error
+        {
+#ifdef HULL_DEBUG
+            cout << "Get Visible Facets error!  " << facet->distanceToPlane(farthestPoint) << "  " << facet << endl;
+#endif
+            success = false;
+        }
+    }
+
+
+    // get the horizons from the visible facets
+    vector<Edge *> horizonEdges;
+    if(success)
+    {
+        if(!getHorizonEdges(visibleFacets, horizonEdges))
+        {
+#ifdef HULL_DEBUG
+            cout << "Get Horizon Edges error!" << endl;
+#endif
+            success = false;
+        }
+    }
+
+
+    // replace visible facets with new facets connectint a vertex at the farthest point
+    if(success)
+    {
+        if(!remakeHull(farthestPoint, horizonEdges, visibleFacets))
+        {
+#ifdef HULL_DEBUG
+            cout << "Remake Hull error!" << endl;
+#endif
+            success = false;
+        }
+    }
+
+
+    // mark visible facets for deletion
+    if(success)
+    {
+        for(unsigned int j = 0; j < visibleFacets.size(); j++) visibleFacets[j]->index = -1;
+    }
+
+
+    // clean up
+    facet->outsideSet.clear();
+    for(unsigned int j = 0; j < visibleFacets.size(); j++) visibleFacets[j]->marked = false;
+    for(unsigned int j = 0; j < horizonEdges.size(); j++) horizonEdges[j]->marked = false;
+}
+
+bool ConvexHull3D::getVisibleFacets(Facet *startFacet, const Vector3D &point, vector<Facet *> &visibleFacets)
+{
+    if(startFacet->findVisibleFacets(point, visibleFacets, -EPSILON))    // negative tolerance
     {
         bool is_valid = true;
 
@@ -664,9 +671,9 @@ double ConvexHull3D::distance2hull(const Vector3D &point) const
 
     // test all edges (unimplemented)
 
-    // test all vertices
-    for(unsigned int v = 0; v < vertices.size(); v++)
-        dist = std::min(dist, Vector3D::distance(point, vertices[v]->position));
+    //// test all vertices
+    //for(unsigned int v = 0; v < vertices.size(); v++)
+    //    dist = std::min(dist, Vector3D::distance(point, vertices[v]->position));
 
     return dist;
 }

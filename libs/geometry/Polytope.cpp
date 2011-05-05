@@ -496,6 +496,9 @@ void Facet::updateOutsideSets(std::vector<Facet*> &facets, std::vector<Vector3D>
         bool success = false;
         for(unsigned int f = 0; f < facets.size(); f++)
         {
+            if(!facets[f]) continue;
+            if( facets[f]->index < 0) continue;
+
             if(facets[f]->isBefore(*it, tolerance))
             {
                 success = true;
