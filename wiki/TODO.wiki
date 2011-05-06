@@ -9,6 +9,7 @@ Features and improvements.
 
 Listed in order of priority:
   * Better initialisation of the double-triangle. The initial point set should be processed in linear order, first constructing an edge and then the double-triangle, removing redundant points at each stage.
+  * a failed updateFacet() call should only remove the farthestPoint (add it to tempPoints?) and not clear the outside set
   * Better implementation of 2d convex hull using the quickhull algorithm
   * Implement the rotating caliper method for determining OBB from convex hulls (2D & 3D)
   * Better implementation of ConvexHull3D::distance2hull() which takes into account of edges and vertices
