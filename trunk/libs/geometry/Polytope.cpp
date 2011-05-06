@@ -424,7 +424,7 @@ bool Facet::findVisibleFacets(const Vector3D &point, vector<Facet *> &visibleFac
     {
         this->marked = true;
         visibleFacets.push_back(this);
-        if((edges[0]->twin != 0) && (edges[0]->twin != 0) && (edges[0]->twin != 0))
+        if((edges[0]->twin != 0) && (edges[1]->twin != 0) && (edges[2]->twin != 0))
         {
             return (edges[0]->twin->facet->findVisibleFacets(point, visibleFacets, tolerance) &&
                     edges[1]->twin->facet->findVisibleFacets(point, visibleFacets, tolerance) &&
