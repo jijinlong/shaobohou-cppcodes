@@ -10,14 +10,14 @@ class ConvexHull3D: public Polytope, public SupportMappable
 {
     public:
         ConvexHull3D();
-        ConvexHull3D(const std::vector<Vector3D> &points, bool verbose=true);
+        ConvexHull3D(const std::vector<Vector3D> &points, const double epsilon, const bool verbose=true);
         virtual ~ConvexHull3D();
 
-        bool addPointsToHull(const std::vector<Vector3D> &points, bool verbose);
+        bool addPointsToHull(const std::vector<Vector3D> &points, const bool verbose);
 
-        void sync(const Vector3D &position, const Quaternion & orientation);
-        const Vector3D& getPosition() const;
-        const Quaternion& getOrientation() const;
+        void sync(const Vector3D &newPosition, const Quaternion &newOrientation);
+        const Vector3D& position() const;
+        const Quaternion& orientation() const;
 
         bool insideHull(const Vector3D &point, const double tol) const;
         double distance2hull(const Vector3D &point) const;
@@ -29,24 +29,26 @@ class ConvexHull3D: public Polytope, public SupportMappable
         virtual unsigned int getTransformedSupportFeature(std::vector<Vector3D> &supportfeature, const Vector3D &direction) const;
 
         bool isWellFormed() const;
-        const Matrix3x3& getCovariance() const;
+        const Matrix3x3& covariance() const;
 
         virtual void draw() const;
 
     protected:
         //derived states
-        double surface;
-        Vector3D centre;            //mean centroid of the convex hull
-        Matrix3x3 covariance;       //covariance matrix
+        double m_surface;
+        Vector3D m_centre;            //mean centroid of the convex hull
+        Matrix3x3 m_covariance;       //covariance matrix
         //transformation
-        Vector3D position;
-        Quaternion orientation;
+        Vector3D m_position;
+        Quaternion m_orientation;
+        // fudging factor
+        double eps;
 
     private:
         bool setup(std::vector<Vector3D> &points);
         void updateFacet(Facet *queryFacet);
 
-        bool getVisibleFacets(Facet *startFacet, const Vector3D &point, std::vector<Facet *> &visibleFacets);
+        bool getVisibleFacets(const Vector3D &point, Facet *startFacet, std::vector<Facet *> &visibleFacets);
         bool getHorizonEdges(std::vector<Facet *> &visibleFacets, std::vector<Edge *> &horizonEdges); //true get horizon edges is successful
         bool remakeHull(const Vector3D &point, std::vector<Edge *> &horizonEdges, const std::vector<Facet *> &visibleFacets);  //true if remake was successful
         
@@ -62,7 +64,7 @@ class ConvexHull2D
 {
     public:
         ConvexHull2D();
-        ConvexHull2D(const std::vector<Vector3D> &points);
+        ConvexHull2D(const std::vector<Vector3D> &points, const double epsilon, const bool verbose=true);
         ConvexHull2D(const ConvexHull2D &other);
         virtual ~ConvexHull2D();
 
@@ -73,6 +75,8 @@ class ConvexHull2D
     private:
         std::vector<Vertex *> vertices;
         std::vector<double> polarAngles;
+        // fudging factor
+        double eps;
 
         void computePolarAngles();
         void polarAngleQuickSort(int begin, int end);

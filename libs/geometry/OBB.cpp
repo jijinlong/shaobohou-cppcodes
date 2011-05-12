@@ -38,7 +38,7 @@ OBB::OBB(const ConvexHull3D &hull, double scaling)
 {
     Vector3D eigenvalues;              //eigenvalues of the covariance matrix
     Vector3D eigenvector[3];          //matching eigenvectors, each perpendicular to the other two
-    hull.getCovariance().computeEigenSystem(eigenvalues, eigenvector[0], eigenvector[1], eigenvector[2]);
+    hull.covariance().computeEigenSystem(eigenvalues, eigenvector[0], eigenvector[1], eigenvector[2]);
 
     //assume eigenvector[0] is +x, eigenvector[1] is +y, but eigenvector[2] may not be +z so, use cross product of eigenvector[0] and eigenvector[1]
     Vector3D v = eigenvector[0] ^ eigenvector[1];

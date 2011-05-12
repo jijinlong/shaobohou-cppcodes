@@ -21,7 +21,7 @@ int windowWidth = 640;
 int windowHeight = 480;
 
 bool followCam = false;
-Object *testShip;
+Object *testShip1;
 Object *testShip2;
 Object *currentShip;
 Vector3D seed;

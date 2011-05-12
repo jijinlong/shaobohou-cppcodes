@@ -43,7 +43,7 @@ void BiovisionDisplay::draw(const KinematicModel<BiovisionJoint> &model, const V
             glEnd();
 
             Vector3D global_direction = (joint.global_position()-model.getParent(joint).global_position()).direction();
-            double length = joint.local_position().magnitude();
+            double length = joint.local_position().length();
 
             glColor(colour);
             glPushMatrix();

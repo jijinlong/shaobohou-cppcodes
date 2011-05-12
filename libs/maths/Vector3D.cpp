@@ -26,9 +26,14 @@ Vector3D::~Vector3D()
 {
 }
 
-double Vector3D::magnitude() const
+double Vector3D::length() const
 {
     return static_cast<double>(sqrt(x*x + y*y + z*z));
+}
+
+double Vector3D::length2() const
+{
+    return static_cast<double>(x*x + y*y + z*z);
 }
 
 Vector3D Vector3D::direction() const
@@ -41,17 +46,20 @@ Vector3D Vector3D::direction() const
 
 void Vector3D::normalise()
 {
-    double m = magnitude();
-
-    if (m < EPSILON) m = 1.0;
-
-    x /= m;
-    y /= m;
-    z /= m;
-
-    if (fabs(x) < EPSILON) x = 0.0;
-    if (fabs(y) < EPSILON) y = 0.0;
-    if (fabs(z) < EPSILON) z = 0.0;
+    const double m = length();
+    if(m > EPSILON)
+    {
+        const double invM = 1.0/m;
+        x *= invM;
+        y *= invM;
+        z *= invM;
+    }
+    else
+    {
+        x = 0.0;
+        y = 0.0;
+        z = 0.0;
+    }
 }
 
 Vector3D& Vector3D::operator+=(const Vector3D &u)
@@ -144,8 +152,14 @@ double Vector3D::angle(const Vector3D &v1, const Vector3D &v2)
 
 double Vector3D::distance(const Vector3D &v1, const Vector3D &v2)
 {
-    Vector3D vt = v2 - v1;
+    const Vector3D vt = v2 - v1;
     return sqrt(vt * vt);
+}
+
+double Vector3D::distance2(const Vector3D &v1, const Vector3D &v2)
+{
+    const Vector3D vt = v2 - v1;
+    return vt * vt;
 }
 
 double& Vector3D::operator[](unsigned int selection)

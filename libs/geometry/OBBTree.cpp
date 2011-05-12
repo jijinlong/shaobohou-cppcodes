@@ -1,6 +1,9 @@
 #include "CrossPlatform.h"
 
 #include "OBBTree.h"
+#include "Constants.h"
+
+using MathConstants::EPSILON;
 
 #include <algorithm>
 #include <iostream>
@@ -50,7 +53,7 @@ OBBNode::OBBNode(const std::vector<Vector3D> &vertices, const std::vector<Triang
         return;
     }
 
-    hull = ConvexHull3D(points, verbose);
+    hull = ConvexHull3D(points, EPSILON, verbose);
     assert(hull.isWellFormed());
     assert(points.size() > 3);
     obb = OBB(hull, scaling);

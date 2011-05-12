@@ -10,6 +10,7 @@
 #include "Constants.h"
 
 using MathConstants::PI;
+using MathConstants::EPSILON;
 
 #include <cstdlib>
 #include <cmath>
@@ -33,20 +34,20 @@ int main(int argc, char *argv[])
 //and consequently any other allocated objects(integrators) will be also be deallocated
 //but the LHS still hold a copy so when it tries to use it, memmory error
 //will need to overload = operator for deep copy for this to work
-    testShip = new Object(Vector3D(), Quaternion(), 100.0, 1.0, 0.0, true, true);
-    testShip->loadAC3D("TestShip.ac", 1.0);
+    testShip1 = new Object(Vector3D(), Quaternion(), 100.0, 1.0, 0.0, true, true);
+    testShip1->loadAC3D("TestShip.ac", 1.0);
     double mass = 10.0;
 //testShip->pInfo.setInertia(getRectangularCylinderInertia(6.0, 3.0, 13.0, mass));
 //testShip->pInfo.setInertia(getRectangularCylinderInertia(4.5, 4.5, 13.0, mass));
-    testShip->pInfo.setInertia(getRectangularCylinderInertia(1.0, 20.0, 13.0, mass));
-    testShip->pInfo.setMass(mass);
+    testShip1->pInfo.setInertia(getRectangularCylinderInertia(1.0, 20.0, 13.0, mass));
+    testShip1->pInfo.setMass(mass);
 
     testShip2 = new Object(Vector3D(0.0, 0.0, 20.0), Quaternion(), 100.0, 1.0, 0.0, true, true);
     testShip2->loadAC3D("TestShip2.ac", 1.0);
     testShip2->pInfo.setInertia(getRectangularCylinderInertia(1.0, 20.0, 13.0, mass));
     testShip2->pInfo.setMass(mass);
 
-    currentShip = testShip;
+    currentShip = testShip1;
 
     atexit(freeMemory);
 
@@ -86,7 +87,8 @@ int main(int argc, char *argv[])
 
 void freeMemory()
 {
-    delete testShip;
+    delete testShip1;
+    delete testShip2;
 }
 
 void keyboard(unsigned char key, int x, int y)
@@ -112,10 +114,10 @@ void keyboard(unsigned char key, int x, int y)
             followCam = !followCam;
             break;
         case '4':
-            if (currentShip == testShip)
+            if (currentShip == testShip1)
                 currentShip = testShip2;
             else if (currentShip == testShip2)
-                currentShip = testShip;
+                currentShip = testShip1;
             break;
         case '0':
             currentShip->pInfo.applyBodyImpulse(Vector3D(0.0, 100.0, 0.0), Vector3D(0.0, 0.0, 5.0));
@@ -251,40 +253,40 @@ void draw_opengl()
     if (deltaTime > 0.02) deltaTime = 0.02;
     lastTime = realTime;
 
-    testShip->updateView(deltaTime);
+    testShip1->updateView(deltaTime);
     testShip2->updateView(deltaTime);
 
-    Vector3D d = testShip->pInfo.getPosition() - testShip2->pInfo.getPosition();
+    Vector3D d = testShip1->pInfo.getPosition() - testShip2->pInfo.getPosition();
 
-    if (OBB::testIntersection(testShip->tree.getOBB(), testShip2->tree.getOBB()))
+    if (OBB::testIntersection(testShip1->tree.getOBB(), testShip2->tree.getOBB()))
     {
-        testShip->obbColour = Vector3D(1.0, 0.0, 0.0);
+        testShip1->obbColour = Vector3D(1.0, 0.0, 0.0);
         testShip2->obbColour = Vector3D(1.0, 0.0, 0.0);
 
         lambdas.clear();
         aCoordsIndex.clear();
         bCoordsIndex.clear();
-        seed = GJK(testShip->tree.getConvexHull(), testShip2->tree.getConvexHull(), seed, lambdas, aCoordsIndex, bCoordsIndex);
+        seed = GJK(testShip1->tree.getConvexHull(), testShip2->tree.getConvexHull(), seed, lambdas, aCoordsIndex, bCoordsIndex);
 
         if ((seed * seed) < 0.0001)
         {cout << "Collided " << frame << endl;
 
-            testShip->pInfo.revertState();
+            testShip1->pInfo.revertState();
             testShip2->pInfo.revertState();
 
-            testShip->tree.sync(testShip->pInfo.getPosition(), testShip->pInfo.getOrientation());
+            testShip1->tree.sync(testShip1->pInfo.getPosition(), testShip1->pInfo.getOrientation());
             testShip2->tree.sync(testShip2->pInfo.getPosition(), testShip2->pInfo.getOrientation());
 
             lambdas.clear();
             aCoordsIndex.clear();
             bCoordsIndex.clear();
-            seed = GJK(testShip->tree.getConvexHull(), testShip2->tree.getConvexHull(), seed, lambdas, aCoordsIndex, bCoordsIndex);
+            seed = GJK(testShip1->tree.getConvexHull(), testShip2->tree.getConvexHull(), seed, lambdas, aCoordsIndex, bCoordsIndex);
             cout << "reverted seed = " << seed.toString() << endl;
             Vector3D a, b;
             for (unsigned int i = 0; i < lambdas.size(); i++)
             {cout << "indices drawn = " << aCoordsIndex[i] << " " << bCoordsIndex [i] << " with " << lambdas[i] << endl;
-                a += (testShip->tree.getConvexHull().getOrientation().rotate(testShip->tree.getConvexHull().vertex(aCoordsIndex[i]).position) + testShip->tree.getConvexHull().getPosition()) * lambdas[i];
-                b +=(testShip2->tree.getConvexHull().getOrientation().rotate(testShip2->tree.getConvexHull().vertex(bCoordsIndex[i]).position) + testShip2->tree.getConvexHull().getPosition()) * lambdas[i];
+                a += (testShip1->tree.getConvexHull().orientation().rotate(testShip1->tree.getConvexHull().vertex(aCoordsIndex[i]).position) + testShip1->tree.getConvexHull().position()) * lambdas[i];
+                b += (testShip2->tree.getConvexHull().orientation().rotate(testShip2->tree.getConvexHull().vertex(bCoordsIndex[i]).position) + testShip2->tree.getConvexHull().position()) * lambdas[i];
             }
             cout << "a = " << a.toString() << endl;
             cout << "b = " << b.toString() << endl;
@@ -306,16 +308,16 @@ void draw_opengl()
             */
 
             cout << "before impulse" << endl;
-            cout << testShip->pInfo.getMomentum().toString() << endl;
-            cout << testShip->pInfo.getAngularMomentum().toString() << endl;
+            cout << testShip1->pInfo.getMomentum().toString() << endl;
+            cout << testShip1->pInfo.getAngularMomentum().toString() << endl;
             cout << testShip2->pInfo.getMomentum().toString() << endl;
             cout << testShip2->pInfo.getAngularMomentum().toString() << endl;
 
-            impulseCollision(testShip->pInfo, testShip2->pInfo, point, normal, 1.0, 0.0);
+            impulseCollision(testShip1->pInfo, testShip2->pInfo, point, normal, 1.0, 0.0);
 
             cout << "after impulse" << endl;
-            cout << testShip->pInfo.getMomentum().toString() << endl;
-            cout << testShip->pInfo.getAngularMomentum().toString() << endl;
+            cout << testShip1->pInfo.getMomentum().toString() << endl;
+            cout << testShip1->pInfo.getAngularMomentum().toString() << endl;
             cout << testShip2->pInfo.getMomentum().toString() << endl;
             cout << testShip2->pInfo.getAngularMomentum().toString() << endl;
 
@@ -331,7 +333,7 @@ void draw_opengl()
     }
     else
     {
-        testShip->obbColour = Vector3D(0.0, 1.0, 0.0);
+        testShip1->obbColour = Vector3D(0.0, 1.0, 0.0);
         testShip2->obbColour = Vector3D(0.0, 1.0, 0.0);
     }
 
@@ -356,7 +358,7 @@ void draw_opengl()
     glVertex3f(51.2, -10.0, 51.2);
     glVertex3f(51.2, -10.0, -51.2);
     glEnd();
-    testShip->draw(drawHull, obbLevel);
+    testShip1->draw(drawHull, obbLevel);
     testShip2->draw(drawHull, obbLevel);
     glPopMatrix();
 
@@ -364,15 +366,15 @@ void draw_opengl()
     lambdas.clear();
     aCoordsIndex.clear();
     bCoordsIndex.clear();
-    seed = GJK(testShip->tree.getConvexHull(), testShip2->tree.getConvexHull(), seed, lambdas, aCoordsIndex, bCoordsIndex);
+    seed = GJK(testShip1->tree.getConvexHull(), testShip2->tree.getConvexHull(), seed, lambdas, aCoordsIndex, bCoordsIndex);
     Vector3D a, b;
     vector<Vector3D> features;
     vector<Vector3D> planeFeatures;
     vector<Vector3D> newFeatures;
     for (unsigned int i = 0; i < lambdas.size(); i++)
     {//cout << "indices drawn = " << aCoordsIndex[i] << " " << bCoordsIndex [i] << endl;
-        a += (testShip->tree.getConvexHull().getOrientation().rotate(testShip->tree.getConvexHull().vertex(aCoordsIndex[i]).position) + testShip->tree.getConvexHull().getPosition()) * lambdas[i];
-        b +=(testShip2->tree.getConvexHull().getOrientation().rotate(testShip2->tree.getConvexHull().vertex(bCoordsIndex[i]).position) + testShip2->tree.getConvexHull().getPosition()) * lambdas[i];
+        a += (testShip1->tree.getConvexHull().orientation().rotate(testShip1->tree.getConvexHull().vertex(aCoordsIndex[i]).position) + testShip1->tree.getConvexHull().position()) * lambdas[i];
+        b += (testShip2->tree.getConvexHull().orientation().rotate(testShip2->tree.getConvexHull().vertex(bCoordsIndex[i]).position) + testShip2->tree.getConvexHull().position()) * lambdas[i];
 
         Vector3D n = Vector3D(0.0, 0.0, -1.0);
 
@@ -399,7 +401,7 @@ void draw_opengl()
 
     ConvexHull2D hull;
     if (planeFeatures.size() > 1)
-        hull = ConvexHull2D(planeFeatures);
+        hull = ConvexHull2D(planeFeatures, EPSILON);
 
     glPushMatrix();
     glDisable(GL_LIGHTING);

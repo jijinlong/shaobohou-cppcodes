@@ -162,7 +162,7 @@ Vector3D Quaternion::axis() const
     Vector3D myaxis(x, y, z);
     myaxis.normalise();
 
-    if(myaxis.magnitude() < EPSILON)
+    if(myaxis.length() < EPSILON)
         myaxis = Vector3D(1.0, 0.0, 0.0);
 
     return myaxis;
