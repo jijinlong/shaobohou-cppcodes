@@ -149,7 +149,7 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
         {
             somePointsOutsideOfHull = true;
             const double dist = distance2hull(tempPoint);
-            cout << "Point " << i << " is " << dist << " away from hull." << endl;
+            cout << "Point " << i << "    " << tempPoint << "   is " << dist << " away from hull." << endl;
         }
     }
 #endif
@@ -468,22 +468,25 @@ bool ConvexHull3D::getVisibleFacets(const Vector3D &point, Facet *startFacet, ve
 
         bool is_valid = true;
 
+        // compute distance to farthest visible facet, make sure at least one facet is actually visible
+        for(unsigned int i = 0; i < visibleFacets.size(); i++)
+        {
+            is_valid = is_valid || visibleFacets[i]->isBefore(point, eps);
+        }
+
 #ifdef HULL_DEBUG
         for(unsigned int i = 0; i < facets.size(); i++)
         {
             if((facets[i]->index >= 0) && facets[i]->isBefore(point, -eps) && !(facets[i]->marked))   //point in front of facet and not marked by previous algo, error
             {
-                //is_valid = false;;
+                is_valid = false;
                 std::cout << "The point is " << facets[i]->distanceToPlane(point) << " in front of Facet " << i << ", with tolerance " << -eps << std::endl;
+                std::cout << facets[i]->edges[0]->twin->facet->distanceToPlane(point) << std::endl;
+                std::cout << facets[i]->edges[1]->twin->facet->distanceToPlane(point) << std::endl;
+                std::cout << facets[i]->edges[2]->twin->facet->distanceToPlane(point) << std::endl;
             }
         }
 #endif
-
-        // compute distance to farthest visible facet
-        for(unsigned int i = 0; i < visibleFacets.size(); i++)
-        {
-            is_valid = is_valid && visibleFacets[i]->isBefore(point, -eps);
-        }
 
         return is_valid;
     }
@@ -625,14 +628,18 @@ bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdge
         exit(1);
     }
 
-    //this updates the outside set of new facets
-    for(unsigned int f = 0; f < visibleFacets.size(); f++)
-        Facet::updateOutsideSets(createdFacets, visibleFacets[f]->outsideSet, eps*10);
-    
-    createdFacets.clear();
 
     for(unsigned int i = 0; i < visibleFacets.size(); i++)
         visibleFacets[i]->index = -1;
+
+
+    // call with facets instead of created facets????? or maybe add points to every facet that can see it
+    //this updates the outside set of new facets
+    for(unsigned int f = 0; f < visibleFacets.size(); f++)
+        Facet::updateOutsideSets(facets, visibleFacets[f]->outsideSet, eps*10);
+        //Facet::updateOutsideSets(createdFacets, visibleFacets[f]->outsideSet, eps*10);
+    
+    //createdFacets.clear();
 
     return true;
 }

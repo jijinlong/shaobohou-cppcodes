@@ -510,10 +510,12 @@ void Facet::updateOutsideSets(std::vector<Facet*> &facets, std::vector<Vector3D>
         // store as inside point
         if(!success)
         {
+            std::cout << *it << " is not visible" << std::endl;
             points[count] = *it;
             count++;
         }
     }
+    std::cout << std::endl;
     
     // erase all outside points
     points.erase(points.begin()+count, points.end());
