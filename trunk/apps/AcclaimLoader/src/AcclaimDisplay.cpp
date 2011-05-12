@@ -26,12 +26,12 @@ void AcclaimDisplay::draw(const KinematicModel<AcclaimJoint> &model, const Vecto
         }
 
         Vector3D global_direction = joint.global_endeffector_displacement().direction();
-        double length = joint.local_endeffector().magnitude();
+        double length = joint.local_endeffector().length();
 
         glColor3d(colour[0], colour[1], colour[2]);
         glPushMatrix();
             glTranslate(joint.global_position());
-            glTranslate(global_direction* joint.local_endeffector().magnitude() * 0.5);
+            glTranslate(global_direction* joint.local_endeffector().length() * 0.5);
 
             //align bone
             Vector3D zAxis = Vector3D(0.0, 0.0, 1.0);

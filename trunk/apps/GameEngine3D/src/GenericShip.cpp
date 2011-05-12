@@ -48,14 +48,14 @@ void GenericShip::computeForceAndTorque(double time)
     double actualTurnPower = turnPower;
     rotation = inertia * rotation; //scaled by mass distribution
 
-    if (!(rotation.magnitude() > EPSILON)) //only calculate this if pilot is not trying to move, so stabilise motion
+    if (!(rotation.length() > EPSILON)) //only calculate this if pilot is not trying to move, so stabilise motion
     {
         rotation = -angularMomentum;
         //stop jittering when ship have very small angular momentum
-        if ((angularMomentum.magnitude() * 10.0) < turnPower) actualTurnPower = angularMomentum.magnitude() * 10.0;
+        if ((angularMomentum.length() * 10.0) < turnPower) actualTurnPower = angularMomentum.length() * 10.0;
     }
 
-    if (rotation.magnitude() > EPSILON)
+    if (rotation.length() > EPSILON)
     {
         rotation.normalise();
         rotation *= (actualTurnPower / 2.0); //divide the power among the pairs of turn thrusters
@@ -70,7 +70,7 @@ void GenericShip::computeForceAndTorque(double time)
 
 
 //resolve linear motion
-    if (movement.magnitude() > EPSILON)
+    if (movement.length() > EPSILON)
     {
         movement.normalise();
         movement *= (forwardPower / 2.0); //divide the power among the movement thrusters

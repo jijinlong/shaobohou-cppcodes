@@ -134,7 +134,7 @@ void Edge::deepCopy(const Edge &other)
 void Edge::calculateDerivedStates()
 {
     this->direction = end->position - start->position;
-    this->length = this->direction.magnitude();
+    this->length = this->direction.length();
     direction.normalise();
 }
 
@@ -366,7 +366,7 @@ void Facet::calculateDerivedStates()
     centre = (vertices[0]->position + vertices[1]->position + vertices[2]->position) / 3.0;
     normal = Vector3D::normal(vertices[0]->position, vertices[1]->position, vertices[2]->position);
     distance = -(normal * vertices[0]->position);
-    area = 0.5 * ((vertices[0]->position - vertices[1]->position) ^ (vertices[2]->position - vertices[1]->position)).magnitude();
+    area = 0.5 * ((vertices[0]->position - vertices[1]->position) ^ (vertices[2]->position - vertices[1]->position)).length();
 
     if(fabs(normal * normal) < EPSILON)
         wellFormed = false;
