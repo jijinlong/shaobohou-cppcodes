@@ -111,7 +111,7 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
 
         Facet::updateOutsideSets(facets, tempPoints, eps*10);
         for(unsigned int f = 0; f < facets.size(); f++)
-            updateFacet(facets[f]);
+            updateFacet(facets[f], tempPoints);
     }
 
 
@@ -152,6 +152,13 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
             cout << "Point " << i << "    " << tempPoint << "   is " << dist << " away from hull." << endl;
         }
     }
+
+    double maxDist = -std::numeric_limits<double>::max();
+    for(unsigned int i = 0; i < tempPoints.size(); i++)
+    {
+        maxDist = std::max(maxDist, distance2hull(tempPoints[i]));
+    }
+    cout << "Maximum distance of " << tempPoints.size() << " remaining point to the hull is " << maxDist << endl;
 #endif
 
     return true;
@@ -347,7 +354,7 @@ bool ConvexHull3D::setup(vector<Vector3D> &points)
     return success;
 }
 
-void ConvexHull3D::updateFacet(Facet *facet)
+void ConvexHull3D::updateFacet(Facet *facet, std::vector<Vector3D> &nearPoints)
 {
     if(!facet) return;
     if( facet->index < 0) return;
@@ -390,22 +397,8 @@ void ConvexHull3D::updateFacet(Facet *facet)
     // replace visible facets with new facets connectint a vertex at the farthest point
     if(success)
     {
-        if(!remakeHull(farthestPoint, horizonEdges, visibleFacets))
+        if(!remakeHull(farthestPoint, horizonEdges, visibleFacets, nearPoints))
         {
-            double maxDist = -std::numeric_limits<double>::max();
-            for(unsigned f = 0; f < visibleFacets.size(); f++)
-            {
-                maxDist = std::max(maxDist, visibleFacets[f]->distanceToPlane(farthestPoint));
-            }
-
-            double maxDist2 = -std::numeric_limits<double>::max();
-            for(unsigned f = 0; f < facets.size(); f++)
-            {
-                if(facets[f]->index < 0) continue;
-
-                maxDist2 = std::max(maxDist2, facets[f]->distanceToPlane(farthestPoint));
-            }
-
 #ifdef HULL_DEBUG
             cout << "Remake Hull error!" << endl;
 #endif
@@ -538,7 +531,7 @@ bool ConvexHull3D::getHorizonEdges(vector<Facet *> &visibleFacets, vector<Edge *
     return true;
 }
 
-bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdges, const vector<Facet *> &visibleFacets)
+bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdges, const vector<Facet *> &visibleFacets, std::vector<Vector3D> &nearPoints)
 {
     Vector3D centre;
     for(unsigned int i = 0; i < vertices.size(); i++)
@@ -562,6 +555,7 @@ bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdge
 
         if(!(f->wellFormed) || dd > 0)
         {
+            double d = e->distanceToLine(point);
             double ed = e->projectToLine(point);
             double ed1 = e->next->projectToLine(point);
             double ed2 = e->prev->projectToLine(point);
@@ -633,11 +627,15 @@ bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdge
         visibleFacets[i]->index = -1;
 
 
-    // call with facets instead of created facets????? or maybe add points to every facet that can see it
     //this updates the outside set of new facets
     for(unsigned int f = 0; f < visibleFacets.size(); f++)
-        Facet::updateOutsideSets(facets, visibleFacets[f]->outsideSet, eps*10);
-        //Facet::updateOutsideSets(createdFacets, visibleFacets[f]->outsideSet, eps*10);
+    {
+        Facet::updateOutsideSets(createdFacets, visibleFacets[f]->outsideSet, eps*10);
+
+        // retain undecided points
+        nearPoints.insert(nearPoints.end(), visibleFacets[f]->outsideSet.begin(), visibleFacets[f]->outsideSet.end());
+        visibleFacets[f]->outsideSet.clear();
+    }
     
     //createdFacets.clear();
 

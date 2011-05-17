@@ -66,7 +66,7 @@ class Edge  //possibly add static list of dynamically allocated pointer to edges
         double projectToLine(const Vector3D &point) const;
         Vector3D nearestPointOnLine(const Vector3D &point) const;
         double distanceToLine(const Vector3D &point) const;
-        double distanceToEdge(const Vector3D &point) const;
+        //double distanceToEdge(const Vector3D &point) const;
 
     private:
         void deepCopy(const Edge &other);

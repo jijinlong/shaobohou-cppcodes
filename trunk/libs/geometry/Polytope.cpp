@@ -5,6 +5,7 @@
 #include "Constants.h"
 
 using MathConstants::EPSILON;
+using MathConstants::DOUBLE_EPSILON;
 
 #include <map>
 #include <iostream>
@@ -158,11 +159,11 @@ double Edge::distanceToLine(const Vector3D &point) const
     return Vector3D::distance(point, nearestPointOnLine(point));
 }
 
-double Edge::distanceToEdge(const Vector3D &point) const
-{
-    double t = projectToLine(point);
-    return Vector3D::distance(point, pointOnLine(std::max(0.0, std::min(t, 1.0))));
-}
+//double Edge::distanceToEdge(const Vector3D &point) const
+//{
+//    double t = projectToLine(point);
+//    return Vector3D::distance(point, pointOnLine(std::max(0.0, std::min(t, 1.0))));
+//}
 
 bool Edge::connect(Edge *edge)
 {
@@ -494,12 +495,15 @@ void Facet::updateOutsideSets(std::vector<Facet*> &facets, std::vector<Vector3D>
     {
         // assign as outside point
         bool success = false;
+        double maxDist = -std::numeric_limits<double>::max();
         for(unsigned int f = 0; f < facets.size(); f++)
         {
             if(!facets[f]) continue;
             if( facets[f]->index < 0) continue;
 
-            if(facets[f]->isBefore(*it, tolerance))
+            maxDist = std::max(maxDist, facets[f]->distanceToPlane(*it));
+            //if(facets[f]->isBefore(*it, tolerance))
+            if(maxDist > tolerance)
             {
                 success = true;
                 facets[f]->outsideSet.push_back(*it);
@@ -507,15 +511,17 @@ void Facet::updateOutsideSets(std::vector<Facet*> &facets, std::vector<Vector3D>
             }
         }
         
-        // store as inside point
+        // retain points that are barely outside the hull for later processing
         if(!success)
         {
-            std::cout << *it << " is not visible" << std::endl;
-            points[count] = *it;
-            count++;
+            if(maxDist > -DOUBLE_EPSILON)
+            {
+                //std::cout << "kept point " << *it << std::endl;
+                points[count] = *it;
+                count++;
+            }
         }
     }
-    std::cout << std::endl;
     
     // erase all outside points
     points.erase(points.begin()+count, points.end());
