@@ -70,8 +70,11 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
     // compute temporary centroid
     m_centre = mean(points);
 
-    // temp points
-    vector<Vector3D> tempPoints = points;
+    // temp vertices
+    vector<Vertex*> tempPoints;
+    for(unsigned int i = 0; i < points.size(); i++)
+        tempPoints.push_back(new Vertex(points[i], i));
+
 
     // setup conve xhull
     if((vertices.size() == 0) && (facets.size() == 0))
@@ -95,9 +98,9 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
 #endif
 
             m_surface = eps;
-            m_centre = mean(tempPoints);
-            m_covariance = covar(tempPoints);
-            vertices.push_back(new Vertex(mean(tempPoints), 0));
+            m_centre = mean(points);
+            m_covariance = covar(points);
+            vertices.push_back(new Vertex(mean(points), 0));
 
             return true;
         }
@@ -105,7 +108,7 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
 
 
     // update each facet, maximum two passes
-    for(unsigned int iter = 0; iter < 2; iter++)
+    for(unsigned int iter = 0; iter < 3; iter++)
     {
         if(tempPoints.size() == 0) break;
 
@@ -156,13 +159,19 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
     double maxDist = -std::numeric_limits<double>::max();
     if(tempPoints.size() > 0)
     {
-        maxDist = distance2hull(tempPoints[0]);
+        maxDist = distance2hull(tempPoints[0]->position);
         for(unsigned int i = 0; i < tempPoints.size(); i++)
         {
-            maxDist = std::max(maxDist, distance2hull(tempPoints[i]));
+            maxDist = std::max(maxDist, distance2hull(tempPoints[i]->position));
         }
         cout << "Maximum distance of " << tempPoints.size() << " remaining point to the hull is " << maxDist << endl;
     }
+
+    unsigned int outsideCount = 0;
+    for(unsigned int i = 0; i < facets.size(); i++)
+        outsideCount += facets[i]->outsideSet.size();
+    if(outsideCount > 0)
+        cout << outsideCount << " outside points remain" << endl;
 #endif
 
     return true;
@@ -297,7 +306,7 @@ void ConvexHull3D::computeDerivedStates()
     m_covariance = Matrix3x3(e[0][0], e[0][1], e[0][2], e[1][0], e[1][1], e[1][2], e[2][0], e[2][1], e[2][2]);
 }
 
-bool ConvexHull3D::setup(vector<Vector3D> &points)
+bool ConvexHull3D::setup(vector<Vertex*> &points)
 {
     assert(points.size() > 3);
 
@@ -309,9 +318,9 @@ bool ConvexHull3D::setup(vector<Vector3D> &points)
             for(unsigned int k = j+1; k < points.size()-1; k++)
             {
                 //begin constructing the two triangles
-                Vertex *a = new Vertex(points[i], 0);
-                Vertex *b = new Vertex(points[j], 1);
-                Vertex *c = new Vertex(points[k], 2);
+                Vertex *a = new Vertex(points[i]->position, 0);
+                Vertex *b = new Vertex(points[j]->position, 1);
+                Vertex *c = new Vertex(points[k]->position, 2);
 
                 Facet *f1 = new Facet(a, b, c, 0);
                 Facet *f2 = new Facet(c, b, a, 1);
@@ -358,7 +367,7 @@ bool ConvexHull3D::setup(vector<Vector3D> &points)
     return success;
 }
 
-void ConvexHull3D::updateFacet(Facet *facet, std::vector<Vector3D> &nearPoints)
+void ConvexHull3D::updateFacet(Facet *facet, std::vector<Vertex*> &nearPoints)
 {
     while(!updateFacetOnce(facet, nearPoints))
         return;
@@ -368,7 +377,7 @@ void ConvexHull3D::updateFacet(Facet *facet, std::vector<Vector3D> &nearPoints)
     facet->outsideSet.clear();
 }
 
-bool ConvexHull3D::updateFacetOnce(Facet *facet, std::vector<Vector3D> &nearPoints)
+bool ConvexHull3D::updateFacetOnce(Facet *facet, std::vector<Vertex*> &nearPoints)
 {
     if(!facet) return true;
     if( facet->index < 0) return true;
@@ -376,7 +385,7 @@ bool ConvexHull3D::updateFacetOnce(Facet *facet, std::vector<Vector3D> &nearPoin
 
 
     // get farthest point in the facet's outside set
-    Vector3D farthestPoint;
+    Vertex *farthestPoint = NULL;
     bool success = facet->getFarthestOutsidePoint(farthestPoint);
 
 
@@ -384,10 +393,10 @@ bool ConvexHull3D::updateFacetOnce(Facet *facet, std::vector<Vector3D> &nearPoin
     vector<Facet *> visibleFacets;
     if(success)
     {
-        if(!getVisibleFacets(farthestPoint, facet, visibleFacets))//get visible facets error
+        if(!getVisibleFacets(farthestPoint->position, facet, visibleFacets))//get visible facets error
         {
 #ifdef HULL_DEBUG
-            cout << "Get Visible Facets error!  " << facet->distanceToPlane(farthestPoint) << "  " << facet << endl;
+            cout << "Get Visible Facets error!  " << facet->distanceToPlane(farthestPoint->position) << "  " << facet << endl;
 #endif
             success = false;
         }
@@ -411,7 +420,7 @@ bool ConvexHull3D::updateFacetOnce(Facet *facet, std::vector<Vector3D> &nearPoin
     // replace visible facets with new facets connectint a vertex at the farthest point
     if(success)
     {
-        if(!remakeHull(farthestPoint, horizonEdges, visibleFacets, nearPoints))
+        if(!remakeHull(farthestPoint->position, horizonEdges, visibleFacets, nearPoints))
         {
 #ifdef HULL_DEBUG
             cout << "Remake Hull error!" << endl;
@@ -424,6 +433,10 @@ bool ConvexHull3D::updateFacetOnce(Facet *facet, std::vector<Vector3D> &nearPoin
     // mark visible facets for deletion
     if(success)
     {
+        if(facet->outsideSet.size() > 0)
+        {
+            const int bah = 0;
+        }
         facet->outsideSet.clear();
         for(unsigned int j = 0; j < visibleFacets.size(); j++) visibleFacets[j]->index = -1;
     }
@@ -548,7 +561,7 @@ bool ConvexHull3D::getHorizonEdges(vector<Facet *> &visibleFacets, vector<Edge *
     return true;
 }
 
-bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdges, const vector<Facet *> &visibleFacets, std::vector<Vector3D> &nearPoints)
+bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdges, const vector<Facet *> &visibleFacets, std::vector<Vertex*> &nearPoints)
 {
     Vector3D centre;
     for(unsigned int i = 0; i < vertices.size(); i++)

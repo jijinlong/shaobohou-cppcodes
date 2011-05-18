@@ -89,7 +89,7 @@ class Facet
         bool marked;
         bool wellFormed;
         // outside set
-        std::vector<Vector3D> outsideSet;
+        std::vector<Vertex*> outsideSet;
 
         Facet();
         Facet(Vertex *a, Vertex *b, Vertex *c, int index);
@@ -115,9 +115,9 @@ class Facet
 
         // functions that helps implements quickhull
         // update the outside set of each facet
-        static void updateOutsideSets(std::vector<Facet*> &facets, std::vector<Vector3D> &points, const double tolerance);
+        static void updateOutsideSets(std::vector<Facet*> &facets, std::vector<Vertex*> &points, const double tolerance);
         // get the farthest point in a facet's outside set
-        bool getFarthestOutsidePoint(Vector3D &farthestPoint);
+        bool getFarthestOutsidePoint(Vertex *&farthestPoint);
 
     private:
         void deallocateMemory();

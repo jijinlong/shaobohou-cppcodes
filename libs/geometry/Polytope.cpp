@@ -488,10 +488,10 @@ void Facet::createEdges()
     edges[2]->prev = edges[1];
 }
 
-void Facet::updateOutsideSets(std::vector<Facet*> &facets, std::vector<Vector3D> &points, const double tolerance)
+void Facet::updateOutsideSets(std::vector<Facet*> &facets, std::vector<Vertex*> &points, const double tolerance)
 {
     int count = 0;
-    for(vector<Vector3D>::const_iterator it = points.begin(); it != points.end(); it++)
+    for(vector<Vertex*>::const_iterator it = points.begin(); it != points.end(); it++)
     {
         // assign as outside point
         bool success = false;
@@ -501,8 +501,7 @@ void Facet::updateOutsideSets(std::vector<Facet*> &facets, std::vector<Vector3D>
             if(!facets[f]) continue;
             if( facets[f]->index < 0) continue;
 
-            maxDist = std::max(maxDist, facets[f]->distanceToPlane(*it));
-            //if(facets[f]->isBefore(*it, tolerance))
+            maxDist = std::max(maxDist, facets[f]->distanceToPlane((*it)->position));
             if(maxDist > tolerance)
             {
                 success = true;
@@ -520,6 +519,10 @@ void Facet::updateOutsideSets(std::vector<Facet*> &facets, std::vector<Vector3D>
                 points[count] = *it;
                 count++;
             }
+            else if((*it)->index == 2 || (*it)->index == 2)
+            {
+                std::cout << "Point " << (*it)->index << "  at  " << (*it)->position << " is discarded at distance " << maxDist << std::endl;
+            }
         }
     }
     
@@ -527,16 +530,16 @@ void Facet::updateOutsideSets(std::vector<Facet*> &facets, std::vector<Vector3D>
     points.erase(points.begin()+count, points.end());
 }
 
-bool Facet::getFarthestOutsidePoint(Vector3D &farthestPoint)
+bool Facet::getFarthestOutsidePoint(Vertex *&farthestPoint)
 {
     if(outsideSet.size() > 0)
     {
         // find the farthest point
         unsigned int farthestIndex = 0;
-        double farthestDistance = distanceToPlane(outsideSet[farthestIndex]);
+        double farthestDistance = distanceToPlane(outsideSet[farthestIndex]->position);
         for(unsigned int i = 0; i < outsideSet.size(); i++)
         {
-            double tempDistance = distanceToPlane(outsideSet[i]);
+            double tempDistance = distanceToPlane(outsideSet[i]->position);
             if(tempDistance > farthestDistance)
             {
                 farthestIndex = i;
@@ -547,6 +550,11 @@ bool Facet::getFarthestOutsidePoint(Vector3D &farthestPoint)
         // pop out the farthest point
         farthestPoint = outsideSet[farthestIndex];
         outsideSet.erase(outsideSet.begin()+farthestIndex);
+
+        if(farthestPoint->index == 2 || farthestPoint->index == 4)
+        {
+            std::cout << "Point " << farthestPoint->index << "  at  " << farthestPoint->position << " is farthest at " << farthestDistance << std::endl;
+        }
 
         return true;
     }
