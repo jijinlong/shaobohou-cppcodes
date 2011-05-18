@@ -45,13 +45,13 @@ class ConvexHull3D: public Polytope, public SupportMappable
         double eps;
 
     private:
-        bool setup(std::vector<Vector3D> &points);
-        void updateFacet(Facet *queryFacet, std::vector<Vector3D> &nearPoints);
-        bool updateFacetOnce(Facet *queryFacet, std::vector<Vector3D> &nearPoints);
+        bool setup(std::vector<Vertex*> &points);
+        void updateFacet(Facet *queryFacet, std::vector<Vertex*> &nearPoints);
+        bool updateFacetOnce(Facet *queryFacet, std::vector<Vertex*> &nearPoints);
 
         bool getVisibleFacets(const Vector3D &point, Facet *startFacet, std::vector<Facet *> &visibleFacets);
         bool getHorizonEdges(std::vector<Facet *> &visibleFacets, std::vector<Edge *> &horizonEdges); //true get horizon edges is successful
-        bool remakeHull(const Vector3D &point, std::vector<Edge *> &horizonEdges, const std::vector<Facet *> &visibleFacets, std::vector<Vector3D> &nearPoints);  //true if remake was successful
+        bool remakeHull(const Vector3D &point, std::vector<Edge *> &horizonEdges, const std::vector<Facet *> &visibleFacets, std::vector<Vertex*> &nearPoints);  //true if remake was successful
         
         void compactFacets();
         void compactVertices();
