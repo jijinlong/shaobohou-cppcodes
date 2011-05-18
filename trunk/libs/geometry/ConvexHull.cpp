@@ -154,11 +154,15 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
     }
 
     double maxDist = -std::numeric_limits<double>::max();
-    for(unsigned int i = 0; i < tempPoints.size(); i++)
+    if(tempPoints.size() > 0)
     {
-        maxDist = std::max(maxDist, distance2hull(tempPoints[i]));
+        maxDist = distance2hull(tempPoints[0]);
+        for(unsigned int i = 0; i < tempPoints.size(); i++)
+        {
+            maxDist = std::max(maxDist, distance2hull(tempPoints[i]));
+        }
+        cout << "Maximum distance of " << tempPoints.size() << " remaining point to the hull is " << maxDist << endl;
     }
-    cout << "Maximum distance of " << tempPoints.size() << " remaining point to the hull is " << maxDist << endl;
 #endif
 
     return true;
@@ -356,9 +360,19 @@ bool ConvexHull3D::setup(vector<Vector3D> &points)
 
 void ConvexHull3D::updateFacet(Facet *facet, std::vector<Vector3D> &nearPoints)
 {
-    if(!facet) return;
-    if( facet->index < 0) return;
-    if( facet->outsideSet.size() == 0) return;
+    while(!updateFacetOnce(facet, nearPoints))
+        return;
+
+    // retain undecided points
+    nearPoints.insert(nearPoints.begin(), facet->outsideSet.begin(), facet->outsideSet.end());
+    facet->outsideSet.clear();
+}
+
+bool ConvexHull3D::updateFacetOnce(Facet *facet, std::vector<Vector3D> &nearPoints)
+{
+    if(!facet) return true;
+    if( facet->index < 0) return true;
+    if( facet->outsideSet.size() == 0) return true;
 
 
     // get farthest point in the facet's outside set
@@ -410,17 +424,20 @@ void ConvexHull3D::updateFacet(Facet *facet, std::vector<Vector3D> &nearPoints)
     // mark visible facets for deletion
     if(success)
     {
+        facet->outsideSet.clear();
         for(unsigned int j = 0; j < visibleFacets.size(); j++) visibleFacets[j]->index = -1;
     }
 
 
     // clean up
-    facet->outsideSet.clear();
     for(unsigned int j = 0; j < visibleFacets.size(); j++) visibleFacets[j]->marked = false;
     for(unsigned int j = 0; j < horizonEdges.size(); j++) horizonEdges[j]->marked = false;
 
 
     assert(isWellFormed());
+
+
+    return success;
 }
 
 bool ConvexHull3D::getVisibleFacets(const Vector3D &point, Facet *startFacet, vector<Facet *> &visibleFacets)
@@ -623,10 +640,6 @@ bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdge
     }
 
 
-    for(unsigned int i = 0; i < visibleFacets.size(); i++)
-        visibleFacets[i]->index = -1;
-
-
     //this updates the outside set of new facets
     for(unsigned int f = 0; f < visibleFacets.size(); f++)
     {
@@ -637,7 +650,6 @@ bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdge
         visibleFacets[f]->outsideSet.clear();
     }
     
-    //createdFacets.clear();
 
     return true;
 }

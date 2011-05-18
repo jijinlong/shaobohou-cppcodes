@@ -47,6 +47,7 @@ class ConvexHull3D: public Polytope, public SupportMappable
     private:
         bool setup(std::vector<Vector3D> &points);
         void updateFacet(Facet *queryFacet, std::vector<Vector3D> &nearPoints);
+        bool updateFacetOnce(Facet *queryFacet, std::vector<Vector3D> &nearPoints);
 
         bool getVisibleFacets(const Vector3D &point, Facet *startFacet, std::vector<Facet *> &visibleFacets);
         bool getHorizonEdges(std::vector<Facet *> &visibleFacets, std::vector<Edge *> &horizonEdges); //true get horizon edges is successful
