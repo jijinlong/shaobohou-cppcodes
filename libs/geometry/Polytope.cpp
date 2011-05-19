@@ -519,10 +519,10 @@ void Facet::updateOutsideSets(std::vector<Facet*> &facets, std::vector<Vertex*> 
                 points[count] = *it;
                 count++;
             }
-            else if((*it)->index == 2 || (*it)->index == 2)
-            {
-                std::cout << "Point " << (*it)->index << "  at  " << (*it)->position << " is discarded at distance " << maxDist << std::endl;
-            }
+            //else if((*it)->index == 0 || (*it)->index == 31)
+            //{
+            //    std::cout << "Point " << (*it)->index << "  at  " << (*it)->position << " is discarded at distance " << maxDist << std::endl;
+            //}
         }
     }
     
@@ -551,10 +551,10 @@ bool Facet::getFarthestOutsidePoint(Vertex *&farthestPoint)
         farthestPoint = outsideSet[farthestIndex];
         outsideSet.erase(outsideSet.begin()+farthestIndex);
 
-        if(farthestPoint->index == 2 || farthestPoint->index == 4)
-        {
-            std::cout << "Point " << farthestPoint->index << "  at  " << farthestPoint->position << " is farthest at " << farthestDistance << std::endl;
-        }
+        //if(farthestPoint->index == 0 || farthestPoint->index == 31)
+        //{
+        //    std::cout << "Point " << farthestPoint->index << "  at  " << farthestPoint->position << " is farthest at " << farthestDistance << std::endl;
+        //}
 
         return true;
     }

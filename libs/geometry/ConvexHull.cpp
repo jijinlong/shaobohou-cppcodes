@@ -172,6 +172,37 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
         outsideCount += facets[i]->outsideSet.size();
     if(outsideCount > 0)
         cout << outsideCount << " outside points remain" << endl;
+
+    for(unsigned int i = 0; i < vertices.size(); i++)
+    {
+        if(vertices[i]->index < 0) continue;
+
+        const Vector3D &tempPoint = vertices[i]->position;
+
+        if(!insideHull(tempPoint, eps*10))
+        {
+            somePointsOutsideOfHull = true;
+            const double dist = distance2hull(tempPoint);
+            cout << "Point " << i << "    " << tempPoint << "   is " << dist << " away from hull." << endl;
+
+            for(unsigned int f = 0; f < facets.size(); f++)
+            {
+                if(facets[f]->index < 0) continue;
+
+                if(facets[f]->edges[0]->start->index == i || facets[f]->edges[0]->end->index == i ||
+                   facets[f]->edges[1]->start->index == i || facets[f]->edges[1]->end->index == i ||
+                   facets[f]->edges[2]->start->index == i || facets[f]->edges[2]->end->index == i)
+                {
+                    cout << "Vertex " << i << " is part of Facet " << f << "  at distance " << facets[f]->distanceToPlane(tempPoint) << endl;
+                }
+
+                if(facets[f]->distanceToPlane(tempPoint) > eps)
+                {
+                    cout << "Vertex " << i << " is outside Facet " << f << "  at distance " << facets[f]->distanceToPlane(tempPoint) << endl;
+                }
+            }
+        }
+    }
 #endif
 
     return true;
@@ -457,36 +488,37 @@ bool ConvexHull3D::getVisibleFacets(const Vector3D &point, Facet *startFacet, ve
 {
     if(startFacet->findVisibleFacets(point, visibleFacets, -eps))    // negative tolerance
     {
-        //bool added = true;
-        //while(added)
-        //{
-        //    added = false;
-        //    for(unsigned int f = 0; f < visibleFacets.size(); f++)
-        //    {
-        //        const Facet *facet = visibleFacets[f];
-        //        for(unsigned int e = 0; e < 3; e++)
-        //        {
-        //            const Edge *edge = facet->edges[e];
-        //            if(facet->marked && !edge->twin->facet->marked)
-        //            {
-        //                Vector3D n = Vector3D::normal(edge->start->position, edge->end->position, point);
-        //                if(n*n < EPSILON)
-        //                {
-        //                    std::cout << edge->twin->facet->distanceToPlane(point) << endl;
-        //                    std::cout << point << std::endl;
-        //                    std::cout << edge->end->position << std::endl;
-        //                    std::cout << edge->start->position << std::endl;
-        //                    std::cout << std::endl;
-        //                    const int bah = 0;
+        bool added = true;
+        while(added)
+        {
+            added = false;
+            for(unsigned int f = 0; f < visibleFacets.size(); f++)
+            {
+                const Facet *facet = visibleFacets[f];
+                for(unsigned int e = 0; e < 3; e++)
+                {
+                    const Edge *edge = facet->edges[e];
+                    if(facet->marked && !edge->twin->facet->marked)
+                    {
+                        Vector3D n = Vector3D::normal(edge->start->position, edge->end->position, point);
+                        if(n*n < eps)
+                        {
+                            std::cout << edge->facet->distanceToPlane(point) << endl;
+                            std::cout << edge->twin->facet->distanceToPlane(point) << endl;
+                            std::cout << point << std::endl;
+                            std::cout << edge->end->position << std::endl;
+                            std::cout << edge->start->position << std::endl;
+                            std::cout << std::endl;
+                            const int bah = 0;
 
-        //                    added = true;
-        //                    edge->twin->facet->marked = true;
-        //                    visibleFacets.push_back(edge->twin->facet);
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
+                            added = true;
+                            edge->twin->facet->marked = true;
+                            visibleFacets.push_back(edge->twin->facet);
+                        }
+                    }
+                }
+            }
+        }
 
 
         bool is_valid = true;
@@ -500,13 +532,15 @@ bool ConvexHull3D::getVisibleFacets(const Vector3D &point, Facet *startFacet, ve
 #ifdef HULL_DEBUG
         for(unsigned int i = 0; i < facets.size(); i++)
         {
-            if((facets[i]->index >= 0) && facets[i]->isBefore(point, -eps) && !(facets[i]->marked))   //point in front of facet and not marked by previous algo, error
+            const Facet *const testFacet = facets[i];
+            if((testFacet->index >= 0) && testFacet->isBefore(point, -eps) && !(testFacet->marked))   //point in front of facet and not marked by previous algo, error
             {
                 is_valid = false;
-                std::cout << "The point is " << facets[i]->distanceToPlane(point) << " in front of Facet " << i << ", with tolerance " << -eps << std::endl;
-                std::cout << facets[i]->edges[0]->twin->facet->distanceToPlane(point) << std::endl;
-                std::cout << facets[i]->edges[1]->twin->facet->distanceToPlane(point) << std::endl;
-                std::cout << facets[i]->edges[2]->twin->facet->distanceToPlane(point) << std::endl;
+                std::cout << "The point " << point << " is " << testFacet->distanceToPlane(point) << " in front of Facet " << i << ", with tolerance " << -eps << std::endl;
+                std::cout << testFacet->edges[0]->twin->facet->distanceToPlane(point) << std::endl;
+                std::cout << testFacet->edges[1]->twin->facet->distanceToPlane(point) << std::endl;
+                std::cout << testFacet->edges[2]->twin->facet->distanceToPlane(point) << std::endl;
+                const int bah = 0;
             }
         }
 #endif

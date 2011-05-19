@@ -204,7 +204,7 @@ void Object::loadAC3D(const char *filename, double alpha)
         triangles.push_back(Triangle(mInfo.indice[i*3+0], mInfo.indice[i*3+1], mInfo.indice[i*3+2]));
 
     double time = getTime();
-    tree = OBBNode(points, triangles, 8, 1.0, true);
+    tree = OBBNode(points, triangles, 7, 1.0, true);
     //tree = OBBNode(points, triangles, 1, 1.0, false);
     cout << "ConvexHull and OBB elapsed " << getTime() - time << " seconds" << endl;
     tree.print(0);
