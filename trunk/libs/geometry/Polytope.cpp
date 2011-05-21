@@ -8,8 +8,9 @@ using MathConstants::EPSILON;
 using MathConstants::DOUBLE_EPSILON;
 
 #include <map>
-#include <iostream>
 #include <cmath>
+#include <limits>
+#include <iostream>
 #include <cassert>
 
 using std::vector;
