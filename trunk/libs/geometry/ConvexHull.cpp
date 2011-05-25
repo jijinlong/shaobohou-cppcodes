@@ -3,6 +3,9 @@
 #include "ConvexHull.h"
 
 #include "special.h"
+#include "Constants.h"
+
+using MathConstants::DOUBLE_EPSILON;
 
 #include <cstdlib>
 #include <numeric>
@@ -183,7 +186,7 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
         {
             somePointsOutsideOfHull = true;
             const double dist = distance2hull(tempPoint);
-            cout << "Point " << i << "    " << tempPoint << "   is " << dist << " away from hull." << endl;
+            cout << "Vertex " << i << "    " << tempPoint << "   is " << dist << " away from hull." << endl;
 
             for(unsigned int f = 0; f < facets.size(); f++)
             {
@@ -424,7 +427,7 @@ bool ConvexHull3D::updateFacetOnce(Facet *facet, std::vector<Vertex*> &nearPoint
     vector<Facet *> visibleFacets;
     if(success)
     {
-        if(!getVisibleFacets(farthestPoint->position, facet, visibleFacets))//get visible facets error
+        if(!getVisibleFacets(farthestPoint, facet, visibleFacets))//get visible facets error
         {
 #ifdef HULL_DEBUG
             cout << "Get Visible Facets error!  " << facet->distanceToPlane(farthestPoint->position) << "  " << facet << endl;
@@ -484,9 +487,9 @@ bool ConvexHull3D::updateFacetOnce(Facet *facet, std::vector<Vertex*> &nearPoint
     return success;
 }
 
-bool ConvexHull3D::getVisibleFacets(const Vector3D &point, Facet *startFacet, vector<Facet *> &visibleFacets)
+bool ConvexHull3D::getVisibleFacets(Vertex *point, Facet *startFacet, vector<Facet *> &visibleFacets)
 {
-    if(startFacet->findVisibleFacets(point, visibleFacets, -eps))    // negative tolerance
+    if(startFacet->findVisibleFacets(point->position, visibleFacets, -DOUBLE_EPSILON))    // negative tolerance
     {
         bool added = true;
         while(added)
@@ -500,11 +503,11 @@ bool ConvexHull3D::getVisibleFacets(const Vector3D &point, Facet *startFacet, ve
                     const Edge *edge = facet->edges[e];
                     if(facet->marked && !edge->twin->facet->marked)
                     {
-                        Vector3D n = Vector3D::normal(edge->start->position, edge->end->position, point);
+                        Vector3D n = Vector3D::normal(edge->start->position, edge->end->position, point->position);
                         if(n*n < eps)
                         {
-                            std::cout << edge->facet->distanceToPlane(point) << endl;
-                            std::cout << edge->twin->facet->distanceToPlane(point) << endl;
+                            std::cout << edge->facet->distanceToPlane(point->position) << endl;
+                            std::cout << edge->twin->facet->distanceToPlane(point->position) << endl;
                             std::cout << point << std::endl;
                             std::cout << edge->end->position << std::endl;
                             std::cout << edge->start->position << std::endl;
@@ -526,20 +529,20 @@ bool ConvexHull3D::getVisibleFacets(const Vector3D &point, Facet *startFacet, ve
         // compute distance to farthest visible facet, make sure at least one facet is actually visible
         for(unsigned int i = 0; i < visibleFacets.size(); i++)
         {
-            is_valid = is_valid || visibleFacets[i]->isBefore(point, eps);
+            is_valid = is_valid || visibleFacets[i]->isBefore(point->position, eps);
         }
 
 #ifdef HULL_DEBUG
         for(unsigned int i = 0; i < facets.size(); i++)
         {
             const Facet *const testFacet = facets[i];
-            if((testFacet->index >= 0) && testFacet->isBefore(point, -eps) && !(testFacet->marked))   //point in front of facet and not marked by previous algo, error
+            if((testFacet->index >= 0) && testFacet->isBefore(point->position, -DOUBLE_EPSILON) && !(testFacet->marked))   //point in front of facet and not marked by previous algo, error
             {
                 is_valid = false;
-                std::cout << "The point " << point << " is " << testFacet->distanceToPlane(point) << " in front of Facet " << i << ", with tolerance " << -eps << std::endl;
-                std::cout << testFacet->edges[0]->twin->facet->distanceToPlane(point) << std::endl;
-                std::cout << testFacet->edges[1]->twin->facet->distanceToPlane(point) << std::endl;
-                std::cout << testFacet->edges[2]->twin->facet->distanceToPlane(point) << std::endl;
+                std::cout << "The point " << point->index << "  at  " << point->position << " is " << testFacet->distanceToPlane(point->position) << " in front of Facet " << i << ", with tolerance " << -eps << std::endl;
+                std::cout << testFacet->edges[0]->twin->facet->distanceToPlane(point->position) << std::endl;
+                std::cout << testFacet->edges[1]->twin->facet->distanceToPlane(point->position) << std::endl;
+                std::cout << testFacet->edges[2]->twin->facet->distanceToPlane(point->position) << std::endl;
                 const int bah = 0;
             }
         }
