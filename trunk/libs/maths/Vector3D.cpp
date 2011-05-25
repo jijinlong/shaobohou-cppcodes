@@ -150,6 +150,13 @@ double Vector3D::angle(const Vector3D &v1, const Vector3D &v2)
     return angle;
 }
 
+double Vector3D::area(const Vector3D &v1, const Vector3D &v2, const Vector3D &v3)
+{
+    double area = 0.5 * ((v1 - v2) ^ (v3 - v2)).length();
+
+    return area;
+}
+
 double Vector3D::distance(const Vector3D &v1, const Vector3D &v2)
 {
     const Vector3D vt = v2 - v1;

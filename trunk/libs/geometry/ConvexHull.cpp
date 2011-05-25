@@ -3,9 +3,6 @@
 #include "ConvexHull.h"
 
 #include "special.h"
-#include "Constants.h"
-
-using MathConstants::DOUBLE_EPSILON;
 
 #include <cstdlib>
 #include <numeric>
@@ -489,7 +486,7 @@ bool ConvexHull3D::updateFacetOnce(Facet *facet, std::vector<Vertex*> &nearPoint
 
 bool ConvexHull3D::getVisibleFacets(Vertex *point, Facet *startFacet, vector<Facet *> &visibleFacets)
 {
-    if(startFacet->findVisibleFacets(point->position, visibleFacets, -DOUBLE_EPSILON))    // negative tolerance
+    if(startFacet->findVisibleFacets(point->position, visibleFacets, -eps))    // negative tolerance
     {
         bool added = true;
         while(added)
@@ -503,12 +500,14 @@ bool ConvexHull3D::getVisibleFacets(Vertex *point, Facet *startFacet, vector<Fac
                     const Edge *edge = facet->edges[e];
                     if(facet->marked && !edge->twin->facet->marked)
                     {
-                        Vector3D n = Vector3D::normal(edge->start->position, edge->end->position, point->position);
-                        if(n*n < eps)
+                        const Vector3D n = Vector3D::normal(edge->start->position, edge->end->position, point->position);
+                        const double a = Vector3D::area(edge->start->position, edge->end->position, point->position);
+                        const double d = n*edge->facet->normal;
+                        if(n*n < eps || a < eps)
                         {
                             std::cout << edge->facet->distanceToPlane(point->position) << endl;
                             std::cout << edge->twin->facet->distanceToPlane(point->position) << endl;
-                            std::cout << point << std::endl;
+                            std::cout << point->position << std::endl;
                             std::cout << edge->end->position << std::endl;
                             std::cout << edge->start->position << std::endl;
                             std::cout << std::endl;
@@ -517,6 +516,10 @@ bool ConvexHull3D::getVisibleFacets(Vertex *point, Facet *startFacet, vector<Fac
                             added = true;
                             edge->twin->facet->marked = true;
                             visibleFacets.push_back(edge->twin->facet);
+                            edge->twin->facet->edges[0]->twin->facet->findVisibleFacets(point->position, visibleFacets, -eps);
+                            edge->twin->facet->edges[1]->twin->facet->findVisibleFacets(point->position, visibleFacets, -eps);
+                            edge->twin->facet->edges[2]->twin->facet->findVisibleFacets(point->position, visibleFacets, -eps);
+                            const int pah = 0;
                         }
                     }
                 }
@@ -536,9 +539,9 @@ bool ConvexHull3D::getVisibleFacets(Vertex *point, Facet *startFacet, vector<Fac
         for(unsigned int i = 0; i < facets.size(); i++)
         {
             const Facet *const testFacet = facets[i];
-            if((testFacet->index >= 0) && testFacet->isBefore(point->position, -DOUBLE_EPSILON) && !(testFacet->marked))   //point in front of facet and not marked by previous algo, error
+            if((testFacet->index >= 0) && testFacet->isBefore(point->position, -eps) && !(testFacet->marked))   //point in front of facet and not marked by previous algo, error
             {
-                is_valid = false;
+                //is_valid = false;
                 std::cout << "The point " << point->index << "  at  " << point->position << " is " << testFacet->distanceToPlane(point->position) << " in front of Facet " << i << ", with tolerance " << -eps << std::endl;
                 std::cout << testFacet->edges[0]->twin->facet->distanceToPlane(point->position) << std::endl;
                 std::cout << testFacet->edges[1]->twin->facet->distanceToPlane(point->position) << std::endl;
