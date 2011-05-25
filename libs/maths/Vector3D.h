@@ -36,6 +36,7 @@ class Vector3D
         //given three vector, return the normal of the plane they all in, assume CCW winding
         static Vector3D normal(const Vector3D &v1, const Vector3D &v2, const Vector3D &v3);
         static double angle(const Vector3D &v1, const Vector3D &v2);	//angle between 2 directional vector
+        static double area(const Vector3D &v1, const Vector3D &v2, const Vector3D &v3);	// area of a triangle
         static double distance(const Vector3D &v1, const Vector3D &v2);  //euclidean distance between the 2 vector point
         static double distance2(const Vector3D &v1, const Vector3D &v2);  //euclidean distance between the 2 vector point
 
