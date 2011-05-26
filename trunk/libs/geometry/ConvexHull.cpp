@@ -451,7 +451,7 @@ bool ConvexHull3D::updateFacetOnce(Facet *facet, std::vector<Vertex*> &nearPoint
     // replace visible facets with new facets connectint a vertex at the farthest point
     if(success)
     {
-        if(!remakeHull(farthestPoint->position, horizonEdges, visibleFacets, nearPoints))
+        if(!remakeHull(farthestPoint, horizonEdges, visibleFacets, nearPoints))
         {
 #ifdef HULL_DEBUG
             cout << "Remake Hull error!" << endl;
@@ -500,11 +500,19 @@ bool ConvexHull3D::getVisibleFacets(Vertex *point, Facet *startFacet, vector<Fac
                     const Edge *edge = facet->edges[e];
                     if(facet->marked && !edge->twin->facet->marked)
                     {
-                        const Vector3D n = Vector3D::normal(edge->start->position, edge->end->position, point->position);
-                        const double a = Vector3D::area(edge->start->position, edge->end->position, point->position);
-                        const double d = n*edge->facet->normal;
-                        if(n*n < eps || a < eps)
+                        Facet f(edge->start, edge->end, point, facets.size());
+                        const double aboveDist = f.distanceToPlane(edge->twin->facet->centre);
+                        //const Vector3D norm = Vector3D::normal(edge->start->position, edge->end->position, point->position);
+                        //const double dist = -(norm * point->position);
+                        //const double aboveDist = norm * edge->twin->facet->centre + dist;
+
+                        const double area = Vector3D::area(edge->start->position, edge->end->position, point->position);
+
+                        //if(norm*norm < eps || area < eps)
+                        if(f.normal*f.normal < eps || (facets.size() > 2 && aboveDist > -eps))
+                        //if(norm*norm < eps || (facets.size() > 2 && aboveDist > -eps))
                         {
+                            std::cout << "correcting in findVisibleFacet for Point " << point->index << " : " << point->position << endl;
                             std::cout << edge->facet->distanceToPlane(point->position) << endl;
                             std::cout << edge->twin->facet->distanceToPlane(point->position) << endl;
                             std::cout << point->position << std::endl;
@@ -601,7 +609,7 @@ bool ConvexHull3D::getHorizonEdges(vector<Facet *> &visibleFacets, vector<Edge *
     return true;
 }
 
-bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdges, const vector<Facet *> &visibleFacets, std::vector<Vertex*> &nearPoints)
+bool ConvexHull3D::remakeHull(Vertex *point, vector<Edge *> &horizonEdges, const vector<Facet *> &visibleFacets, std::vector<Vertex*> &nearPoints)
 {
     Vector3D centre;
     for(unsigned int i = 0; i < vertices.size(); i++)
@@ -611,7 +619,7 @@ bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdge
 
 
     vector<Facet *> createdFacets;
-    Vertex *newVertex = new Vertex(point, vertices.size());
+    Vertex *newVertex = new Vertex(point->position, vertices.size());
 
     Facet *last = 0, *first = 0;
     std::vector<int> valids(horizonEdges.size(), 0);
@@ -625,17 +633,71 @@ bool ConvexHull3D::remakeHull(const Vector3D &point, vector<Edge *> &horizonEdge
 
         if(!(f->wellFormed) || dd > 0)
         {
-            double d = e->distanceToLine(point);
-            double ed = e->projectToLine(point);
-            double ed1 = e->next->projectToLine(point);
-            double ed2 = e->prev->projectToLine(point);
-            double fd1 = e->facet->distanceToPlane(point);
-            double fd2 = e->twin->facet->distanceToPlane(point);
+            double d = e->distanceToLine(point->position);
+            double ed = e->projectToLine(point->position);
+            double ed1 = e->next->projectToLine(point->position);
+            double ed2 = e->prev->projectToLine(point->position);
+            double fd1 = e->facet->distanceToPlane(point->position);
+            double fd2 = e->twin->facet->distanceToPlane(point->position);
             std::cout << newVertex->position << std::endl;
             std::cout << e->end->position << std::endl;
             std::cout << e->start->position << std::endl;
             valids[i] = 1;
             Vector3D::normal(newVertex->position, e->end->position, e->start->position);
+        }
+
+        //if(f->index == 201)
+        {
+            
+            for(unsigned int v = 0; v < visibleFacets.size(); v++)
+            {
+                bool success = false;
+                const Facet *tempFacet = visibleFacets[v];
+
+                if(!tempFacet->edges[0]->twin->onHorizon() && 
+                   !tempFacet->edges[1]->twin->onHorizon() && 
+                   !tempFacet->edges[2]->twin->onHorizon()) 
+                    continue;
+
+                const double d0 = f->distanceToPlane(tempFacet->vertices[0]->position);
+                if(d0 > eps)
+                {
+                    success = true;
+                    cout << "Facet " << f->index << " is " << d0 << " behind Vert " << tempFacet->vertices[0]->index << ": " << tempFacet->vertices[0]->position << " in Facet " << tempFacet->index << endl;
+                    cout << f->volume(tempFacet->vertices[0]->position) << endl;
+                }
+
+                const double d1 = f->distanceToPlane(tempFacet->vertices[1]->position);
+                if(d1 > eps)
+                {
+                    success = true;
+                    cout << "Facet " << f->index << " is " << d1 << " behind Vert " << tempFacet->vertices[1]->index << ": " << tempFacet->vertices[1]->position << " in Facet " << tempFacet->index << endl;
+                    cout << f->volume(tempFacet->vertices[1]->position) << endl;
+                }
+
+                const double d2 = f->distanceToPlane(tempFacet->vertices[2]->position);
+                if(d2 > eps)
+                {
+                    success = true;
+                    cout << "Facet " << f->index << " is " << d2 << " behind Vert " << tempFacet->vertices[2]->index << ": " << tempFacet->vertices[2]->position << " in Facet " << tempFacet->index << endl;
+                    cout << f->volume(tempFacet->vertices[2]->position) << endl;
+                }
+
+                success = success && (!tempFacet->edges[0]->twin->facet->marked || !tempFacet->edges[1]->twin->facet->marked || !tempFacet->edges[2]->twin->facet->marked);
+                if(success)
+                {
+                    cout << "Constructing Facet " << f->index << " from Point " << point->index << " : " << point->position << endl;
+                    std::cout << e->facet->distanceToPlane(point->position) << endl;
+                    std::cout << e->twin->facet->distanceToPlane(point->position) << endl;
+                    std::cout << e->facet->volume(point->position) << endl;
+                    std::cout << e->twin->facet->volume(point->position) << endl;
+                    std::cout << "dist0 = " << tempFacet->edges[0]->twin->facet->distanceToPlane(point->position) << endl;
+                    std::cout << "dist1 = " << tempFacet->edges[1]->twin->facet->distanceToPlane(point->position) << endl;
+                    std::cout << "dist2 = " << tempFacet->edges[2]->twin->facet->distanceToPlane(point->position) << endl;
+                }
+
+                const int bah = 0;
+            }
         }
     }
 
