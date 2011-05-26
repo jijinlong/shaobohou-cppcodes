@@ -392,6 +392,21 @@ bool Facet::isBehind(const Vector3D &point, double tolerance) const
     return distanceToPlane(point) < -tolerance;
 }
 
+double Facet::volume(const Vector3D &point) const
+{
+    return Vector3D::volume(vertices[0]->position, vertices[1]->position, vertices[2]->position, point);
+}
+
+bool Facet::above(const Vector3D &point, double tolerance) const
+{
+    return volume(point) < -tolerance;
+}
+
+bool Facet::below(const Vector3D &point, double tolerance) const
+{
+    return volume(point) >  tolerance;
+}
+
 bool Facet::connect(Edge *const edge)
 {
     Edge *inner = getMatchingEdge(edge->start, edge->end);
