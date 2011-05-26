@@ -110,6 +110,10 @@ class Facet
 
         bool isBefore(const Vector3D &point, double tolerance) const;
         bool isBehind(const Vector3D &point, double tolerance) const;
+
+        double volume(const Vector3D &point) const;
+        bool above(const Vector3D &point, double tolerance) const;
+        bool below(const Vector3D &point, double tolerance) const;
         void orient(const Vector3D &reference);
         void createEdges();
 
