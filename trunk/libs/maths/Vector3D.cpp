@@ -157,6 +157,13 @@ double Vector3D::area(const Vector3D &v1, const Vector3D &v2, const Vector3D &v3
     return area;
 }
 
+double Vector3D::volume(const Vector3D &v1, const Vector3D &v2, const Vector3D &v3, const Vector3D &v4)
+{
+    double vol = (1.0/6.0) * ((v1-v4)*((v2-v4)^(v3-v4)));
+
+    return vol;
+}
+
 double Vector3D::distance(const Vector3D &v1, const Vector3D &v2)
 {
     const Vector3D vt = v2 - v1;
