@@ -540,7 +540,7 @@ bool ConvexHull3D::getVisibleFacets(Vertex *point, Facet *startFacet, vector<Fac
         // compute distance to farthest visible facet, make sure at least one facet is actually visible
         for(unsigned int i = 0; i < visibleFacets.size(); i++)
         {
-            is_valid = is_valid || visibleFacets[i]->isBefore(point->position, eps);
+            is_valid = is_valid || visibleFacets[i]->isBefore(point->position, eps*10);
         }
 
 #ifdef HULL_DEBUG
@@ -649,51 +649,77 @@ bool ConvexHull3D::remakeHull(Vertex *point, vector<Edge *> &horizonEdges, const
         //if(f->index == 201)
         {
             
-            for(unsigned int v = 0; v < visibleFacets.size(); v++)
+            //for(unsigned int v = 0; v < visibleFacets.size(); v++)
+            //{
+            //    bool success = false;
+            //    const Facet *tempFacet = visibleFacets[v];
+
+            //    if(!tempFacet->edges[0]->twin->onHorizon() && 
+            //       !tempFacet->edges[1]->twin->onHorizon() && 
+            //       !tempFacet->edges[2]->twin->onHorizon()) 
+            //        continue;
+
+            //    const double d0 = f->distanceToPlane(tempFacet->vertices[0]->position);
+            //    if(d0 > eps)
+            //    {
+            //        success = true;
+            //        cout << "Facet " << f->index << " is " << d0 << " behind Vert0 " << tempFacet->vertices[0]->index << ": " << tempFacet->vertices[0]->position << " in Facet " << tempFacet->index << endl;
+            //        cout << f->volume(tempFacet->vertices[0]->position) << endl;
+            //    }
+
+            //    const double d1 = f->distanceToPlane(tempFacet->vertices[1]->position);
+            //    if(d1 > eps)
+            //    {
+            //        success = true;
+            //        cout << "Facet " << f->index << " is " << d1 << " behind Vert1 " << tempFacet->vertices[1]->index << ": " << tempFacet->vertices[1]->position << " in Facet " << tempFacet->index << endl;
+            //        cout << f->volume(tempFacet->vertices[1]->position) << endl;
+            //    }
+
+            //    const double d2 = f->distanceToPlane(tempFacet->vertices[2]->position);
+            //    if(d2 > eps)
+            //    {
+            //        success = true;
+            //        cout << "Facet " << f->index << " is " << d2 << " behind Vert2 " << tempFacet->vertices[2]->index << ": " << tempFacet->vertices[2]->position << " in Facet " << tempFacet->index << endl;
+            //        cout << f->volume(tempFacet->vertices[2]->position) << endl;
+            //    }
+
+            //    success = success && (!tempFacet->edges[0]->twin->facet->marked || !tempFacet->edges[1]->twin->facet->marked || !tempFacet->edges[2]->twin->facet->marked);
+            //    if(success)
+            //    {
+            //        cout << "Constructing Facet " << f->index << " from Point " << point->index << " : " << point->position << endl;
+            //        std::cout << e->facet->distanceToPlane(point->position) << endl;
+            //        std::cout << e->twin->facet->distanceToPlane(point->position) << endl;
+            //        std::cout << e->facet->volume(point->position) << endl;
+            //        std::cout << e->twin->facet->volume(point->position) << endl;
+            //        std::cout << "dist0 = " << tempFacet->edges[0]->twin->facet->distanceToPlane(point->position) << endl;
+            //        std::cout << "dist1 = " << tempFacet->edges[1]->twin->facet->distanceToPlane(point->position) << endl;
+            //        std::cout << "dist2 = " << tempFacet->edges[2]->twin->facet->distanceToPlane(point->position) << endl;
+            //    }
+
+            //    const int bah = 0;
+            //}
+
+            for(unsigned int h = 0; h < horizonEdges.size(); h++)
             {
                 bool success = false;
-                const Facet *tempFacet = visibleFacets[v];
+                const Edge *tempEdge = horizonEdges[h];
 
-                if(!tempFacet->edges[0]->twin->onHorizon() && 
-                   !tempFacet->edges[1]->twin->onHorizon() && 
-                   !tempFacet->edges[2]->twin->onHorizon()) 
-                    continue;
-
-                const double d0 = f->distanceToPlane(tempFacet->vertices[0]->position);
+                const double d0 = f->distanceToPlane(tempEdge->start->position);
                 if(d0 > eps)
                 {
                     success = true;
-                    cout << "Facet " << f->index << " is " << d0 << " behind Vert " << tempFacet->vertices[0]->index << ": " << tempFacet->vertices[0]->position << " in Facet " << tempFacet->index << endl;
-                    cout << f->volume(tempFacet->vertices[0]->position) << endl;
+                    cout << "Facet " << f->index << " is " << d0 << " behind start Vert " << tempEdge->start->index << ": " << tempEdge->start->position << endl;
+					cout << "Facet " << tempEdge->facet->index << " is " << tempEdge->facet->distanceToPlane(tempEdge->start->position) << " behind start Vert " << tempEdge->start->index << ": " << tempEdge->start->position << endl;
+                    cout << f->volume(tempEdge->start->position) << endl;
                 }
 
-                const double d1 = f->distanceToPlane(tempFacet->vertices[1]->position);
+                const double d1 = f->distanceToPlane(tempEdge->end->position);
                 if(d1 > eps)
                 {
                     success = true;
-                    cout << "Facet " << f->index << " is " << d1 << " behind Vert " << tempFacet->vertices[1]->index << ": " << tempFacet->vertices[1]->position << " in Facet " << tempFacet->index << endl;
-                    cout << f->volume(tempFacet->vertices[1]->position) << endl;
-                }
-
-                const double d2 = f->distanceToPlane(tempFacet->vertices[2]->position);
-                if(d2 > eps)
-                {
-                    success = true;
-                    cout << "Facet " << f->index << " is " << d2 << " behind Vert " << tempFacet->vertices[2]->index << ": " << tempFacet->vertices[2]->position << " in Facet " << tempFacet->index << endl;
-                    cout << f->volume(tempFacet->vertices[2]->position) << endl;
-                }
-
-                success = success && (!tempFacet->edges[0]->twin->facet->marked || !tempFacet->edges[1]->twin->facet->marked || !tempFacet->edges[2]->twin->facet->marked);
-                if(success)
-                {
-                    cout << "Constructing Facet " << f->index << " from Point " << point->index << " : " << point->position << endl;
-                    std::cout << e->facet->distanceToPlane(point->position) << endl;
-                    std::cout << e->twin->facet->distanceToPlane(point->position) << endl;
-                    std::cout << e->facet->volume(point->position) << endl;
-                    std::cout << e->twin->facet->volume(point->position) << endl;
-                    std::cout << "dist0 = " << tempFacet->edges[0]->twin->facet->distanceToPlane(point->position) << endl;
-                    std::cout << "dist1 = " << tempFacet->edges[1]->twin->facet->distanceToPlane(point->position) << endl;
-                    std::cout << "dist2 = " << tempFacet->edges[2]->twin->facet->distanceToPlane(point->position) << endl;
+                    cout << "Facet " << f->index << " is " << d1 << " behind end Vert " << tempEdge->end->index << ": " << tempEdge->end->position << endl;
+					cout << "Facet " << tempEdge->facet->index << " is " << tempEdge->facet->distanceToPlane(tempEdge->end->position) << " behind end Vert " << tempEdge->end->index << ": " << tempEdge->end->position << endl;
+                    cout << f->volume(tempEdge->end->position) << endl;
                 }
 
                 const int bah = 0;
