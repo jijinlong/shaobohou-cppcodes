@@ -269,7 +269,7 @@ bool ConvexHull3D::isWellFormed() const
             }
         }
 
-        if(facets[i]->isBefore(centre, eps))
+        if(facets[i]->above(centre, eps))
         {
             wellFormed = false;
             cout << "Facet " << facets[i]->index + 1 << " out of " << facets.size() << " at " << facets[i] << " is facing the wrong way with distance " << facets[i]->distanceToPlane(centre) << endl;
@@ -549,20 +549,24 @@ bool ConvexHull3D::getVisibleFacets(Vertex *point, Facet *startFacet, vector<Fac
         // compute distance to farthest visible facet, make sure at least one facet is actually visible
         for(unsigned int i = 0; i < visibleFacets.size(); i++)
         {
-            is_valid = is_valid || visibleFacets[i]->isBefore(point->position, eps*10);
+            is_valid = is_valid || visibleFacets[i]->above(point->position, eps*10);
         }
 
 #ifdef HULL_DEBUG
         for(unsigned int i = 0; i < facets.size(); i++)
         {
             const Facet *const testFacet = facets[i];
-            if((testFacet->index >= 0) && testFacet->isBefore(point->position, -eps) && !(testFacet->marked))   //point in front of facet and not marked by previous algo, error
+            if((testFacet->index >= 0) && testFacet->above(point->position, -eps) && !(testFacet->marked))   //point in front of facet and not marked by previous algo, error
             {
                 //is_valid = false;
                 std::cout << "The point " << point->index << "  at  " << point->position << " is " << testFacet->distanceToPlane(point->position) << " in front of Facet " << i << ", with tolerance " << -eps << std::endl;
                 std::cout << testFacet->edges[0]->twin->facet->distanceToPlane(point->position) << std::endl;
                 std::cout << testFacet->edges[1]->twin->facet->distanceToPlane(point->position) << std::endl;
                 std::cout << testFacet->edges[2]->twin->facet->distanceToPlane(point->position) << std::endl;
+                std::cout << "-volume = " << -testFacet->volume(point->position) << endl;
+                std::cout << -testFacet->edges[0]->twin->facet->volume(point->position) << std::endl;
+                std::cout << -testFacet->edges[1]->twin->facet->volume(point->position) << std::endl;
+                std::cout << -testFacet->edges[2]->twin->facet->volume(point->position) << std::endl;
                 const int bah = 0;
             }
         }
@@ -906,7 +910,7 @@ bool ConvexHull3D::insideHull(const Vector3D &point, const double tol) const
 {
     bool inside =  true;
     for(unsigned int f = 0; f < facets.size(); f++)
-        inside = inside && facets[f]->isBehind(point, -tol);
+        inside = inside && facets[f]->below(point, -tol);
 
     return inside;
 }
