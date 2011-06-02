@@ -382,15 +382,15 @@ double Facet::distanceToPlane(const Vector3D &point) const
     return (normal * point) + distance;
 }
 
-bool Facet::isBefore(const Vector3D &point, double tolerance) const
-{
-    return distanceToPlane(point) > tolerance;
-}
+//bool Facet::isBefore(const Vector3D &point, double tolerance) const
+//{
+//    return distanceToPlane(point) > tolerance;
+//}
 
-bool Facet::isBehind(const Vector3D &point, double tolerance) const
-{
-    return distanceToPlane(point) < -tolerance;
-}
+//bool Facet::isBehind(const Vector3D &point, double tolerance) const
+//{
+//    return distanceToPlane(point) < -tolerance;
+//}
 
 double Facet::volume(const Vector3D &point) const
 {
@@ -438,7 +438,7 @@ bool Facet::findVisibleFacets(const Vector3D &point, vector<Facet *> &visibleFac
 {
     if(marked)
         return true;
-    else if(isBefore(point, tolerance))
+    else if(above(point, tolerance))
     {
         this->marked = true;
         visibleFacets.push_back(this);
@@ -483,7 +483,7 @@ Edge* Facet::getHorizonEdge() const
 
 void Facet::orient(const Vector3D &reference)
 {
-    if(!isBehind(reference, EPSILON))
+    if(!below(reference, EPSILON))
     {
         swap(vertices[1], vertices[2]);
         normal = -normal;
