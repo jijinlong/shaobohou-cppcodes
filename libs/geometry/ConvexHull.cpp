@@ -507,17 +507,26 @@ bool ConvexHull3D::getVisibleFacets(Vertex *point, Facet *startFacet, vector<Fac
                         //const double aboveDist = norm * edge->twin->facet->centre + dist;
 
                         const double area = Vector3D::area(edge->start->position, edge->end->position, point->position);
+                        const Vector3D normAreaVec = f.edges[1]->direction^f.edges[2]->direction;
+                        const double normArea = normAreaVec*normAreaVec*0.5;
 
                         //if(norm*norm < eps || area < eps)
-                        if(f.normal*f.normal < eps || (facets.size() > 2 && aboveDist > -eps))
                         //if(norm*norm < eps || (facets.size() > 2 && aboveDist > -eps))
+                        //if(f.normal*f.normal < eps || (facets.size() > 2 && aboveDist > -eps))
+                        //if(f.normal*f.normal < eps || (facets.size() > 2 && aboveDist > -eps) || normArea < eps)
+                        if(f.normal*f.normal < eps || normArea < eps)
                         {
                             std::cout << "correcting in findVisibleFacet for Point " << point->index << " : " << point->position << endl;
+                            std::cout << "area = " << area << "   normArea = " << normArea << endl;
                             std::cout << edge->facet->distanceToPlane(point->position) << endl;
                             std::cout << edge->twin->facet->distanceToPlane(point->position) << endl;
                             std::cout << point->position << std::endl;
                             std::cout << edge->end->position << std::endl;
                             std::cout << edge->start->position << std::endl;
+                            std::cout << "-----------" << endl;
+                            std::cout << f.edges[0]->direction << endl;
+                            std::cout << f.edges[1]->direction << endl;
+                            std::cout << f.edges[2]->direction << endl;
                             std::cout << std::endl;
                             const int bah = 0;
 
@@ -649,12 +658,13 @@ bool ConvexHull3D::remakeHull(Vertex *point, vector<Edge *> &horizonEdges, const
             Vector3D::normal(newVertex->position, e->end->position, e->start->position);
         }
 
-        if(f->index == 201 || f->index == 203)
+        if(f->index == 201)
         {
 			if(abs(f->normal[1]) > 0.999)
 			{
-
+                const Vector3D areaVec = f->edges[0]->direction^f->edges[2]->direction;
 				std::cout << "begin " << f->index << "   " << f->area << endl;
+                std::cout << areaVec*areaVec << endl;
 				std::cout << f->vertices[0]->position << endl;
 				std::cout << f->vertices[1]->position << endl;
 				std::cout << f->vertices[2]->position << endl;
