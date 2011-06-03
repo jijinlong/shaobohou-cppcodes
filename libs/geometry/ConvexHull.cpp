@@ -514,7 +514,8 @@ bool ConvexHull3D::getVisibleFacets(Vertex *point, Facet *startFacet, vector<Fac
                         //if(norm*norm < eps || (facets.size() > 2 && aboveDist > -eps))
                         //if(f.normal*f.normal < eps || (facets.size() > 2 && aboveDist > -eps))
                         //if(f.normal*f.normal < eps || (facets.size() > 2 && aboveDist > -eps) || normArea < eps)
-                        if(f.normal*f.normal < eps || normArea < eps)
+                        //if(f.normal*f.normal < eps || normArea < eps)
+                        if(f.normal*f.normal < eps)
                         {
                             std::cout << "correcting in findVisibleFacet for Point " << point->index << " : " << point->position << endl;
                             std::cout << "area = " << area << "   normArea = " << normArea << endl;
@@ -556,7 +557,7 @@ bool ConvexHull3D::getVisibleFacets(Vertex *point, Facet *startFacet, vector<Fac
         for(unsigned int i = 0; i < facets.size(); i++)
         {
             const Facet *const testFacet = facets[i];
-            if((testFacet->index >= 0) && testFacet->above(point->position, -eps) && !(testFacet->marked))   //point in front of facet and not marked by previous algo, error
+            if((testFacet->index >= 0) && testFacet->above(point->position, 0) && !(testFacet->marked))   //point in front of facet and not marked by previous algo, error
             {
                 //is_valid = false;
                 std::cout << "The point " << point->index << "  at  " << point->position << " is " << testFacet->distanceToPlane(point->position) << " in front of Facet " << i << ", with tolerance " << -eps << std::endl;
