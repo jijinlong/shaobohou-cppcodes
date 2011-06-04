@@ -719,12 +719,12 @@ bool ConvexHull3D::remakeHull(Vertex *point, vector<Edge *> &horizonEdges, const
 			maxHorVol = std::max(maxHorVol, vol2);
 			if(vol1 > 0)
 			{
-				std::cout << "Adding Vertex " << point->index << " to make Facet " << f->index << "  vol1 = " << vol1 << "    Facet " << hedge->facet->index << endl;
+				std::cout << "Adding Vertex " << point->index << " to make Facet " << f->index << " from Edge of Facet " << e->facet->index << "  vol1 = " << vol1 << "    Facet " << hedge->facet->index << endl;
 				const int bah = 0;
 			}
 			if(vol2 > 0)
 			{
-				std::cout << "Adding Vertex " << point->index << " to make Facet " << f->index << "  vol2 = " << vol2 << "    Facet " << hedge->facet->index << endl;
+				std::cout << "Adding Vertex " << point->index << " to make Facet " << f->index << " from Edge of Facet " << e->facet->index << "  vol2 = " << vol2 << "    Facet " << hedge->facet->index << endl;
 				const int bah = 0;
 			}
 		}
