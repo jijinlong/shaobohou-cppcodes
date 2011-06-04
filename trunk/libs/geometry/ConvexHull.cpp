@@ -406,6 +406,46 @@ void ConvexHull3D::updateFacet(Facet *facet, std::vector<Vertex*> &nearPoints)
     // retain undecided points
     nearPoints.insert(nearPoints.begin(), facet->outsideSet.begin(), facet->outsideSet.end());
     facet->outsideSet.clear();
+
+	// check convexity
+	bool nonconvex = false;
+	for(unsigned int f = 0; f < facets.size(); f++)
+		for(unsigned int g = 0; g < facets.size(); g++)
+		{
+			if(facets[f]->index < 0) continue;
+			if(facets[g]->index < 0) continue;
+			if(f == g) continue;
+
+			const double v0 = -facets[f]->volume(facets[g]->vertices[0]->position);
+			const double v1 = -facets[f]->volume(facets[g]->vertices[1]->position);
+			const double v2 = -facets[f]->volume(facets[g]->vertices[2]->position);
+
+			if(v0 > 0)
+			{
+				nonconvex = true;
+				std::cout << "Vertex " << facets[g]->vertices[0]->index << " of Facet " << facets[g]->index << " is " << v0 << " outside of Facet " << facets[f]->index << endl;
+				const int bah = 0;
+			}
+
+			if(v1 > 0)
+			{
+				nonconvex = true;
+				std::cout << "Vertex " << facets[g]->vertices[1]->index << " of Facet " << facets[g]->index << " is " << v1 << " outside of Facet " << facets[f]->index << endl;
+				const int bah = 0;
+			}
+
+			if(v2 > 0)
+			{
+				nonconvex = true;
+				std::cout << "Vertex " << facets[g]->vertices[2]->index << " of Facet " << facets[g]->index << " is " << v2 << " outside of Facet " << facets[f]->index << endl;
+				const int bah = 0;
+			}
+		}
+
+	if(nonconvex)
+	{
+		const int bah = 0;
+	}
 }
 
 bool ConvexHull3D::updateFacetOnce(Facet *facet, std::vector<Vertex*> &nearPoints)
@@ -662,6 +702,39 @@ bool ConvexHull3D::remakeHull(Vertex *point, vector<Edge *> &horizonEdges, const
             valids[i] = 1;
             Vector3D::normal(newVertex->position, e->end->position, e->start->position);
         }
+
+
+		// test max distance to horizon edges
+		double maxHorVol = -f->volume(centre);
+		if(maxHorVol  > 0)
+		{
+			std::cout << "volc = " << maxHorVol << endl;
+		}
+		for(unsigned int h = 0; h < horizonEdges.size(); h++)
+		{
+			const Edge *hedge = horizonEdges[h];
+			const double vol1 = -f->volume(hedge->start->position);
+			const double vol2 = -f->volume(hedge->end->position);
+			maxHorVol = std::max(maxHorVol, vol1);
+			maxHorVol = std::max(maxHorVol, vol2);
+			if(vol1 > 0)
+			{
+				std::cout << "Adding Vertex " << point->index << " to make Facet " << f->index << "  vol1 = " << vol1 << "    Facet " << hedge->facet->index << endl;
+				const int bah = 0;
+			}
+			if(vol2 > 0)
+			{
+				std::cout << "Adding Vertex " << point->index << " to make Facet " << f->index << "  vol2 = " << vol2 << "    Facet " << hedge->facet->index << endl;
+				const int bah = 0;
+			}
+		}
+		if(maxHorVol > 0)
+		{
+			std::cout << "max vol = " << maxHorVol << endl;
+			//std::cout << 
+			const int bah = 0;
+		}
+
 
         if(f->index == 201)
         {
