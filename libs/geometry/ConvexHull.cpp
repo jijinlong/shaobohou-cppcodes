@@ -3,6 +3,9 @@
 #include "ConvexHull.h"
 
 #include "special.h"
+#include "Constants.h"
+
+using MathConstants::DOUBLE_EPSILON;
 
 #include <cstdlib>
 #include <numeric>
@@ -526,7 +529,8 @@ bool ConvexHull3D::updateFacetOnce(Facet *facet, std::vector<Vertex*> &nearPoint
 
 bool ConvexHull3D::getVisibleFacets(Vertex *point, Facet *startFacet, vector<Facet *> &visibleFacets)
 {
-    if(startFacet->findVisibleFacets(point->position, visibleFacets, -eps))    // negative tolerance
+    //if(startFacet->findVisibleFacets(point->position, visibleFacets, -eps))    // negative tolerance
+    if(startFacet->findVisibleFacets(point->position, visibleFacets, -DOUBLE_EPSILON))    // negative tolerance
     {
         bool added = true;
         while(added)
@@ -718,13 +722,21 @@ bool ConvexHull3D::remakeHull(Vertex *point, vector<Edge *> &horizonEdges, const
 			maxHorVol = std::max(maxHorVol, vol1);
 			maxHorVol = std::max(maxHorVol, vol2);
 			if(vol1 > 0)
-			{
-				std::cout << "Adding Vertex " << point->index << " to make Facet " << f->index << " from Edge of Facet " << e->facet->index << "  vol1 = " << vol1 << "    Facet " << hedge->facet->index << endl;
-				const int bah = 0;
-			}
+            {
+                std::cout << "Adding Vertex " << point->index << " to make Facet " << f->index << " from Edge of Facet " << e->facet->index << "  vol1 = " << vol1 << "    Vertex " << hedge->start->index << " of Facet " << hedge->facet->index << endl;
+                std::cout << -e->facet->volume(point->position) << std::endl;
+                std::cout << -e->twin->facet->volume(point->position) << std::endl;
+                std::cout << -hedge->facet->volume(point->position) << std::endl;
+                std::cout << -hedge->twin->facet->volume(point->position) << std::endl;
+                const int bah = 0;
+            }
 			if(vol2 > 0)
 			{
-				std::cout << "Adding Vertex " << point->index << " to make Facet " << f->index << " from Edge of Facet " << e->facet->index << "  vol2 = " << vol2 << "    Facet " << hedge->facet->index << endl;
+				std::cout << "Adding Vertex " << point->index << " to make Facet " << f->index << " from Edge of Facet " << e->facet->index << "  vol2 = " << vol2 << "    Vertex " << hedge->end->index << " of Facet " << hedge->facet->index << endl;
+                std::cout << -e->facet->volume(point->position) << std::endl;
+                std::cout << -e->twin->facet->volume(point->position) << std::endl;
+                std::cout << -hedge->facet->volume(point->position) << std::endl;
+                std::cout << -hedge->twin->facet->volume(point->position) << std::endl;
 				const int bah = 0;
 			}
 		}
