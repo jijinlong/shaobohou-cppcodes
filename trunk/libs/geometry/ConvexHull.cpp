@@ -118,6 +118,13 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
         Facet::updateOutsideSets(facets, tempPoints, eps*10);
         for(unsigned int f = 0; f < facets.size(); f++)
             updateFacet(facets[f], tempPoints);
+
+
+        const bool nonconvex = !isConvex();
+        if(nonconvex)
+        {
+            const int bah = 0;
+        }
     }
 
 
@@ -409,46 +416,6 @@ void ConvexHull3D::updateFacet(Facet *facet, std::vector<Vertex*> &nearPoints)
     // retain undecided points
     nearPoints.insert(nearPoints.begin(), facet->outsideSet.begin(), facet->outsideSet.end());
     facet->outsideSet.clear();
-
-	// check convexity
-	bool nonconvex = false;
-	for(unsigned int f = 0; f < facets.size(); f++)
-		for(unsigned int g = 0; g < facets.size(); g++)
-		{
-			if(facets[f]->index < 0) continue;
-			if(facets[g]->index < 0) continue;
-			if(f == g) continue;
-
-			const double v0 = -facets[f]->volume(facets[g]->vertices[0]->position);
-			const double v1 = -facets[f]->volume(facets[g]->vertices[1]->position);
-			const double v2 = -facets[f]->volume(facets[g]->vertices[2]->position);
-
-			if(v0 > 0)
-			{
-				nonconvex = true;
-				std::cout << "Vertex " << facets[g]->vertices[0]->index << " of Facet " << facets[g]->index << " is " << v0 << " outside of Facet " << facets[f]->index << endl;
-				const int bah = 0;
-			}
-
-			if(v1 > 0)
-			{
-				nonconvex = true;
-				std::cout << "Vertex " << facets[g]->vertices[1]->index << " of Facet " << facets[g]->index << " is " << v1 << " outside of Facet " << facets[f]->index << endl;
-				const int bah = 0;
-			}
-
-			if(v2 > 0)
-			{
-				nonconvex = true;
-				std::cout << "Vertex " << facets[g]->vertices[2]->index << " of Facet " << facets[g]->index << " is " << v2 << " outside of Facet " << facets[f]->index << endl;
-				const int bah = 0;
-			}
-		}
-
-	if(nonconvex)
-	{
-		const int bah = 0;
-	}
 }
 
 bool ConvexHull3D::updateFacetOnce(Facet *facet, std::vector<Vertex*> &nearPoints)
@@ -967,6 +934,48 @@ void ConvexHull3D::compactVertices()
 const Matrix3x3& ConvexHull3D::covariance() const
 {
     return m_covariance;
+}
+
+bool ConvexHull3D::isConvex() const
+{
+    // check convexity
+    bool nonconvex = false;
+    for(unsigned int f = 0; f < facets.size(); f++)
+    {
+        for(unsigned int g = 0; g < facets.size(); g++)
+        {
+            if(facets[f]->index < 0) continue;
+            if(facets[g]->index < 0) continue;
+            if(f == g) continue;
+
+            const double v0 = -facets[f]->volume(facets[g]->vertices[0]->position);
+            const double v1 = -facets[f]->volume(facets[g]->vertices[1]->position);
+            const double v2 = -facets[f]->volume(facets[g]->vertices[2]->position);
+
+            if(v0 > 0)
+            {
+                nonconvex = true;
+                std::cout << "Vertex " << facets[g]->vertices[0]->index << " of Facet " << facets[g]->index << " is " << v0 << " outside of Facet " << facets[f]->index << endl;
+                const int bah = 0;
+            }
+
+            if(v1 > 0)
+            {
+                nonconvex = true;
+                std::cout << "Vertex " << facets[g]->vertices[1]->index << " of Facet " << facets[g]->index << " is " << v1 << " outside of Facet " << facets[f]->index << endl;
+                const int bah = 0;
+            }
+
+            if(v2 > 0)
+            {
+                nonconvex = true;
+                std::cout << "Vertex " << facets[g]->vertices[2]->index << " of Facet " << facets[g]->index << " is " << v2 << " outside of Facet " << facets[f]->index << endl;
+                const int bah = 0;
+            }
+        }
+    }
+
+    return !nonconvex;
 }
 
 void ConvexHull3D::draw() const

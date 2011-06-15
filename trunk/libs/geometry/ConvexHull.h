@@ -31,6 +31,8 @@ class ConvexHull3D: public Polytope, public SupportMappable
         bool isWellFormed() const;
         const Matrix3x3& covariance() const;
 
+        bool isConvex() const;
+
         virtual void draw() const;
 
     protected:
