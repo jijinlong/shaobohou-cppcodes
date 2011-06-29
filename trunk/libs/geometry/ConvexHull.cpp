@@ -157,24 +157,23 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
     for(unsigned int i = 0; i < points.size(); i++)
     {
         const Vector3D &tempPoint = points[i];
+        const double vol = volume2hull(tempPoint);
 
-        if(!insideHull(tempPoint, eps*10))
+        if(vol > eps)
         {
             somePointsOutsideOfHull = true;
-            const double dist = distance2hull(tempPoint);
-            cout << "Point " << i << "    " << tempPoint << "   is " << dist << " away from hull." << endl;
+            cout << "Point " << i << "    " << tempPoint << "   is " << vol << " away from hull." << endl;
         }
     }
 
-    double maxDist = -std::numeric_limits<double>::max();
     if(tempPoints.size() > 0)
     {
-        maxDist = distance2hull(tempPoints[0]->position);
+        double maxVol = volume2hull(tempPoints[0]->position);
         for(unsigned int i = 0; i < tempPoints.size(); i++)
         {
-            maxDist = std::max(maxDist, distance2hull(tempPoints[i]->position));
+            maxVol = std::max(maxVol, volume2hull(tempPoints[i]->position));
         }
-        cout << "Maximum distance of " << tempPoints.size() << " remaining point to the hull is " << maxDist << endl;
+        cout << "Maximum volume of " << tempPoints.size() << " remaining point to the hull is " << maxVol << endl;
     }
 
     unsigned int outsideCount = 0;
@@ -188,29 +187,12 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
         if(vertices[i]->index < 0) continue;
 
         const Vector3D &tempPoint = vertices[i]->position;
+        const double vol = volume2hull(tempPoint);
 
-        if(!insideHull(tempPoint, eps*10))
+        if(vol > 0)
         {
             somePointsOutsideOfHull = true;
-            const double dist = distance2hull(tempPoint);
-            cout << "Vertex " << i << "    " << tempPoint << "   is " << dist << " away from hull." << endl;
-
-            for(unsigned int f = 0; f < facets.size(); f++)
-            {
-                if(facets[f]->index < 0) continue;
-
-                if(facets[f]->edges[0]->start->index == i || facets[f]->edges[0]->end->index == i ||
-                   facets[f]->edges[1]->start->index == i || facets[f]->edges[1]->end->index == i ||
-                   facets[f]->edges[2]->start->index == i || facets[f]->edges[2]->end->index == i)
-                {
-                    cout << "Vertex " << i << " is part of Facet " << f << "  at distance " << facets[f]->distanceToPlane(tempPoint) << endl;
-                }
-
-                if(facets[f]->distanceToPlane(tempPoint) > eps)
-                {
-                    cout << "Vertex " << i << " is outside Facet " << f << "  at distance " << facets[f]->distanceToPlane(tempPoint) << endl;
-                }
-            }
+            cout << "Vertex " << i << "    " << tempPoint << "   is " << vol << " away from hull." << endl;
         }
     }
 #endif
@@ -858,15 +840,15 @@ bool ConvexHull3D::insideHull(const Vector3D &point, const double tol) const
     return inside;
 }
 
-double ConvexHull3D::distance2hull(const Vector3D &point) const
+double ConvexHull3D::volume2hull(const Vector3D &point) const
 {
     assert(vertices.size() > 0);
 
-    double dist = -std::numeric_limits<double>::max();
+    double vol = -std::numeric_limits<double>::max();
 
     // test facets
     for(unsigned int f = 0; f < facets.size(); f++)
-        dist = std::max(dist, facets[f]->distanceToPlane(point));
+        vol = std::max(vol, -facets[f]->volume(point));
 
     // test all edges (unimplemented)
 
@@ -874,7 +856,7 @@ double ConvexHull3D::distance2hull(const Vector3D &point) const
     //for(unsigned int v = 0; v < vertices.size(); v++)
     //    dist = std::min(dist, Vector3D::distance(point, vertices[v]->position));
 
-    return dist;
+    return vol;
 }
 
 //naive implemetation for testing purpose

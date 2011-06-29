@@ -20,7 +20,6 @@ class ConvexHull3D: public Polytope, public SupportMappable
         const Quaternion& orientation() const;
 
         bool insideHull(const Vector3D &point, const double tol) const;
-        double distance2hull(const Vector3D &point) const;
 
         //supportmapping
         virtual unsigned int getSupportPoint(Vector3D &supportPoint, const Vector3D &direction) const;
@@ -55,6 +54,8 @@ class ConvexHull3D: public Polytope, public SupportMappable
         bool getHorizonEdges(std::vector<Facet *> &visibleFacets, std::vector<Edge *> &horizonEdges); //true get horizon edges is successful
         bool remakeHull(Vertex *point, std::vector<Edge *> &horizonEdges, const std::vector<Facet *> &visibleFacets, std::vector<Vertex*> &nearPoints);  //true if remake was successful
         
+        double volume2hull(const Vector3D &point) const;
+
         void compactFacets();
         void compactVertices();
 
