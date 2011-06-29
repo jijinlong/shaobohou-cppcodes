@@ -111,6 +111,7 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
 
 
     // update each facet, maximum two passes
+    bool nonconvex = false;
     for(unsigned int iter = 0; iter < 3; iter++)
     {
         if(tempPoints.size() == 0) break;
@@ -119,12 +120,11 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
         for(unsigned int f = 0; f < facets.size(); f++)
             updateFacet(facets[f], tempPoints);
 
-
-        const bool nonconvex = !isConvex();
-        if(nonconvex)
-        {
-            const int bah = 0;
-        }
+        nonconvex = nonconvex || !isConvex();
+    }
+    if(nonconvex)
+    {
+        const int bah = 0;
     }
 
 
@@ -673,142 +673,6 @@ bool ConvexHull3D::remakeHull(Vertex *point, vector<Edge *> &horizonEdges, const
             valids[i] = 1;
             Vector3D::normal(newVertex->position, e->end->position, e->start->position);
         }
-
-
-		// test max distance to horizon edges
-		double maxHorVol = -f->volume(centre);
-		if(maxHorVol  > 0)
-		{
-			std::cout << "volc = " << maxHorVol << endl;
-		}
-		for(unsigned int h = 0; h < horizonEdges.size(); h++)
-		{
-			const Edge *hedge = horizonEdges[h];
-			const double vol1 = -f->volume(hedge->start->position);
-			const double vol2 = -f->volume(hedge->end->position);
-			maxHorVol = std::max(maxHorVol, vol1);
-			maxHorVol = std::max(maxHorVol, vol2);
-			if(vol1 > 0)
-            {
-                std::cout << "Adding Vertex " << point->index << " to make Facet " << f->index << " from Edge of Facet " << e->facet->index << "  vol1 = " << vol1 << "    Vertex " << hedge->start->index << " of Facet " << hedge->facet->index << endl;
-                std::cout << -e->facet->volume(point->position) << std::endl;
-                std::cout << -e->twin->facet->volume(point->position) << std::endl;
-                std::cout << -hedge->facet->volume(point->position) << std::endl;
-                std::cout << -hedge->twin->facet->volume(point->position) << std::endl;
-                const int bah = 0;
-            }
-			if(vol2 > 0)
-			{
-				std::cout << "Adding Vertex " << point->index << " to make Facet " << f->index << " from Edge of Facet " << e->facet->index << "  vol2 = " << vol2 << "    Vertex " << hedge->end->index << " of Facet " << hedge->facet->index << endl;
-                std::cout << -e->facet->volume(point->position) << std::endl;
-                std::cout << -e->twin->facet->volume(point->position) << std::endl;
-                std::cout << -hedge->facet->volume(point->position) << std::endl;
-                std::cout << -hedge->twin->facet->volume(point->position) << std::endl;
-				const int bah = 0;
-			}
-		}
-		if(maxHorVol > 0)
-		{
-			std::cout << "max vol = " << maxHorVol << endl;
-			//std::cout << 
-			const int bah = 0;
-		}
-
-
-        if(f->index == 201)
-        {
-			if(abs(f->normal[1]) > 0.999)
-			{
-                const Vector3D areaVec = f->edges[0]->direction^f->edges[2]->direction;
-				std::cout << "begin " << f->index << "   " << f->area << endl;
-                std::cout << areaVec*areaVec << endl;
-				std::cout << f->vertices[0]->position << endl;
-				std::cout << f->vertices[1]->position << endl;
-				std::cout << f->vertices[2]->position << endl;
-				std::cout << "end " << f->index << endl << endl;
-				const int bah = 0;
-			}
-            
-            //for(unsigned int v = 0; v < visibleFacets.size(); v++)
-            //{
-            //    bool success = false;
-            //    const Facet *tempFacet = visibleFacets[v];
-
-            //    if(!tempFacet->edges[0]->twin->onHorizon() && 
-            //       !tempFacet->edges[1]->twin->onHorizon() && 
-            //       !tempFacet->edges[2]->twin->onHorizon()) 
-            //        continue;
-
-            //    const double d0 = f->distanceToPlane(tempFacet->vertices[0]->position);
-            //    if(d0 > eps)
-            //    {
-            //        success = true;
-            //        cout << "Facet " << f->index << " is " << d0 << " behind Vert0 " << tempFacet->vertices[0]->index << ": " << tempFacet->vertices[0]->position << " in Facet " << tempFacet->index << endl;
-            //        cout << f->volume(tempFacet->vertices[0]->position) << endl;
-            //    }
-
-            //    const double d1 = f->distanceToPlane(tempFacet->vertices[1]->position);
-            //    if(d1 > eps)
-            //    {
-            //        success = true;
-            //        cout << "Facet " << f->index << " is " << d1 << " behind Vert1 " << tempFacet->vertices[1]->index << ": " << tempFacet->vertices[1]->position << " in Facet " << tempFacet->index << endl;
-            //        cout << f->volume(tempFacet->vertices[1]->position) << endl;
-            //    }
-
-            //    const double d2 = f->distanceToPlane(tempFacet->vertices[2]->position);
-            //    if(d2 > eps)
-            //    {
-            //        success = true;
-            //        cout << "Facet " << f->index << " is " << d2 << " behind Vert2 " << tempFacet->vertices[2]->index << ": " << tempFacet->vertices[2]->position << " in Facet " << tempFacet->index << endl;
-            //        cout << f->volume(tempFacet->vertices[2]->position) << endl;
-            //    }
-
-            //    success = success && (!tempFacet->edges[0]->twin->facet->marked || !tempFacet->edges[1]->twin->facet->marked || !tempFacet->edges[2]->twin->facet->marked);
-            //    if(success)
-            //    {
-            //        cout << "Constructing Facet " << f->index << " from Point " << point->index << " : " << point->position << endl;
-            //        std::cout << e->facet->distanceToPlane(point->position) << endl;
-            //        std::cout << e->twin->facet->distanceToPlane(point->position) << endl;
-            //        std::cout << e->facet->volume(point->position) << endl;
-            //        std::cout << e->twin->facet->volume(point->position) << endl;
-            //        std::cout << "dist0 = " << tempFacet->edges[0]->twin->facet->distanceToPlane(point->position) << endl;
-            //        std::cout << "dist1 = " << tempFacet->edges[1]->twin->facet->distanceToPlane(point->position) << endl;
-            //        std::cout << "dist2 = " << tempFacet->edges[2]->twin->facet->distanceToPlane(point->position) << endl;
-            //    }
-
-            //    const int bah = 0;
-            //}
-
-     //       for(unsigned int h = 0; h < horizonEdges.size(); h++)
-     //       {
-     //           bool success = false;
-     //           const Edge *tempEdge = horizonEdges[h];
-
-     //           const double d0 = f->distanceToPlane(tempEdge->start->position);
-     //           if(d0 > eps)
-     //           {
-     //               success = true;
-     //               cout << "Facet " << f->index << " is " << d0 << " behind start Vert " << tempEdge->start->index << ": " << tempEdge->start->position << endl;
-					//cout << "Facet " << e->facet->index << " is " << e->facet->distanceToPlane(tempEdge->start->position) << " behind start Vert " << tempEdge->start->index << ": " << tempEdge->start->position << endl;
-					//cout << "Facet " << e->facet->index << " is " << e->facet->distanceToPlane(point->position) << " behind start Vert " << tempEdge->start->index << ": " << point->position << endl;
-     //               cout << f->volume(tempEdge->start->position) << endl;
-					//cout << e->facet->volume(tempEdge->start->position) << endl;
-     //           }
-
-     //           const double d1 = f->distanceToPlane(tempEdge->end->position);
-     //           if(d1 > eps)
-     //           {
-     //               success = true;
-     //               cout << "Facet " << f->index << " is " << d1 << " behind end Vert " << tempEdge->end->index << ": " << tempEdge->end->position << endl;
-					//cout << "Facet " << e->facet->index << " is " << e->facet->distanceToPlane(tempEdge->end->position) << " behind end Vert " << tempEdge->end->index << ": " << tempEdge->end->position << endl;
-					//cout << "Facet " << e->facet->index << " is " << e->facet->distanceToPlane(point->position) << " behind end Vert " << tempEdge->end->index << ": " << point->position << endl;
-     //               cout << f->volume(tempEdge->end->position) << endl;
-					//cout << e->facet->volume(tempEdge->end->position) << endl;
-     //           }
-
-     //           const int bah = 0;
-     //       }
-        }
     }
 
 
@@ -942,43 +806,6 @@ bool ConvexHull3D::isConvex() const
     bool nonconvex = false;
     for(unsigned int f = 0; f < facets.size(); f++)
     {
-        for(unsigned int g = 0; g < facets.size(); g++)
-        {
-            if(facets[f]->index < 0) continue;
-            if(facets[g]->index < 0) continue;
-            if(f == g) continue;
-
-            const double v0 = -facets[f]->volume(facets[g]->vertices[0]->position);
-            const double v1 = -facets[f]->volume(facets[g]->vertices[1]->position);
-            const double v2 = -facets[f]->volume(facets[g]->vertices[2]->position);
-
-            if(v0 > 0)
-            {
-                nonconvex = true;
-                std::cout << "Vertex " << facets[g]->vertices[0]->index << " of Facet " << facets[g]->index << " is " << v0 << " outside of Facet " << facets[f]->index << endl;
-                const int bah = 0;
-            }
-
-            if(v1 > 0)
-            {
-                nonconvex = true;
-                std::cout << "Vertex " << facets[g]->vertices[1]->index << " of Facet " << facets[g]->index << " is " << v1 << " outside of Facet " << facets[f]->index << endl;
-                const int bah = 0;
-            }
-
-            if(v2 > 0)
-            {
-                nonconvex = true;
-                std::cout << "Vertex " << facets[g]->vertices[2]->index << " of Facet " << facets[g]->index << " is " << v2 << " outside of Facet " << facets[f]->index << endl;
-                const int bah = 0;
-            }
-        }
-    }
-
-    std::cout << endl;
-
-    for(unsigned int f = 0; f < facets.size(); f++)
-    {
         const Facet *facet = facets[f];
         if(facet->index < 0) continue;
 
@@ -990,7 +817,7 @@ bool ConvexHull3D::isConvex() const
             if(v > 0)
             {
                 nonconvex = true;
-                std::cout << "Vertex2 " << vertex->index << " of Facet " << edge->twin->facet->index << " is " << v << " outside of Facet " << facet->index << endl;
+                std::cout << "Vertex " << vertex->index << " of Facet " << edge->twin->facet->index << " is " << v << " outside of Facet " << facet->index << endl;
                 const int bah = 0;
             }
         }
