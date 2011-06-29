@@ -975,6 +975,27 @@ bool ConvexHull3D::isConvex() const
         }
     }
 
+    std::cout << endl;
+
+    for(unsigned int f = 0; f < facets.size(); f++)
+    {
+        const Facet *facet = facets[f];
+        if(facet->index < 0) continue;
+
+        for(unsigned int e = 0; e < 3; e++)
+        {
+            const Edge *edge = facet->edges[e];
+            const Vertex *vertex = edge->twin->next->end;
+            const double v = -facets[f]->volume(vertex->position);
+            if(v > 0)
+            {
+                nonconvex = true;
+                std::cout << "Vertex2 " << vertex->index << " of Facet " << edge->twin->facet->index << " is " << v << " outside of Facet " << facet->index << endl;
+                const int bah = 0;
+            }
+        }
+    }
+
     return !nonconvex;
 }
 
