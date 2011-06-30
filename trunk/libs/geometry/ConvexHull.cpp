@@ -116,7 +116,7 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
     {
         if(tempPoints.size() == 0) break;
 
-        Facet::updateOutsideSets(facets, tempPoints, eps*10);
+        Facet::updateOutsideSets(facets, tempPoints, eps);
         for(unsigned int f = 0; f < facets.size(); f++)
             updateFacet(facets[f], tempPoints);
 
@@ -513,7 +513,7 @@ bool ConvexHull3D::getVisibleFacets(Vertex *point, Facet *startFacet, vector<Fac
         // compute distance to farthest visible facet, make sure at least one facet is actually visible
         for(unsigned int i = 0; i < visibleFacets.size(); i++)
         {
-            is_valid = is_valid || visibleFacets[i]->above(point->position, eps*10);
+            is_valid = is_valid || visibleFacets[i]->above(point->position, eps);
         }
 
 #ifdef HULL_DEBUG
@@ -681,7 +681,7 @@ bool ConvexHull3D::remakeHull(Vertex *point, vector<Edge *> &horizonEdges, const
     //this updates the outside set of new facets
     for(unsigned int f = 0; f < visibleFacets.size(); f++)
     {
-        Facet::updateOutsideSets(createdFacets, visibleFacets[f]->outsideSet, eps*10);
+        Facet::updateOutsideSets(createdFacets, visibleFacets[f]->outsideSet, eps);
 
         // retain undecided points
         nearPoints.insert(nearPoints.end(), visibleFacets[f]->outsideSet.begin(), visibleFacets[f]->outsideSet.end());
