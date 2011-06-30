@@ -382,16 +382,6 @@ double Facet::distanceToPlane(const Vector3D &point) const
     return (normal * point) + distance;
 }
 
-//bool Facet::isBefore(const Vector3D &point, double tolerance) const
-//{
-//    return distanceToPlane(point) > tolerance;
-//}
-
-//bool Facet::isBehind(const Vector3D &point, double tolerance) const
-//{
-//    return distanceToPlane(point) < -tolerance;
-//}
-
 double Facet::volume(const Vector3D &point) const
 {
     return Vector3D::volume(vertices[0]->position, vertices[1]->position, vertices[2]->position, point);
@@ -518,7 +508,7 @@ void Facet::updateOutsideSets(std::vector<Facet*> &facets, std::vector<Vertex*> 
             if(!facets[f]) continue;
             if( facets[f]->index < 0) continue;
 
-            maxDist = std::max(maxDist, facets[f]->distanceToPlane((*it)->position));
+            maxDist = std::max(maxDist, -facets[f]->volume((*it)->position));
             if(maxDist > tolerance)
             {
                 success = true;
@@ -553,10 +543,10 @@ bool Facet::getFarthestOutsidePoint(Vertex *&farthestPoint)
     {
         // find the farthest point
         unsigned int farthestIndex = 0;
-        double farthestDistance = distanceToPlane(outsideSet[farthestIndex]->position);
+        double farthestDistance = -volume(outsideSet[farthestIndex]->position);
         for(unsigned int i = 0; i < outsideSet.size(); i++)
         {
-            double tempDistance = distanceToPlane(outsideSet[i]->position);
+            double tempDistance = -volume(outsideSet[i]->position);
             if(tempDistance > farthestDistance)
             {
                 farthestIndex = i;
