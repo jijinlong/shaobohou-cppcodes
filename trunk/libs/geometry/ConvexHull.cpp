@@ -159,7 +159,7 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
         const Vector3D &tempPoint = points[i];
         const double vol = volume2hull(tempPoint);
 
-        if(vol > eps)
+        if(vol > eps*10)
         {
             somePointsOutsideOfHull = true;
             cout << "Point " << i << "    " << tempPoint << "   is " << vol << " away from hull." << endl;
@@ -264,7 +264,7 @@ bool ConvexHull3D::isWellFormed() const
         if(facets[i]->above(centre, eps))
         {
             wellFormed = false;
-            cout << "Facet " << facets[i]->index + 1 << " out of " << facets.size() << " at " << facets[i] << " is facing the wrong way with distance " << facets[i]->distanceToPlane(centre) << endl;
+            cout << "Facet " << facets[i]->index + 1 << " out of " << facets.size() << " at " << facets[i] << " is facing the wrong way with distance " << -facets[i]->volume(centre) << endl;
         }
 
         if(facets[i]->marked)
@@ -279,15 +279,15 @@ bool ConvexHull3D::isWellFormed() const
             cout << "Facet " << i << " at " << facets[i] << " has index less than 0" << endl;
         }
 
-        //if(facets[i]->outsideSet.size() > 0)
-        //{
-        //    wellFormed = false;
-        //    cout << "Facet " << i << " at " << facets[i] << " still has " << facets[i]->outsideSet.size() << " points in outside set" << endl;
-        //    double d = -1.0;
-        //    for(unsigned int t = 0; t < facets[i]->outsideSet.size(); t++)
-        //        d = std::max(d, facets[i]->distanceToPlane(facets[i]->outsideSet[t]));
-        //    cout << "Facet " << i << " at " << facets[i] << " has farthest at " << d << endl;
-        //}
+        if(facets[i]->outsideSet.size() > 0)
+        {
+            wellFormed = false;
+            cout << "Facet " << i << " at " << facets[i] << " still has " << facets[i]->outsideSet.size() << " points in outside set" << endl;
+            double d = -std::numeric_limits<double>::max();
+            for(unsigned int t = 0; t < facets[i]->outsideSet.size(); t++)
+                d = std::max(d, -facets[i]->volume(facets[i]->outsideSet[t]->position));
+            cout << "Facet " << i << " at " << facets[i] << " has farthest at " << d << endl;
+        }
     }
 
     return wellFormed;
@@ -419,7 +419,7 @@ bool ConvexHull3D::updateFacetOnce(Facet *facet, std::vector<Vertex*> &nearPoint
         if(!getVisibleFacets(farthestPoint, facet, visibleFacets))//get visible facets error
         {
 #ifdef HULL_DEBUG
-            cout << "Get Visible Facets error!  " << facet->distanceToPlane(farthestPoint->position) << "  " << facet << endl;
+            cout << "Get Visible Facets error!  " << -facet->volume(farthestPoint->position) << "  " << facet << endl;
 #endif
             success = false;
         }
@@ -470,9 +470,6 @@ bool ConvexHull3D::updateFacetOnce(Facet *facet, std::vector<Vertex*> &nearPoint
     for(unsigned int j = 0; j < horizonEdges.size(); j++) horizonEdges[j]->marked = false;
 
 
-    assert(isWellFormed());
-
-
     return success;
 }
 
@@ -494,36 +491,9 @@ bool ConvexHull3D::getVisibleFacets(Vertex *point, Facet *startFacet, vector<Fac
                     if(facet->marked && !edge->twin->facet->marked)
                     {
                         Facet f(edge->start, edge->end, point, facets.size());
-                        const double aboveDist = f.distanceToPlane(edge->twin->facet->centre);
-                        //const Vector3D norm = Vector3D::normal(edge->start->position, edge->end->position, point->position);
-                        //const double dist = -(norm * point->position);
-                        //const double aboveDist = norm * edge->twin->facet->centre + dist;
 
-                        const double area = Vector3D::area(edge->start->position, edge->end->position, point->position);
-                        const Vector3D normAreaVec = f.edges[1]->direction^f.edges[2]->direction;
-                        const double normArea = normAreaVec*normAreaVec*0.5;
-
-                        //if(norm*norm < eps || area < eps)
-                        //if(norm*norm < eps || (facets.size() > 2 && aboveDist > -eps))
-                        //if(f.normal*f.normal < eps || (facets.size() > 2 && aboveDist > -eps))
-                        //if(f.normal*f.normal < eps || (facets.size() > 2 && aboveDist > -eps) || normArea < eps)
-                        //if(f.normal*f.normal < eps || normArea < eps)
                         if(f.normal*f.normal < eps)
                         {
-                            std::cout << "correcting in findVisibleFacet for Point " << point->index << " : " << point->position << endl;
-                            std::cout << "area = " << area << "   normArea = " << normArea << endl;
-                            std::cout << edge->facet->distanceToPlane(point->position) << endl;
-                            std::cout << edge->twin->facet->distanceToPlane(point->position) << endl;
-                            std::cout << point->position << std::endl;
-                            std::cout << edge->end->position << std::endl;
-                            std::cout << edge->start->position << std::endl;
-                            std::cout << "-----------" << endl;
-                            std::cout << f.edges[0]->direction << endl;
-                            std::cout << f.edges[1]->direction << endl;
-                            std::cout << f.edges[2]->direction << endl;
-                            std::cout << std::endl;
-                            const int bah = 0;
-
                             added = true;
                             edge->twin->facet->marked = true;
                             visibleFacets.push_back(edge->twin->facet);
@@ -553,10 +523,10 @@ bool ConvexHull3D::getVisibleFacets(Vertex *point, Facet *startFacet, vector<Fac
             if((testFacet->index >= 0) && testFacet->above(point->position, 0) && !(testFacet->marked))   //point in front of facet and not marked by previous algo, error
             {
                 //is_valid = false;
-                std::cout << "The point " << point->index << "  at  " << point->position << " is " << testFacet->distanceToPlane(point->position) << " in front of Facet " << i << ", with tolerance " << -eps << std::endl;
-                std::cout << testFacet->edges[0]->twin->facet->distanceToPlane(point->position) << std::endl;
-                std::cout << testFacet->edges[1]->twin->facet->distanceToPlane(point->position) << std::endl;
-                std::cout << testFacet->edges[2]->twin->facet->distanceToPlane(point->position) << std::endl;
+                std::cout << "The point " << point->index << "  at  " << point->position << " is " << -testFacet->volume(point->position) << " in front of Facet " << i << ", with tolerance " << -eps << std::endl;
+                std::cout << -testFacet->edges[0]->twin->facet->volume(point->position) << std::endl;
+                std::cout << -testFacet->edges[1]->twin->facet->volume(point->position) << std::endl;
+                std::cout << -testFacet->edges[2]->twin->facet->volume(point->position) << std::endl;
                 std::cout << "-volume = " << -testFacet->volume(point->position) << endl;
                 std::cout << -testFacet->edges[0]->twin->facet->volume(point->position) << std::endl;
                 std::cout << -testFacet->edges[1]->twin->facet->volume(point->position) << std::endl;
@@ -636,7 +606,7 @@ bool ConvexHull3D::remakeHull(Vertex *point, vector<Edge *> &horizonEdges, const
         Facet *f = new Facet(newVertex, e->end, e->start, facets.size()+i);
         createdFacets.push_back(f);
 
-        double dd = f->distanceToPlane(centre);
+        double dd = -f->volume(centre);
 
         if(!(f->wellFormed) || dd > 0)
         {
@@ -644,14 +614,11 @@ bool ConvexHull3D::remakeHull(Vertex *point, vector<Edge *> &horizonEdges, const
             double ed = e->projectToLine(point->position);
             double ed1 = e->next->projectToLine(point->position);
             double ed2 = e->prev->projectToLine(point->position);
-            double fd1 = e->facet->distanceToPlane(point->position);
-            double fd2 = e->twin->facet->distanceToPlane(point->position);
 			std::cout << "problem with point " << point->index << ": " << point->position << endl;
             std::cout << newVertex->position << std::endl;
             std::cout << e->end->position << std::endl;
             std::cout << e->start->position << std::endl;
 			std::cout << "volume = " << f->volume(centre) << endl;
-			std::cout << "dists = " << fd1 << "  " << fd2 << endl;
             valids[i] = 1;
             Vector3D::normal(newVertex->position, e->end->position, e->start->position);
         }
