@@ -77,6 +77,7 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
     vector<Vertex*> tempPoints;
     for(unsigned int i = 0; i < points.size(); i++)
         tempPoints.push_back(new Vertex(points[i], i));
+    vector<Vertex*> tempPoints2 = tempPoints;
 
 
     // setup conve xhull
@@ -173,7 +174,10 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
         {
             maxVol = std::max(maxVol, volume2hull(tempPoints[i]->position));
         }
-        cout << "Maximum volume of " << tempPoints.size() << " remaining point to the hull is " << maxVol << endl;
+        if(maxVol > eps*1)
+        {
+            cout << "Maximum volume of " << tempPoints.size() << " remaining point to the hull is " << maxVol << endl;
+        }
     }
 
     unsigned int outsideCount = 0;
@@ -196,6 +200,10 @@ bool ConvexHull3D::addPointsToHull(const vector<Vector3D> &points, bool verbose)
         }
     }
 #endif
+
+    // delete temporary vertices
+    for(unsigned int i = 0; i < tempPoints2.size(); i++)
+        delete tempPoints2[i];
 
     return true;
 }
