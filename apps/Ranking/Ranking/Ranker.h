@@ -3,6 +3,8 @@
 
 #include "QueryData.h"
 
+ typedef std::pair<double, int> RankingPair;
+
 class Ranker
 {
 public:
@@ -11,7 +13,7 @@ public:
     virtual ~Ranker() {};
 
     virtual void learn(const QueryData &data) = 0;
-    virtual void rank(const QueryData &data) const = 0;
+    virtual std::vector<RankingPair> rank(const QueryData &data) const = 0;
 };
 
 #endif

@@ -46,13 +46,14 @@ class LinearRegressionRanker : public Ranker
 {
 public:
     virtual void learn(const QueryData &data);
-    virtual void rank(const QueryData &data) const;
+    virtual std::vector<RankingPair> rank(const QueryData &data) const;
 
 private:
-
     TNT::Array2D<double> labels;
     TNT::Array2D<double> features;
     TNT::Array2D<double> params;
+
+    std::vector<RankingPair> rank(const TNT::Array2D<double> &X) const;
 };
 
 #endif
