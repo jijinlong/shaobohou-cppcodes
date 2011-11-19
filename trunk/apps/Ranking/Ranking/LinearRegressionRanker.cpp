@@ -28,13 +28,29 @@ void LinearRegressionRanker::learn(const QueryData &data)
     fout << B;
     fout.close();*/
 
+    std::vector<RankingPair> rankings = rank(X);
+
     const int bah = 0;
 }
 
-void LinearRegressionRanker::rank(const QueryData &data) const
+std::vector<RankingPair> LinearRegressionRanker::rank(const QueryData &data) const
 {
     TNT::Array2D<double> X = data.feature2array();
+
+    return rank(X);
+}
+
+std::vector<RankingPair> LinearRegressionRanker::rank(const TNT::Array2D<double> &X) const
+{
     TNT::Array2D<double> y = matmult(X, params);
 
-    typedef std::pair<int, int> RankPair;
+    std::vector<RankingPair> rankings;
+    for(int i = 0; i < y.dim1(); i++)
+        rankings.push_back(RankingPair(y[i][0], i));
+
+    std::sort(rankings.rbegin(), rankings.rend());
+
+    const int bah = 0;
+
+    return rankings;
 }
