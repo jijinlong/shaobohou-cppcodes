@@ -4,6 +4,7 @@
 #include <msclr\marshal_cppstd.h>
 
 #include "LinearRegressionRanker.h"
+#include "AdaRanker.h"
 
 using namespace msclr::interop;
 
@@ -107,8 +108,12 @@ namespace Ranking {
             if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
             {
                 QueryData querys(marshal_as<std::string>(openFileDialog1->FileName));
-                LinearRegressionRanker ranker;
+
+                AdaRanker ranker;
                 ranker.learn(querys);
+
+                LinearRegressionRanker ranker2;
+                ranker2.learn(querys);
             }
         }
     };

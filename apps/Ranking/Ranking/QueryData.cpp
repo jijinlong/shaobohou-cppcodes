@@ -3,7 +3,7 @@
 #include <fstream>
 
 QueryData::QueryData(const std::string &filename)
-    : m_ndata(0), m_ndims(0)
+    : m_ndata(0), m_nfeature(0)
 {
     std::ifstream fin(filename.c_str());
     assert(fin.is_open());
@@ -39,7 +39,7 @@ void QueryData::addData(QueryVector *val)
     if(val != NULL)
     {
         ++m_ndata;
-        m_ndims = std::max(m_ndims, val->nfeature());
+        m_nfeature = std::max(m_nfeature, val->nfeature());
 
         std::map<std::string, QueryGroup>::iterator it = m_data.find(val->queryID());
         if(it == m_data.end())
@@ -72,7 +72,7 @@ TNT::Array2D<double> QueryData::label2array() const
 
 TNT::Array2D<double> QueryData::feature2array() const
 {
-    TNT::Array2D<double> features(m_ndata, m_ndims+1);
+    TNT::Array2D<double> features(m_ndata, m_nfeature+1);
 
     int count = 0;
     for(std::map<std::string, QueryGroup>::const_iterator git = m_data.begin(); git != m_data.end(); ++git)
@@ -84,6 +84,24 @@ TNT::Array2D<double> QueryData::feature2array() const
             {
                 features[count][j+1] = (*qit)->features(j);
             }
+            count++;
+        }
+    }
+
+    return features;
+}
+
+TNT::Array2D<double> QueryData::feature2array(const int f) const
+{
+    TNT::Array2D<double> features(ndata(), 2);
+
+    int count = 0;
+    for(std::map<std::string, QueryGroup>::const_iterator git = m_data.begin(); git != m_data.end(); ++git)
+    {
+        for(QueryGroup::const_iterator qit = git->second.begin(); qit != git->second.end(); ++qit)
+        {
+            features[count][0] = 1;
+            features[count][1] = (*qit)->features(f);
             count++;
         }
     }

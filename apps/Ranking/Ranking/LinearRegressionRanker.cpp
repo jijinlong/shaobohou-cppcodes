@@ -4,21 +4,13 @@
 
 void LinearRegressionRanker::learn(const QueryData &data)
 {
-    labels = data.label2array();
-    features = data.feature2array();
+    TNT::Array2D<double> labels = data.label2array();
+    TNT::Array2D<double>features = data.feature2array();
 
-    TNT::Array2D<double> &X  = features;
-    TNT::Array2D<double>  Xt = transpose(X);
-    TNT::Array2D<double> &y  = labels;
+    learn(features, labels);
 
-    TNT::Array2D<double> B = matmult(matmult(inv(matmult(Xt, X)), Xt), labels);
-    params = B;
-
-    const int nr = B.dim1();
-    const int nc = B.dim2();
-
-
-    /*        std::ofstream fout("X.txt");
+    /* 
+    std::ofstream fout("X.txt");
     fout << X;
     fout.close();
     fout.open("y.txt");
@@ -27,8 +19,6 @@ void LinearRegressionRanker::learn(const QueryData &data)
     fout.open("B.txt");
     fout << B;
     fout.close();*/
-
-    std::vector<RankingPair> rankings = rank(X);
 
     const int bah = 0;
 }
@@ -40,9 +30,18 @@ std::vector<RankingPair> LinearRegressionRanker::rank(const QueryData &data) con
     return rank(X);
 }
 
+void LinearRegressionRanker::learn(const TNT::Array2D<double> &X, const TNT::Array2D<double> &y)
+{
+    TNT::Array2D<double>  Xt = transpose(X);
+
+    params = matmult(matmult(inv(matmult(Xt, X)), Xt), y);
+
+    std::vector<RankingPair> rankings = rank(X);
+}
+
 std::vector<RankingPair> LinearRegressionRanker::rank(const TNT::Array2D<double> &X) const
 {
-    TNT::Array2D<double> y = matmult(X, params);
+    TNT::Array2D<double> y = predict(X);
 
     std::vector<RankingPair> rankings;
     for(int i = 0; i < y.dim1(); i++)
@@ -53,4 +52,9 @@ std::vector<RankingPair> LinearRegressionRanker::rank(const TNT::Array2D<double>
     const int bah = 0;
 
     return rankings;
+}
+
+TNT::Array2D<double> LinearRegressionRanker::predict(const TNT::Array2D<double> &X) const
+{
+    return matmult(X, params);
 }

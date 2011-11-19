@@ -12,7 +12,7 @@ class QueryData
 public:
     typedef std::vector<QueryVector*> QueryGroup;
 
-    QueryData() : m_ndata(0), m_ndims(0) {}
+    QueryData() : m_ndata(0), m_nfeature(0) {}
     QueryData(const std::string &filename);
 
     ~QueryData();
@@ -29,11 +29,17 @@ public:
         return m_ndata;
     }
 
+    int nfeature() const
+    {
+        return m_nfeature;
+    }
+
     TNT::Array2D<double> label2array() const;
     TNT::Array2D<double> feature2array() const;
+    TNT::Array2D<double> feature2array(const int f) const;
 
 private:
-    int m_ndata, m_ndims;
+    int m_ndata, m_nfeature;
     std::map<std::string, QueryGroup> m_data;
 };
 
