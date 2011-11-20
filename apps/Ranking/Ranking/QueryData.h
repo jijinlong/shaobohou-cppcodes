@@ -3,14 +3,12 @@
 
 #include "QueryVector.h"
 
-#include "tnt.h"
-
 #include <map>
 
 class QueryData
 {
 public:
-    typedef std::vector<QueryVector*> QueryGroup;
+    typedef std::vector<QueryVector*> Query;
 
     QueryData() : m_ndata(0), m_nfeature(0) {}
     QueryData(const std::string &filename);
@@ -34,13 +32,14 @@ public:
         return m_nfeature;
     }
 
-    TNT::Array2D<double> label2array() const;
-    TNT::Array2D<double> feature2array() const;
-    TNT::Array2D<double> feature2array(const int f) const;
+    const Query& getQuery(const int q) const;
+    Query getQueryAll() const;
+
 
 private:
     int m_ndata, m_nfeature;
-    std::map<std::string, QueryGroup> m_data;
+    std::map<std::string, int> m_qid2index;
+    std::vector<Query> m_data;
 };
 
 #endif
