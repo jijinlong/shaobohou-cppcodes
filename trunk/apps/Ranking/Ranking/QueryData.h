@@ -33,7 +33,7 @@ public:
     }
 
     const Query& getQuery(const int q) const;
-    Query getQueryAll() const;
+    Query getAllQuery() const;
 
 
 private:

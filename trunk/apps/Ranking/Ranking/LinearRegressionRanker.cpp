@@ -2,7 +2,43 @@
 
 #include <fstream>
 
-TNT::Array2D<double> label2array(const std::vector<QueryVector*> &data)
+#include "tnt.h"
+#include "jama_lu.h"
+
+// A = eye(dim)
+TNT::Array2D<double> eye(int dim)
+{
+    TNT::Array2D<double> A(dim, dim, 0.0);
+    for(int i = 0; i < dim; i++)
+        A[i][i] = 1.0;
+
+    return A;
+}
+
+// B = A'
+TNT::Array2D<double> transpose(const TNT::Array2D<double> &A)
+{
+    TNT::Array2D<double> B(A.dim2(), A.dim1());
+    for(int i = 0; i < A.dim1(); i++)
+        for(int j = 0; j < A.dim2(); j++)
+            B[j][i] = A[i][j];
+
+    return B;
+}
+
+// B = inv(A)
+TNT::Array2D<double> inv(const TNT::Array2D<double> &A)
+{
+    assert(A.dim1()==A.dim2());
+
+    JAMA::LU<double> lu(A);
+    TNT::Array2D<double> B(lu.solve(eye(A.dim1())));
+    assert(B.dim1() > 0);
+
+    return B;
+}
+
+TNT::Array2D<double> label2array(const QueryData::Query &data)
 {
     TNT::Array2D<double> labels(data.size(), 1);
     for(unsigned int q = 0; q < data.size(); ++q)
@@ -13,7 +49,7 @@ TNT::Array2D<double> label2array(const std::vector<QueryVector*> &data)
     return labels;
 }
 
-TNT::Array2D<double> feature2array(const std::vector<QueryVector*> &data)
+TNT::Array2D<double> feature2array(const QueryData::Query &data)
 {
     int nfeature = 0;
     for(unsigned int q = 0; q < data.size(); ++q)
@@ -34,20 +70,16 @@ TNT::Array2D<double> feature2array(const std::vector<QueryVector*> &data)
 
 void LinearRegressionRanker::learn(const QueryData &data)
 {
-    std::vector<QueryVector*> queryDocs = data.getQueryAll();
-    TNT::Array2D<double> labels = label2array(queryDocs);
-    TNT::Array2D<double> features = feature2array(queryDocs);
+    QueryData::Query allQuerys = data.getAllQuery();
+    TNT::Array2D<double> labels = label2array(allQuerys);
+    TNT::Array2D<double> features = feature2array(allQuerys);
 
     learn(features, labels);
 
 
-    std::vector<RankingPair> rankings = rank(features, queryDocs);
-    double score = Metrics::MAP(rankings);
-
-    std::vector<RankingPair> unsortedRankings;
-    for(unsigned int i = 0; i < queryDocs.size(); i++)
-        unsortedRankings.push_back(RankingPair(0.0, queryDocs[i]));
-    double score0 = Metrics::MAP(unsortedRankings);
+    double score  = m_metric->measure(rank(allQuerys));
+    double score1 = m_metric->measure(rank(data));
+    double score0 = m_metric->measure(IdleRanker().rank(data));
 
     /* 
     std::ofstream fout("X.txt");
@@ -63,12 +95,11 @@ void LinearRegressionRanker::learn(const QueryData &data)
     const int bah = 0;
 }
 
-std::vector<RankingPair> LinearRegressionRanker::rank(const QueryData &data) const
+RankingList LinearRegressionRanker::rank(const QueryData::Query &data) const
 {
-    std::vector<QueryVector*> queryDocs = data.getQueryAll();
-    TNT::Array2D<double> X = feature2array(queryDocs);
+    TNT::Array2D<double> X = feature2array(data);
 
-    return rank(X, queryDocs);
+    return rank(X, data);
 }
 
 void LinearRegressionRanker::learn(const TNT::Array2D<double> &X, const TNT::Array2D<double> &y)
@@ -78,13 +109,13 @@ void LinearRegressionRanker::learn(const TNT::Array2D<double> &X, const TNT::Arr
     params = matmult(matmult(inv(matmult(Xt, X)), Xt), y);
 }
 
-std::vector<RankingPair> LinearRegressionRanker::rank(const TNT::Array2D<double> &X, const std::vector<QueryVector*> &queryDocs) const
+RankingList LinearRegressionRanker::rank(const TNT::Array2D<double> &X, const QueryData::Query &queryDocs) const
 {
     assert(X.dim1() == queryDocs.size());
 
     TNT::Array2D<double> y = predict(X);
 
-    std::vector<RankingPair> rankings;
+    RankingList rankings;
     for(int i = 0; i < y.dim1(); i++)
         rankings.push_back(RankingPair(y[i][0], queryDocs[i]));
 

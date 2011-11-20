@@ -6,14 +6,17 @@
 class AdaRanker : public Ranker
 {
 public:
+    using Ranker::rank;
+
+    AdaRanker(const Metric &metric) : Ranker(metric) {}
+
     virtual void learn(const QueryData &data);
-    virtual std::vector<RankingPair> rank(const QueryData &data) const;
+    virtual RankingList rank(const QueryData::Query &data) const;
 
 private:
     std::vector<double> weakRankerWeights;
 
-    virtual std::vector<RankingPair> rank(const std::vector<QueryVector*> &data) const;
-    std::vector<RankingPair> weakRank(const std::vector<QueryVector*> &data, const int f) const;
+    RankingList weakRank(const QueryData::Query &data, const int f) const;
 };
 
 #endif
