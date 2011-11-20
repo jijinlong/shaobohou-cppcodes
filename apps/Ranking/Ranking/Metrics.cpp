@@ -1,6 +1,6 @@
 #include "Metrics.h"
 
-double Metrics::MAP(const std::vector<RankingPair> &rankings)
+double AveragePrecisionMetric::measure(const RankingList &rankings) const
 {
     double relSum = 0;
     double avgPNum = 0;
@@ -17,4 +17,13 @@ double Metrics::MAP(const std::vector<RankingPair> &rankings)
     }
 
     return avgPNum/avgPDen;
+}
+
+double AveragePrecisionMetric::measure(const std::vector<RankingList> &rankings) const
+{
+    double score = 0.0;
+    for(unsigned int i = 0; i < rankings.size(); i++)
+        score += measure(rankings[i]);
+
+    return score/rankings.size();
 }

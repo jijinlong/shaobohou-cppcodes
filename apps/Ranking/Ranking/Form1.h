@@ -109,11 +109,13 @@ namespace Ranking {
             {
                 QueryData querys(marshal_as<std::string>(openFileDialog1->FileName));
 
-                AdaRanker ranker;
-                ranker.learn(querys);
+                AveragePrecisionMetric metric;
 
-                LinearRegressionRanker ranker2;
-                ranker2.learn(querys);
+                LinearRegressionRanker ranker1(metric);
+                ranker1.learn(querys);
+
+                AdaRanker ranker3(metric);
+                ranker3.learn(querys);
             }
         }
     };

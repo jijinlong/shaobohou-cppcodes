@@ -57,7 +57,7 @@ const QueryData::Query& QueryData::getQuery(const int q) const
     return m_data[q];
 }
 
-QueryData::Query QueryData::getQueryAll() const
+QueryData::Query QueryData::getAllQuery() const
 {
     Query queryDocs;
     queryDocs.reserve(m_ndata);
