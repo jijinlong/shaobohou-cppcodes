@@ -48,13 +48,13 @@ public:
     virtual void learn(const QueryData &data);
     virtual std::vector<RankingPair> rank(const QueryData &data) const;
 
-    void learn(const TNT::Array2D<double> &X, const TNT::Array2D<double> &y);
-    std::vector<RankingPair> rank(const TNT::Array2D<double> &X) const;
-
-    TNT::Array2D<double> predict(const TNT::Array2D<double> &X) const;
-
 private:
     TNT::Array2D<double> params;
+
+    void learn(const TNT::Array2D<double> &X, const TNT::Array2D<double> &y);
+    std::vector<RankingPair> rank(const TNT::Array2D<double> &X, const std::vector<QueryVector*> &queryDocs) const;
+
+    TNT::Array2D<double> predict(const TNT::Array2D<double> &X) const;
 };
 
 #endif

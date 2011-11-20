@@ -2,8 +2,7 @@
 #define RANKER
 
 #include "QueryData.h"
-
- typedef std::pair<double, int> RankingPair;
+#include "Metrics.h"
 
 class Ranker
 {
