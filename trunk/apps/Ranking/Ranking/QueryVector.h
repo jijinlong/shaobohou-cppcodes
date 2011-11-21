@@ -1,6 +1,11 @@
 #ifndef QUERYVECTOR_H
 #define QUERYVECTOR_H
 
+// Feature vector class for a query-document pair
+//
+// Shaobo Hou
+// 20.11.2011
+
 #include <vector>
 #include <string>
 

@@ -1,6 +1,11 @@
 #ifndef RANKER_H
 #define RANKER_H
 
+// Ranking algorithms
+//
+// Shaobo Hou 
+// 20.11.2011
+
 #include "QueryData.h"
 #include "Metrics.h"
 
@@ -14,9 +19,13 @@ public:
 
     const Metric* metric() const { return m_metric;}
 
+    // learn from a set of queries
     virtual void learn(const QueryData &data) = 0;
+
+    // rank documents associated with a single query
     virtual RankingList rank(const QueryData::Query &data) const = 0;
 
+    // rank a set of queries
     std::vector<RankingList> rank(const QueryData &data) const;
 
 protected:

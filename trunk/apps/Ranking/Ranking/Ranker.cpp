@@ -13,7 +13,7 @@ RankingList IdleRanker::rank(const QueryData::Query &data) const
 {
     RankingList rankings(data.size());
     for(unsigned int i = 0; i < data.size(); i++)
-        rankings[i] = RankingPair(0.0, data[i]);
+        rankings[i] = RankingPair(i, data[i]);
 
     return rankings;
 }

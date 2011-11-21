@@ -1,5 +1,7 @@
 #include "Metrics.h"
 
+#include <numeric>
+
 double AveragePrecisionMetric::measure(const RankingList &rankings) const
 {
     double relSum = 0;
@@ -21,9 +23,9 @@ double AveragePrecisionMetric::measure(const RankingList &rankings) const
 
 double AveragePrecisionMetric::measure(const std::vector<RankingList> &rankings) const
 {
-    double score = 0.0;
+    std::vector<double> scores(rankings.size(), 0);
     for(unsigned int i = 0; i < rankings.size(); i++)
-        score += measure(rankings[i]);
+        scores[i] = measure(rankings[i]);
 
-    return score/rankings.size();
+    return std::accumulate(scores.begin(), scores.end(), 0.0)/rankings.size();
 }

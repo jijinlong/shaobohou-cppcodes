@@ -122,12 +122,7 @@ void TreeRegressionRanker::learn(const QueryData &data)
 {
     QueryData::Query allQuerys = data.getAllQuery();
 
-    root = new Node(allQuerys, m_metric, 2);
-
-    double score = m_metric->measure(rank(data));
-    double score1 = m_metric->measure(rank(allQuerys));
-
-    const int bah = 0;
+    root = new Node(allQuerys, m_metric, m_maxLevel);
 }
 
 RankingList TreeRegressionRanker::rank(const QueryData::Query &data) const
