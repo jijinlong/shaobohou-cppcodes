@@ -86,24 +86,6 @@ void LinearRegressionRanker::learn(const QueryData &data)
     QueryData::Query allQuerys = data.getAllQuery();
 
     learn(allQuerys);
-
-
-    double score  = m_metric->measure(rank(allQuerys));
-    double score1 = m_metric->measure(rank(data));
-    double score0 = m_metric->measure(IdleRanker().rank(data));
-
-    /* 
-    std::ofstream fout("X.txt");
-    fout << X;
-    fout.close();
-    fout.open("y.txt");
-    fout << y;
-    fout.close();
-    fout.open("B.txt");
-    fout << B;
-    fout.close();*/
-
-    const int bah = 0;
 }
 
 RankingList LinearRegressionRanker::rank(const QueryData::Query &data) const

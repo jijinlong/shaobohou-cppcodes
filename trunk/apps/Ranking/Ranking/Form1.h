@@ -9,6 +9,16 @@
 
 using namespace msclr::interop;
 
+template <typename R, typename T>
+R stream_cast(const T &t)
+{
+    std::stringstream ss;
+    ss << t;
+    R result;
+    ss >> result;
+    return result;
+}
+
 namespace Ranking {
 
     using namespace System;
@@ -45,7 +55,8 @@ namespace Ranking {
         }
     private: System::Windows::Forms::Button^  button1;
     private: System::Windows::Forms::OpenFileDialog^  openFileDialog1;
-    private: System::Windows::Forms::ImageList^  imageList1;
+
+    private: System::Windows::Forms::DataVisualization::Charting::Chart^  chart1;
     private: System::ComponentModel::IContainer^  components;
 
 
@@ -64,15 +75,17 @@ namespace Ranking {
         /// </summary>
         void InitializeComponent(void)
         {
-            this->components = (gcnew System::ComponentModel::Container());
+            System::Windows::Forms::DataVisualization::Charting::ChartArea^  chartArea1 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+            System::Windows::Forms::DataVisualization::Charting::Legend^  legend1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
             this->button1 = (gcnew System::Windows::Forms::Button());
             this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
-            this->imageList1 = (gcnew System::Windows::Forms::ImageList(this->components));
+            this->chart1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->chart1))->BeginInit();
             this->SuspendLayout();
             // 
             // button1
             // 
-            this->button1->Location = System::Drawing::Point(144, 340);
+            this->button1->Location = System::Drawing::Point(278, 340);
             this->button1->Name = L"button1";
             this->button1->Size = System::Drawing::Size(94, 23);
             this->button1->TabIndex = 0;
@@ -84,14 +97,28 @@ namespace Ranking {
             // 
             this->openFileDialog1->FileName = L"openFileDialog1";
             // 
+            // chart1
+            // 
+            chartArea1->Name = L"ChartArea1";
+            this->chart1->ChartAreas->Add(chartArea1);
+            legend1->Name = L"Legend1";
+            this->chart1->Legends->Add(legend1);
+            this->chart1->Location = System::Drawing::Point(12, 12);
+            this->chart1->Name = L"chart1";
+            this->chart1->Size = System::Drawing::Size(636, 322);
+            this->chart1->TabIndex = 1;
+            this->chart1->Text = L"chart1";
+            // 
             // Form1
             // 
             this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
             this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-            this->ClientSize = System::Drawing::Size(394, 375);
+            this->ClientSize = System::Drawing::Size(660, 375);
+            this->Controls->Add(this->chart1);
             this->Controls->Add(this->button1);
             this->Name = L"Form1";
             this->Text = L"Form1";
+            (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->chart1))->EndInit();
             this->ResumeLayout(false);
 
         }
@@ -112,15 +139,43 @@ namespace Ranking {
 
                 AveragePrecisionMetric metric;
 
+                IdleRanker ranker0(metric);
+                ranker0.learn(querys);
+
                 LinearRegressionRanker ranker1(metric);
                 ranker1.learn(querys);
 
                 TreeRegressionRanker ranker2(metric);
                 ranker2.learn(querys);
-
+                
+                /*
                 AdaRanker ranker3(metric);
-                ranker3.learn(querys);
+                ranker3.learn(querys);*/
+
+                this->chart1->Series->Clear();
+                visualiseRankingResult(ranker0, querys, "No Ranking  ");
+                visualiseRankingResult(ranker1, querys, "Linear Reg.  ");
+                visualiseRankingResult(ranker2, querys, "Tree Reg.     ");
+//                visualiseRankingResult(ranker3, querys, "AdaRank     ");
             }
+        }
+
+        void visualiseRankingResult(const Ranker &ranker, const QueryData &data, const std::string seriesName)
+        {
+            const double MAP = ranker.metric()->measure(ranker.rank(data));
+
+            System::Windows::Forms::DataVisualization::Charting::Series^  series1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
+            series1->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Line;
+            series1->Name = marshal_as<System::String^>(seriesName + " (" + stream_cast<std::string>(MAP) + ")");
+
+            double relSum = 0;
+            RankingList rankings = ranker.rank(data.getAllQuery());
+            for(unsigned int i = 0; i < rankings.size(); i++)
+            {
+                relSum += rankings[i].second->relevance();
+                series1->Points->AddXY(i+1, relSum);
+            }
+            this->chart1->Series->Add(series1);
         }
     };
 }

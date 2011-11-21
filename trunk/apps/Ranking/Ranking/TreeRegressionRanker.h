@@ -13,6 +13,7 @@ public:
     public:
         Node() : leftChild(NULL), rightChild(NULL), ranker(NULL) {};
         Node(const QueryData::Query &data, const Metric *metric, const int level);
+        ~Node();
 
         RankingList rank(const QueryData::Query &data) const;
 
@@ -27,7 +28,8 @@ public:
         double rank(const QueryVector &data) const;
     };
 
-    TreeRegressionRanker(const Metric &metric) : Ranker(metric) {}
+    TreeRegressionRanker(const Metric &metric) : Ranker(metric), root(NULL) {}
+    virtual ~TreeRegressionRanker();
 
     virtual void learn(const QueryData &data);
     virtual RankingList rank(const QueryData::Query &data) const;
