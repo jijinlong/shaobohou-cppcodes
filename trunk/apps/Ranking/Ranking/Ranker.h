@@ -1,5 +1,5 @@
-#ifndef RANKER
-#define RANKER
+#ifndef RANKER_H
+#define RANKER_H
 
 #include "QueryData.h"
 #include "Metrics.h"

@@ -68,13 +68,24 @@ TNT::Array2D<double> feature2array(const QueryData::Query &data)
     return features;
 }
 
+TNT::Array2D<double> feature2array(const QueryVector &data)
+{
+    TNT::Array2D<double> features(1, data.nfeature()+1);
+
+    features[0][0] = 1;
+    for(int j = 0; j < data.nfeature(); j++)
+    {
+        features[0][j+1] = data.features(j);
+    }
+
+    return features;
+}
+
 void LinearRegressionRanker::learn(const QueryData &data)
 {
     QueryData::Query allQuerys = data.getAllQuery();
-    TNT::Array2D<double> labels = label2array(allQuerys);
-    TNT::Array2D<double> features = feature2array(allQuerys);
 
-    learn(features, labels);
+    learn(allQuerys);
 
 
     double score  = m_metric->measure(rank(allQuerys));
@@ -100,6 +111,21 @@ RankingList LinearRegressionRanker::rank(const QueryData::Query &data) const
     TNT::Array2D<double> X = feature2array(data);
 
     return rank(X, data);
+}
+
+double LinearRegressionRanker::rank(const QueryVector &data) const
+{
+    TNT::Array2D<double> X = feature2array(data);
+
+    return predict(X)[0][0];
+}
+
+void LinearRegressionRanker::learn(const QueryData::Query &data)
+{
+    TNT::Array2D<double> labels = label2array(data);
+    TNT::Array2D<double> features = feature2array(data);
+
+    learn(features, labels);
 }
 
 void LinearRegressionRanker::learn(const TNT::Array2D<double> &X, const TNT::Array2D<double> &y)
