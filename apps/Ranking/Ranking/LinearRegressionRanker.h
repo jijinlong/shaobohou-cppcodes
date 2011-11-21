@@ -1,5 +1,5 @@
-#ifndef LINEAR_REGRESSION_RANKER
-#define LIENAR_REGRESSION_RANKER
+#ifndef LINEAR_REGRESSION_RANKER_H
+#define LINEAR_REGRESSION_RANKER_H
 
 #include "Ranker.h"
 
@@ -14,6 +14,9 @@ public:
 
     virtual void learn(const QueryData &data);
     virtual RankingList rank(const QueryData::Query &data) const;
+    virtual double rank(const QueryVector &data) const;
+
+    void learn(const QueryData::Query &data);
 
 private:
     TNT::Array2D<double> params;

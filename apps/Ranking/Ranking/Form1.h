@@ -3,6 +3,7 @@
 #include <msclr\marshal.h>
 #include <msclr\marshal_cppstd.h>
 
+#include "TreeRegressionRanker.h"
 #include "LinearRegressionRanker.h"
 #include "AdaRanker.h"
 
@@ -113,6 +114,9 @@ namespace Ranking {
 
                 LinearRegressionRanker ranker1(metric);
                 ranker1.learn(querys);
+
+                TreeRegressionRanker ranker2(metric);
+                ranker2.learn(querys);
 
                 AdaRanker ranker3(metric);
                 ranker3.learn(querys);
