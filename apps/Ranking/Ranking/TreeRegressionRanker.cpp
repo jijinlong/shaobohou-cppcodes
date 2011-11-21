@@ -76,6 +76,18 @@ TreeRegressionRanker::Node::Node(const QueryData::Query &data, const Metric *met
     }
 }
 
+TreeRegressionRanker::Node::~Node()
+{
+    if(ranker) delete ranker;
+    if(leftChild) delete leftChild;
+    if(rightChild) delete rightChild;
+}
+
+TreeRegressionRanker::~TreeRegressionRanker()
+{
+    if(root) delete root;
+}
+
 RankingList TreeRegressionRanker::Node::rank(const QueryData::Query &data) const
 {
     RankingList rankings;
