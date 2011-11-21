@@ -95,19 +95,19 @@ RankingList LinearRegressionRanker::rank(const QueryData::Query &data) const
     return rank(X, data);
 }
 
-double LinearRegressionRanker::rank(const QueryVector &data) const
-{
-    TNT::Array2D<double> X = feature2array(data);
-
-    return predict(X)[0][0];
-}
-
 void LinearRegressionRanker::learn(const QueryData::Query &data)
 {
     TNT::Array2D<double> labels = label2array(data);
     TNT::Array2D<double> features = feature2array(data);
 
     learn(features, labels);
+}
+
+double LinearRegressionRanker::rank(const QueryVector &data) const
+{
+    TNT::Array2D<double> X = feature2array(data);
+
+    return predict(X)[0][0];
 }
 
 void LinearRegressionRanker::learn(const TNT::Array2D<double> &X, const TNT::Array2D<double> &y)

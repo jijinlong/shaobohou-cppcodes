@@ -1,13 +1,20 @@
 #ifndef QUERY_DATA_H
 #define QUERY_DATA_H
 
+// Query related classes
+//
+// Shaobo Hou
+// 20.11.2011
+
 #include "QueryVector.h"
 
 #include <map>
 
+// a set of queries
 class QueryData
 {
 public:
+    // documents associated with a single query
     typedef std::vector<QueryVector*> Query;
 
     QueryData() : m_ndata(0), m_nfeature(0) {}
@@ -32,7 +39,10 @@ public:
         return m_nfeature;
     }
 
+    // query accessor
     const Query& getQuery(const int q) const;
+
+    // group all documents into a single query
     Query getAllQuery() const;
 
 
