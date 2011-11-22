@@ -5,14 +5,14 @@
 TreeRegressionRanker::Node::Node(const QueryData::Query &data, const Metric *metric, const int level)
     : leftChild(NULL), rightChild(NULL), ranker(NULL)
 {
-    if(level == 0)
+    if(level == 0)  // build a linear regression ranker at a leaf node
     {
         ranker = new LinearRegressionRanker(*metric);
         ranker->learn(data);
     }
     else
     {
-        // find the best feature to split the data
+        // find the feature that splits the data most evenly down the middle
         bestFeature = -1;
         bestValue = 0.0;
         double bestScore = 0.0;
@@ -65,14 +65,9 @@ TreeRegressionRanker::Node::Node(const QueryData::Query &data, const Metric *met
             }
         }
 
-        const int lq = leftQuerys.size();
-        const int rq = rightQuerys.size();
-
-        // recursive build
+        // recursively build child nodes
         leftChild  = new Node(leftQuerys,  metric, level-1);
         rightChild = new Node(rightQuerys, metric, level-1);
-
-        const int rah = 0;
     }
 }
 
@@ -101,6 +96,7 @@ RankingList TreeRegressionRanker::Node::rank(const QueryData::Query &data) const
 
 double TreeRegressionRanker::Node::rank(const QueryVector &data) const
 {
+    // traverse the decision tree and rank at leaf nodes
     if(ranker != NULL)
     {
         return ranker->rank(data);

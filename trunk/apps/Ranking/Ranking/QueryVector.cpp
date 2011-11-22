@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <cstdio>
 
+// parse a line of query data
 void QueryVector::parse(const std::string &line)
 {
     std::stringstream ss(line);
@@ -53,6 +54,4 @@ void QueryVector::parse(const std::string &line)
             }
         }
     }
-
-    const int bah = 0;
 }

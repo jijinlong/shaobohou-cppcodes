@@ -1,5 +1,6 @@
 #include "Ranker.h"
 
+// rank a set of queries by calling the virtual rank function on each query
 std::vector<RankingList> Ranker::rank(const QueryData &data) const
 {
     std::vector<RankingList> rankings(data.nquery());
@@ -9,6 +10,7 @@ std::vector<RankingList> Ranker::rank(const QueryData &data) const
     return rankings;
 }
 
+// return a ranking list with changing the orders of documents
 RankingList IdleRanker::rank(const QueryData::Query &data) const
 {
     RankingList rankings(data.size());
