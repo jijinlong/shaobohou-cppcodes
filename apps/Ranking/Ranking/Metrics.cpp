@@ -2,6 +2,7 @@
 
 #include <numeric>
 
+// computes average precision
 double AveragePrecisionMetric::measure(const RankingList &rankings) const
 {
     double relSum = 0;
@@ -21,6 +22,7 @@ double AveragePrecisionMetric::measure(const RankingList &rankings) const
     return avgPNum/avgPDen;
 }
 
+//computes mean average precision (MAP)
 double AveragePrecisionMetric::measure(const std::vector<RankingList> &rankings) const
 {
     std::vector<double> scores(rankings.size(), 0);

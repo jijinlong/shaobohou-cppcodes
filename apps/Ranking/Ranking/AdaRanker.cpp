@@ -22,12 +22,14 @@ void AdaRanker::learn(const QueryData &data)
         }
     }
 
+    // a log of ranker scores
     std::vector<double> scores(1, m_metric->measure(rank(data)));
 
-    // learn weak rankers
+    // iterate over each feature
     std::vector<double> queryWeights(data.nquery(), 1.0/data.nquery());
     for(int t = 0; t < data.nfeature(); t++)
     {
+        // compute the query weighted score of unchecked each weak ranker
         std::vector<double> weightedScores(data.nfeature(), 0);
         for(int f = 0; f < data.nfeature(); f++)
         {
@@ -62,7 +64,7 @@ void AdaRanker::learn(const QueryData &data)
         weakRankerWeights[bestWR] = alpha;
         weakRankerChecked[bestWR] = 1;
 
-        // update weights
+        // only update query weights if the new weak ranker improves overall performance
         double newScore = m_metric->measure(rank(data));
         if((newScore-scores.back()) > 1e-4)
         {
@@ -82,13 +84,10 @@ void AdaRanker::learn(const QueryData &data)
         {
             weakRankerWeights[bestWR] = 0.0;
         }
-
-        const int pah = 0;
     }
-
-    const int bah = 0;
 }
 
+// compute ranking using a linear combination of weak rankers
 RankingList AdaRanker::rank(const QueryData::Query &data) const
 {
     std::vector<RankingPair> rankings(data.size());
@@ -106,6 +105,7 @@ RankingList AdaRanker::rank(const QueryData::Query &data) const
     return rankings;
 }
 
+// compute ranking using a weak ranker based on a single feature
 RankingList AdaRanker::weakRank(const QueryData::Query &data, const int f) const
 {
     RankingList rankings(data.size());

@@ -38,6 +38,7 @@ TNT::Array2D<double> inv(const TNT::Array2D<double> &A)
     return B;
 }
 
+// extract relevance labels into a column vector
 TNT::Array2D<double> label2array(const QueryData::Query &data)
 {
     TNT::Array2D<double> labels(data.size(), 1);
@@ -49,6 +50,7 @@ TNT::Array2D<double> label2array(const QueryData::Query &data)
     return labels;
 }
 
+// extract features into a design matrix of form [1 F1 F2 ... Fn]
 TNT::Array2D<double> feature2array(const QueryData::Query &data)
 {
     int nfeature = 0;
@@ -68,6 +70,7 @@ TNT::Array2D<double> feature2array(const QueryData::Query &data)
     return features;
 }
 
+// extract features into a design matrix of form [1 F1 F2 ... Fn]
 TNT::Array2D<double> feature2array(const QueryVector &data)
 {
     TNT::Array2D<double> features(1, data.nfeature()+1);
@@ -114,6 +117,7 @@ void LinearRegressionRanker::learn(const TNT::Array2D<double> &X, const TNT::Arr
 {
     TNT::Array2D<double>  Xt = transpose(X);
 
+    // compute the parameters using the Normal equation
     params = matmult(matmult(inv(matmult(Xt, X)), Xt), y);
 }
 

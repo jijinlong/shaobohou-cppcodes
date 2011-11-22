@@ -3,6 +3,7 @@
 #include <fstream>
 #include <cassert>
 
+// read in query data from a file
 QueryData::QueryData(const std::string &filename)
     : m_ndata(0), m_nfeature(0)
 {
@@ -32,6 +33,7 @@ QueryData::~QueryData()
     }
 }
 
+// add a feature vector and group it by its query
 void QueryData::addData(QueryVector *val)
 {
     if(val != NULL)
@@ -57,6 +59,7 @@ const QueryData::Query& QueryData::getQuery(const int q) const
     return m_data[q];
 }
 
+// group all documents into a single query
 QueryData::Query QueryData::getAllQuery() const
 {
     Query queryDocs;

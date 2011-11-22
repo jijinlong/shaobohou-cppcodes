@@ -150,15 +150,14 @@ namespace Ranking {
                 TreeRegressionRanker ranker2(metric);
                 ranker2.learn(querys);
                 
-                /*
                 AdaRanker ranker3(metric);
-                ranker3.learn(querys);*/
+                ranker3.learn(querys);
 
                 this->chart1->Series->Clear();
                 visualiseRankingResult(ranker0, querys, "No Ranking  ");
                 visualiseRankingResult(ranker1, querys, "Linear Reg.  ");
                 visualiseRankingResult(ranker2, querys, "Tree Reg.     ");
-//                visualiseRankingResult(ranker3, querys, "AdaRank     ");
+                visualiseRankingResult(ranker3, querys, "AdaRank     ");
             }
         }
 
