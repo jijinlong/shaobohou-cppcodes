@@ -2,13 +2,13 @@
 
 #include <algorithm>
 
-TreeRegressionRanker::Node::Node(const QueryData::Query &data, const Metric *metric, const int level)
+TreeRegressionRanker::Node::Node(const QueryData::Query &data, const Metric &metric, const int level)
     : leftChild(NULL), rightChild(NULL), ranker(NULL)
 {
     if(level == 0)  // build a linear regression ranker at a leaf node
     {
-        ranker = new LinearRegressionRanker(*metric);
-        ranker->learn(data);
+        ranker = new LinearRegressionRanker();
+        ranker->learn(data, metric);
     }
     else
     {
@@ -114,11 +114,11 @@ double TreeRegressionRanker::Node::rank(const QueryVector &data) const
     }
 }
 
-void TreeRegressionRanker::learn(const QueryData &data)
+void TreeRegressionRanker::learn(const QueryData &data, const Metric &metric)
 {
     QueryData::Query allQuerys = data.getAllQuery();
 
-    root = new Node(allQuerys, m_metric, m_maxLevel);
+    root = new Node(allQuerys, metric, m_maxLevel);
 }
 
 RankingList TreeRegressionRanker::rank(const QueryData::Query &data) const

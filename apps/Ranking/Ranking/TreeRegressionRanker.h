@@ -22,7 +22,7 @@ public:
     {
     public:
         Node() : leftChild(NULL), rightChild(NULL), ranker(NULL) {};
-        Node(const QueryData::Query &data, const Metric *metric, const int level);
+        Node(const QueryData::Query &data, const Metric &metric, const int level);
         ~Node();
 
         // rank documents associated with a single query
@@ -40,11 +40,11 @@ public:
         double rank(const QueryVector &data) const;
     };
 
-    TreeRegressionRanker(const Metric &metric, int maxLevel=2) : Ranker(metric), m_maxLevel(maxLevel), root(NULL) {}
+    TreeRegressionRanker(int maxLevel) : m_maxLevel(maxLevel), root(NULL) {}
     virtual ~TreeRegressionRanker();
 
     // learn from a set of queries
-    virtual void learn(const QueryData &data);
+    virtual void learn(const QueryData &data, const Metric &metric);
 
     // rank documents associated with a single query
     virtual RankingList rank(const QueryData::Query &data) const;

@@ -84,11 +84,11 @@ TNT::Array2D<double> feature2array(const QueryVector &data)
     return features;
 }
 
-void LinearRegressionRanker::learn(const QueryData &data)
+void LinearRegressionRanker::learn(const QueryData &data, const Metric &metric)
 {
     QueryData::Query allQuerys = data.getAllQuery();
 
-    learn(allQuerys);
+    learn(allQuerys, metric);
 }
 
 RankingList LinearRegressionRanker::rank(const QueryData::Query &data) const
@@ -98,7 +98,7 @@ RankingList LinearRegressionRanker::rank(const QueryData::Query &data) const
     return rank(X, data);
 }
 
-void LinearRegressionRanker::learn(const QueryData::Query &data)
+void LinearRegressionRanker::learn(const QueryData::Query &data, const Metric &metric)
 {
     TNT::Array2D<double> labels = label2array(data);
     TNT::Array2D<double> features = feature2array(data);
