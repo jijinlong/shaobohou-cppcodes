@@ -15,16 +15,14 @@ class LinearRegressionRanker : public Ranker
 public:
     using Ranker::rank;
 
-    LinearRegressionRanker(const Metric &metric) : Ranker(metric) {}
-
     // learn from a set of queries
-    virtual void learn(const QueryData &data);
+    virtual void learn(const QueryData &data, const Metric &metric);
 
     // rank documents associated with a single query
     virtual RankingList rank(const QueryData::Query &data) const;
 
     // learn from a single query
-    void learn(const QueryData::Query &data);
+    void learn(const QueryData::Query &data, const Metric &metric);
 
     // rank a query-document feature point
     double rank(const QueryVector &data) const;

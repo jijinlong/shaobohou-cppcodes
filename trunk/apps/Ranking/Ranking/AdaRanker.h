@@ -13,10 +13,8 @@ class AdaRanker : public Ranker
 public:
     using Ranker::rank;
 
-    AdaRanker(const Metric &metric) : Ranker(metric) {}
-
     // learn from a set of queries
-    virtual void learn(const QueryData &data);
+    virtual void learn(const QueryData &data, const Metric &metric);
 
     // rank documents associated with a single query
     virtual RankingList rank(const QueryData::Query &data) const;

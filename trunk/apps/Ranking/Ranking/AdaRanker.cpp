@@ -5,10 +5,8 @@
 #include <algorithm>
 #include <numeric>
 
-void AdaRanker::learn(const QueryData &data)
+void AdaRanker::learn(const QueryData &data, const Metric &metric)
 {
-    assert(m_metric != 0);
-
     weakRankerWeights = std::vector<double>(data.nfeature(), 0.0);
     std::vector<int> weakRankerChecked(data.nfeature(), 0);
 
@@ -18,12 +16,12 @@ void AdaRanker::learn(const QueryData &data)
     {
         for(int f = 0; f < data.nfeature(); f++)
         {
-            weakRankerScores[q][f] = m_metric->measure(weakRank(data.getQuery(q), f));
+            weakRankerScores[q][f] = metric.measure(weakRank(data.getQuery(q), f));
         }
     }
 
     // a log of ranker scores
-    std::vector<double> scores(1, m_metric->measure(rank(data)));
+    std::vector<double> scores(1, metric.measure(rank(data)));
 
     // iterate over each feature
     std::vector<double> queryWeights(data.nquery(), 1.0/data.nquery());
@@ -65,14 +63,14 @@ void AdaRanker::learn(const QueryData &data)
         weakRankerChecked[bestWR] = 1;
 
         // only update query weights if the new weak ranker improves overall performance
-        double newScore = m_metric->measure(rank(data));
+        double newScore = metric.measure(rank(data));
         if((newScore-scores.back()) > 1e-4)
         {
             scores.push_back(newScore);
             std::vector<double> queryProbs;
             for(int q = 0; q < data.nquery(); q++)
             {
-                queryProbs.push_back(exp(-m_metric->measure(rank(data.getQuery(q)))));
+                queryProbs.push_back(exp(-metric.measure(rank(data.getQuery(q)))));
             }
             double totalQueryProb = std::accumulate(queryProbs.begin(), queryProbs.end(), 0.0);
             for(int q = 0; q < data.nquery(); q++)
