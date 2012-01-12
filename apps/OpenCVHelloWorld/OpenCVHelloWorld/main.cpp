@@ -9,6 +9,7 @@
 #include <cxcore.h>
 #include <highgui.h>
 
+#include <fstream>
 #include <iostream>
 
 
@@ -59,6 +60,8 @@ public:
 class VanishingPoint
 {
 public:
+    VanishingPoint() {}
+
     VanishingPoint(const LineSegment &line)
     {
         lines.push_back(line);
@@ -144,6 +147,29 @@ public:
         }
     }
 
+    void save(std::ofstream &out) const
+    {
+        out << lines.size() << std::endl;
+        for(unsigned int i = 0; i < lines.size(); i++)
+        {
+            out << lines[i].begPoint.x << " " << lines[i].begPoint.y << "  ";
+            out << lines[i].endPoint.x << " " << lines[i].endPoint.y << std::endl;;
+        }
+    }
+
+    void load(std::ifstream &in)
+    {
+        int nlines = 0;
+        in >> nlines;
+
+        lines = std::vector<LineSegment>(nlines);
+        for(unsigned int i = 0; i < lines.size(); i++)
+        {
+            in >> lines[i].begPoint.x >> lines[i].begPoint.y;
+            in >> lines[i].endPoint.x >> lines[i].endPoint.y;
+        }
+    }
+
 private:
     std::vector<LineSegment> lines;
 };
@@ -226,6 +252,28 @@ public:
         }
     }
 
+    void save(std::ofstream &out) const
+    {
+        out << vanishings.size() << std::endl;
+        for(unsigned int i = 0; i < vanishings.size(); i++)
+        {
+            vanishings[i].save(out);
+        }
+    }
+
+    void load(std::ifstream &in)
+    {
+        int npoints = 0;
+        in >> npoints;
+
+        vanishings = std::vector<VanishingPoint>(npoints);
+        for(unsigned int i = 0; i < vanishings.size(); i++)
+        {
+            vanishings[i].load(in);
+        }
+    }
+
+
 private:
     LineSegment *currLine;
     CvPoint *selectedPoint;
@@ -293,11 +341,20 @@ void MouseCallback(int event, int x, int y, int flags, void* param)
 int main(int argc, char *argv[])
 {
     std::string windowName = "Annotation";
-    //IplImage *img = cvLoadImage("lena.png");
-    IplImage *img = cvLoadImage("0000000004.jpg");
+    std::string imageName = "0000000004.jpg";
+    IplImage *img = cvLoadImage(imageName.c_str());
     IplImage *temp = cvCloneImage(img);
 
+
+    // load annotation from file if exists
     annotation = Annotation(img->width, img->height);
+    std::ifstream fin(imageName+".dat");
+    if(fin.is_open())
+    {
+        annotation.load(fin);
+        renderUpdate = true;
+    }
+
 
     cvNamedWindow(windowName.c_str(), 1);
     cvShowImage(windowName.c_str(), img);
@@ -323,6 +380,11 @@ int main(int argc, char *argv[])
     //        cvWaitKey();
     cvDestroyWindow(windowName.c_str());
     cvReleaseImage(&img);
+
+    // save annotation to file
+    std::ofstream fout(imageName+".dat");
+    annotation.save(fout);
+    fout.close();
 
     return 0;
 }
