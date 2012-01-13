@@ -182,7 +182,7 @@ public:
     int height;
 
     Annotation(): width(0), height(0), currLine(NULL), selectedPoint(NULL) {};
-    Annotation(int w, int h) : width(w), height(h), currLine(NULL), selectedPoint(NULL) {};
+    Annotation(int w, int h) : width(w), height(h), currLine(NULL), selectedPoint(NULL), roomCorner(cvPoint(w/2, h/2)){};
 
     void BeginUpdate(int x, int y)
     {
@@ -240,6 +240,8 @@ public:
 
     void render(IplImage *temp) const
     {
+        cvLine(temp, roomCorner, roomCorner, CV_RGB(255, 255, 0), 10);
+
         if(vanishings.size()>0) vanishings[0].render(temp, CV_RGB(255, 0, 0));
         if(vanishings.size()>1) vanishings[1].render(temp, CV_RGB(0, 255, 0));
         if(vanishings.size()>2) vanishings[2].render(temp, CV_RGB(0, 0, 255));
@@ -254,6 +256,8 @@ public:
 
     void save(std::ofstream &out) const
     {
+        out << roomCorner.x << " " << roomCorner.y << std::endl;
+
         out << vanishings.size() << std::endl;
         for(unsigned int i = 0; i < vanishings.size(); i++)
         {
@@ -263,6 +267,8 @@ public:
 
     void load(std::ifstream &in)
     {
+        in >> roomCorner.x >> roomCorner.y;
+
         int npoints = 0;
         in >> npoints;
 
@@ -277,13 +283,16 @@ public:
 private:
     LineSegment *currLine;
     CvPoint *selectedPoint;
+
+    CvPoint roomCorner;
     std::vector<VanishingPoint> vanishings;
 
 
     CvPoint* SelectPoint(int x, int y, int radius=10)
     {
-        CvPoint *point = NULL;
-        long bestDist2 = std::numeric_limits<long>::max();
+        CvPoint *point = &roomCorner;
+        long bestDist2 = dist2(cvPoint(x, y), roomCorner);
+
         for(unsigned int i = 0; i < vanishings.size(); i++)
         {
             CvPoint *tempPoint = vanishings[i].SelectPoint(x, y, radius);
