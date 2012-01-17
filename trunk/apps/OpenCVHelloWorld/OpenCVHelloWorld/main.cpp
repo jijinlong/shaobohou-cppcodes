@@ -17,12 +17,41 @@
 
 
 // Point Functions
-bool equal(const CvPoint &p1, const CvPoint &p2)
+class Point2D
 {
-    return p1.x==p2.x  && p1.y==p2.y;
+public:
+    Point2D() : x(0), y(0) {}
+    Point2D(const int xx, const int yy) : x(xx), y(yy) {}
+
+    Point2D operator-(const Point2D &other) const
+    {
+        return Point2D(x-other.x, y-other.y);
+    }
+
+    Point2D operator+(const Point2D &other) const
+    {
+        return Point2D(x+other.x, y+other.y);
+    }
+
+    Point2D operator*(const int s) const
+    {
+        return Point2D(x*s, y*s);
+    }
+
+    int x, y;
+};
+
+CvPoint cvPoint(const Point2D &other)
+{
+    return cvPoint(other.x, other.y);
 }
 
-long dist2(const CvPoint &p1, const CvPoint &p2)
+bool equals(const Point2D &A, const Point2D &B)
+{
+    return A.x==B.x && A.y==B.y;
+}
+
+long dist2(const Point2D &p1, const Point2D &p2)
 {
     const int dx = p1.x - p2.x;
     const int dy = p1.y - p2.y;
@@ -35,26 +64,56 @@ class LineSegment
 {
 public:
     LineSegment() {}
-    LineSegment(const CvPoint &beg) : begPoint(beg) {}
-    LineSegment(const CvPoint &beg, const CvPoint &end) : begPoint(beg), endPoint(end) {}
+    LineSegment(const Point2D &beg) : begPoint(beg) {}
+    LineSegment(const Point2D &beg, const Point2D &end) : begPoint(beg), endPoint(end) {}
 
-    CvPoint* GetNearestEndPoint(int x, int y)
+    Point2D* GetNearestEndPoint(int x, int y)
     {
-        long begDist2 = dist2(cvPoint(x, y), begPoint);
-        long endDist2 = dist2(cvPoint(x, y), endPoint);
+        long begDist2 = dist2(Point2D(x, y), begPoint);
+        long endDist2 = dist2(Point2D(x, y), endPoint);
 
         return begDist2<endDist2 ? &begPoint : &endPoint;
     }
 
-    void render(IplImage *temp, const CvScalar &col) const
+    void render(IplImage *temp, const CvScalar &col, const int thickness) const
     {
-        cvLine(temp, begPoint, endPoint, col, 2);
-        cvLine(temp, begPoint, begPoint, CV_RGB(0, 0, 0), 4);
-        cvLine(temp, endPoint, endPoint, CV_RGB(0, 0, 0), 4);
+        cvLine(temp, cvPoint(begPoint), cvPoint(endPoint), col, thickness);
+        cvLine(temp, cvPoint(begPoint), cvPoint(begPoint), CV_RGB(0, 0, 0), thickness*2);
+        cvLine(temp, cvPoint(endPoint), cvPoint(endPoint), CV_RGB(0, 0, 0), thickness*2);
     }
 
-    CvPoint begPoint, endPoint;
+    Point2D begPoint, endPoint;
 };
+
+bool intersectInfiniteLines(const LineSegment &line0, const LineSegment &line1, Point2D &vpoint)
+{
+    const double &x1 = line0.begPoint.x; const double &y1 = line0.begPoint.y;
+    const double &x2 = line0.endPoint.x; const double &y2 = line0.endPoint.y;
+    const double &x3 = line1.begPoint.x; const double &y3 = line1.begPoint.y;
+    const double &x4 = line1.endPoint.x; const double &y4 = line1.endPoint.y;
+
+    double den =  (y4-y3)*(x2-x1) - (x4-x3)*(y2-y1);
+    if(fabs(den) < 1e-6)
+    {
+        vpoint.x = static_cast<int>(((x2-x1)+(x4-x3))/2);
+        vpoint.y = static_cast<int>(((y2-y1)+(y4-y3))/2);
+
+        return true;
+    }
+    else
+    {
+        const double num1 = (x4-x3)*(y1-y3) - (y4-y3)*(x1-x3);
+        //double num2 = (x2-x1)*(y1-y3) - (y2-y1)*(x1-x3);
+
+        const double u1 = num1/den;
+        //u2 = num2/den;
+
+        vpoint.x = static_cast<int>(x1+u1*(x2-x1));
+        vpoint.y = static_cast<int>(y1+u1*(y2-y1));
+
+        return false;
+    }
+}
 
 // vanishing point
 class VanishingPoint
@@ -72,14 +131,14 @@ public:
         lines.push_back(line);
     }
 
-    CvPoint* SelectPoint(int x, int y, int radius=10)
+    Point2D* SelectPoint(int x, int y, int radius=10)
     {
-        CvPoint *point = NULL;
+        Point2D *point = NULL;
         long bestDist2 = std::numeric_limits<long>::max();
         for(unsigned int i = 0; i < lines.size(); i++)
         {
-            CvPoint *tempPoint = lines[i].GetNearestEndPoint(x, y);
-            const long tempDist2 = dist2(cvPoint(x, y), *tempPoint);
+            Point2D *tempPoint = lines[i].GetNearestEndPoint(x, y);
+            const long tempDist2 = dist2(Point2D(x, y), *tempPoint);
 
             if(tempDist2 < bestDist2)
             {
@@ -96,53 +155,28 @@ public:
         return NULL;
     }
 
-    bool computeVanishingPoint(CvPoint &vpoint) const
+    bool computeVanishingPoint(Point2D &vpoint) const
     {
         assert(lines.size()> 1);
 
-        const double &x1 = lines[0].begPoint.x; const double &y1 = lines[0].begPoint.y;
-        const double &x2 = lines[0].endPoint.x; const double &y2 = lines[0].endPoint.y;
-        const double &x3 = lines[1].begPoint.x; const double &y3 = lines[1].begPoint.y;
-        const double &x4 = lines[1].endPoint.x; const double &y4 = lines[1].endPoint.y;
-
-        double den =  (y4-y3)*(x2-x1) - (x4-x3)*(y2-y1);
-        if(fabs(den) < 1e-6)
-        {
-            vpoint.x = static_cast<int>(((x2-x1)+(x4-x3))/2);
-            vpoint.y = static_cast<int>(((y2-y1)+(y4-y3))/2);
-
-            return true;
-        }
-        else
-        {
-            const double num1 = (x4-x3)*(y1-y3) - (y4-y3)*(x1-x3);
-            //double num2 = (x2-x1)*(y1-y3) - (y2-y1)*(x1-x3);
-
-            const double u1 = num1/den;
-            //u2 = num2/den;
-
-            vpoint.x = static_cast<int>(x1+u1*(x2-x1));
-            vpoint.y = static_cast<int>(y1+u1*(y2-y1));
-
-            return false;
-        }
+        return intersectInfiniteLines(lines[0], lines[1], vpoint);
     }
 
     void render(IplImage *temp, const CvScalar &col) const
     {
         for(unsigned int i = 0; i < lines.size(); i++)
         {
-            lines[i].render(temp, col);
+            lines[i].render(temp, col, 2);
         }
 
         if(lines.size() > 1)
         {
-            CvPoint vpoint;
+            Point2D vpoint;
             const bool infinite = computeVanishingPoint(vpoint);
 
             if(!infinite)
             {
-                cvLine(temp, vpoint, vpoint, col, 10);
+                cvLine(temp, cvPoint(vpoint), cvPoint(vpoint), col, 10);
             }
         }
     }
@@ -181,15 +215,15 @@ public:
     int width;
     int height;
 
-    Annotation(): width(0), height(0), currLine(NULL), selectedPoint(NULL) {};
-    Annotation(int w, int h) : width(w), height(h), currLine(NULL), selectedPoint(NULL), roomCorner(cvPoint(w/2, h/2)){};
+    Annotation(): width(0), height(0), currLine(NULL), selectedPoint(NULL), roomRays(4), roomCorners(4) {};
+    Annotation(int w, int h) : width(w), height(h), currLine(NULL), selectedPoint(NULL), roomRays(4), roomCorners(4) {};
 
     void BeginUpdate(int x, int y)
     {
         selectedPoint = SelectPoint(x, y);
         if(selectedPoint==NULL)
         {
-            currLine = new LineSegment(cvPoint(x, y));
+            currLine = new LineSegment(Point2D(x, y));
         }
         else
         {
@@ -203,7 +237,7 @@ public:
         {
             if(currLine)
             {
-                currLine->endPoint = cvPoint(x, y);
+                currLine->endPoint = Point2D(x, y);
             }
         }
         else
@@ -211,6 +245,41 @@ public:
             selectedPoint->x = x;
             selectedPoint->y = y;
         }
+
+        // compute vanishing points and find the farthest pair
+        Point2D vpoints[3];
+        vanishings[0].computeVanishingPoint(vpoints[0]);
+        vanishings[1].computeVanishingPoint(vpoints[1]);
+        vanishings[2].computeVanishingPoint(vpoints[2]);
+        long dist01 = dist2(vpoints[0], vpoints[1]);
+        long dist12 = dist2(vpoints[1], vpoints[2]);
+        long dist02 = dist2(vpoints[0], vpoints[2]);
+
+        Point2D *vpointA = NULL;
+        Point2D *vpointB = NULL;
+        if(dist01>dist12 && dist01>dist02)
+        {
+            vpointA = &vpoints[0];
+            vpointB = &vpoints[1];
+        }
+        if(dist12>dist01 && dist12>dist02)
+        {
+            vpointA = &vpoints[1];
+            vpointB = &vpoints[2];
+        }
+        if(dist02>dist01 && dist02>dist12)
+        {
+            vpointA = &vpoints[0];
+            vpointB = &vpoints[2];
+        }
+
+        // recompute room corners
+        Point2D centreTopLeft(width/2-100, height/2-100);
+        Point2D centreBotRight(width/2+100, height/2+100);
+        intersectInfiniteLines(LineSegment(*vpointA, centreTopLeft),  LineSegment(*vpointB, centreTopLeft),  roomCorners[0]);
+        intersectInfiniteLines(LineSegment(*vpointA, centreTopLeft),  LineSegment(*vpointB, centreBotRight), roomCorners[1]);
+        intersectInfiniteLines(LineSegment(*vpointA, centreBotRight), LineSegment(*vpointB, centreBotRight), roomCorners[2]);
+        intersectInfiniteLines(LineSegment(*vpointA, centreBotRight), LineSegment(*vpointB, centreTopLeft),  roomCorners[3]);
     }
 
     void EndUpdate(int x, int y)
@@ -219,10 +288,10 @@ public:
         {
             if(currLine)
             {
-                if(vanishings.size()<3 && !equal(currLine->begPoint, currLine->endPoint))
+                if(vanishings.size()<3 && !equals(currLine->begPoint, currLine->endPoint))
                 {
                     vanishings.push_back(VanishingPoint(*currLine));
-                    vanishings.back().addLine(LineSegment(cvPoint(width-currLine->begPoint.x, height-currLine->begPoint.y), cvPoint(width-currLine->endPoint.x, height-currLine->endPoint.y)));
+                    vanishings.back().addLine(LineSegment(Point2D(width-currLine->begPoint.x, height-currLine->begPoint.y), Point2D(width-currLine->endPoint.x, height-currLine->endPoint.y)));
                     std::cout << "ADDED LINE [" << currLine->begPoint.x << " " << currLine->begPoint.y << "] to [" << currLine->endPoint.x << " " << currLine->endPoint.y << "]" << std::endl;
                 }
 
@@ -240,24 +309,44 @@ public:
 
     void render(IplImage *temp) const
     {
-        cvLine(temp, roomCorner, roomCorner, CV_RGB(255, 255, 0), 10);
-
         if(vanishings.size()>0) vanishings[0].render(temp, CV_RGB(255, 0, 0));
         if(vanishings.size()>1) vanishings[1].render(temp, CV_RGB(0, 255, 0));
         if(vanishings.size()>2) vanishings[2].render(temp, CV_RGB(0, 0, 255));
 
         if(currLine)
         {
-            if(vanishings.size()==0) currLine->render(temp, CV_RGB(255, 0, 0));
-            if(vanishings.size()==1) currLine->render(temp, CV_RGB(0, 255, 0));
-            if(vanishings.size()==2) currLine->render(temp, CV_RGB(0, 0, 255));
+            if(vanishings.size()==0) currLine->render(temp, CV_RGB(255, 0, 0), 2);
+            if(vanishings.size()==1) currLine->render(temp, CV_RGB(0, 255, 0), 2);
+            if(vanishings.size()==2) currLine->render(temp, CV_RGB(0, 0, 255), 2);
+        }
+
+        // find the vanishing point in the image
+        Point2D vpoint;
+        for(unsigned int i = 0; i < vanishings.size(); i++)
+        {
+            vanishings[i].computeVanishingPoint(vpoint);
+            if(vpoint.x>=0 && vpoint.x<=width && vpoint.y>=0 && vpoint.y<=height)
+            {
+                break;
+            }
+        }
+
+        const unsigned int ncorners = roomCorners.size();
+        for(unsigned int i = 0; i < roomCorners.size(); i++)
+        {
+            // draw corners
+            LineSegment(roomCorners[i], roomCorners[i]).render(temp, CV_RGB(255, 0, 0), 4);
+
+            // draw boundaries between side walls and ceilings/floors
+            LineSegment(vpoint, roomCorners[i]+(roomCorners[i]-vpoint)*10).render(temp, CV_RGB(255, 0, 0), 4);
+
+            // draw back walls
+            LineSegment(roomCorners[i], roomCorners[(i+1)%ncorners]).render(temp, CV_RGB(255, 0, 0), 4);
         }
     }
 
     void save(std::ofstream &out) const
     {
-        out << roomCorner.x << " " << roomCorner.y << std::endl;
-
         out << vanishings.size() << std::endl;
         for(unsigned int i = 0; i < vanishings.size(); i++)
         {
@@ -267,8 +356,6 @@ public:
 
     void load(std::ifstream &in)
     {
-        in >> roomCorner.x >> roomCorner.y;
-
         int npoints = 0;
         in >> npoints;
 
@@ -282,24 +369,26 @@ public:
 
 private:
     LineSegment *currLine;
-    CvPoint *selectedPoint;
+    Point2D *selectedPoint;
 
-    CvPoint roomCorner;
     std::vector<VanishingPoint> vanishings;
 
+    std::vector<LineSegment> roomRays;
+    std::vector<Point2D> roomCorners;
 
-    CvPoint* SelectPoint(int x, int y, int radius=10)
+
+    Point2D* SelectPoint(int x, int y, int radius=10)
     {
-        CvPoint *point = &roomCorner;
-        long bestDist2 = dist2(cvPoint(x, y), roomCorner);
+        Point2D *point = NULL;
+        long bestDist2 = std::numeric_limits<long>::max();
 
         for(unsigned int i = 0; i < vanishings.size(); i++)
         {
-            CvPoint *tempPoint = vanishings[i].SelectPoint(x, y, radius);
+            Point2D *tempPoint = vanishings[i].SelectPoint(x, y, radius);
             
             if(tempPoint)
             {
-                const long tempDist2 = dist2(cvPoint(x, y), *tempPoint);
+                const long tempDist2 = dist2(Point2D(x, y), *tempPoint);
 
                 if(tempDist2 < bestDist2)
                 {
