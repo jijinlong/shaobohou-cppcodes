@@ -226,14 +226,6 @@ public:
         return *m_end;
     }
 
-    Point2D* GetNearestEndPoint(int x, int y)
-    {
-        const int begDist2 = static_cast<int>(Point2D(x, y).dist2(*m_beg));
-        const int endDist2 = static_cast<int>(Point2D(x, y).dist2(*m_end));
-
-        return begDist2<endDist2 ? m_beg : m_end;
-    }
-
     void render(IplImage *temp, const CvScalar &col, const int thickness) const
     {
         cvLine(temp, cvPoint(*m_beg), cvPoint(*m_end), col, thickness);
@@ -311,30 +303,6 @@ public:
     void addLine(const LineSegment &line)
     {
         lines.push_back(new LineSegment(line));
-    }
-
-    Point2D* SelectPoint(int x, int y, int radius=10)
-    {
-        Point2D *point = NULL;
-        long bestDist2 = std::numeric_limits<long>::max();
-        for(unsigned int i = 0; i < lines.size(); i++)
-        {
-            Point2D *tempPoint = lines[i]->GetNearestEndPoint(x, y);
-            const int tempDist2 = static_cast<int>(Point2D(x, y).dist2(*tempPoint));
-
-            if(tempDist2 < bestDist2)
-            {
-                point = tempPoint;
-                bestDist2 = tempDist2;
-            }
-        }
-
-        if(bestDist2 <= radius*radius)
-        {
-            return point;
-        }
-
-        return NULL;
     }
 
     bool computeVanishingPoint(Point2D &vpoint) const
@@ -586,36 +554,6 @@ private:
 
     std::vector<LineSegment*> roomRays;
     std::vector<Point2D*> roomCorners;
-
-
-    Point2D* SelectPoint(int x, int y, int radius=10)
-    {
-        Point2D *point = NULL;
-        long bestDist2 = std::numeric_limits<long>::max();
-
-        for(unsigned int i = 0; i < vanishings.size(); i++)
-        {
-            Point2D *tempPoint = vanishings[i]->SelectPoint(x, y, radius);
-
-            if(tempPoint)
-            {
-                const int tempDist2 = static_cast<int>(Point2D(x, y).dist2(*tempPoint));
-
-                if(tempDist2 < bestDist2)
-                {
-                    point = tempPoint;
-                    bestDist2 = tempDist2;
-                }
-            }
-        }
-
-        if(bestDist2 <= radius*radius)
-        {
-            return point;
-        }
-
-        return NULL;
-    }
 };
 
 Annotation *annotation = NULL;
