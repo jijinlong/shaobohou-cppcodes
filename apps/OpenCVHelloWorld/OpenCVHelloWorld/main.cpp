@@ -58,6 +58,9 @@ public:
 private:
     int m_dim;
     Selectable *m_parent;
+
+    Selectable(const Selectable &other);
+    Selectable& operator=(const Selectable &other);
 };
 
 // Selectable Group
