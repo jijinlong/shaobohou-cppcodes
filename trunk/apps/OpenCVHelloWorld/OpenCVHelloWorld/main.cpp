@@ -11,6 +11,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <cassert>
 
 
 // see yu2008inferring and hedau2009recovering
@@ -27,7 +28,7 @@ class Selectable
 public:
     friend class SelectableGroup;
 
-    Selectable() : m_dim(0), m_parent(0) {}
+    Selectable() : m_dim(0) {}
 
     // return true if the selection distance of the current instance is smaller than bestDist
     virtual int selectionDistance(int x, int y) = 0;
@@ -52,9 +53,9 @@ public:
     {
         update(x, y);
 
-        if(m_parent)
+        for(unsigned int i = 0; i < m_parents.size(); i++)
         {
-            m_parent->updateCascade(x, y);
+            m_parents[i]->updateCascade(x, y);
         }
     }
 
@@ -62,7 +63,7 @@ public:
 
 private:
     int m_dim;
-    Selectable *m_parent;
+    std::vector<Selectable*> m_parents;
 
     Selectable(const Selectable &other);
     Selectable& operator=(const Selectable &other);
@@ -89,7 +90,7 @@ public:
     {
         if(parent && child)
         {
-            child->m_parent = parent;
+            child->m_parents.push_back(parent);
 
             // insert parent if absent
             if(std::find(selectables.begin(), selectables.end(), parent)==selectables.end())
@@ -251,8 +252,8 @@ public:
     void render(IplImage *temp, const CvScalar &col, const int thickness) const
     {
         cvLine(temp, cvPoint(*m_beg), cvPoint(*m_end), col, thickness);
-        cvLine(temp, cvPoint(*m_beg), cvPoint(*m_beg), CV_RGB(0, 0, 0), thickness*2);
-        cvLine(temp, cvPoint(*m_end), cvPoint(*m_end), CV_RGB(0, 0, 0), thickness*2);
+        cvLine(temp, cvPoint(*m_beg), cvPoint(*m_beg), CV_RGB(0, 0, 0), thickness*5);
+        cvLine(temp, cvPoint(*m_end), cvPoint(*m_end), CV_RGB(0, 0, 0), thickness*5);
     }
 
 private:
@@ -292,15 +293,10 @@ bool intersectInfiniteLines(const LineSegment &line0, const LineSegment &line1, 
 class VanishingPoint : public Selectable
 {
 public:
-    VanishingPoint() {}
-    VanishingPoint(const LineSegment &line)
+    VanishingPoint() : m_point(new Point2D()), m_atInfinity(false) {}
+    VanishingPoint(const LineSegment &line) : m_point(new Point2D()), m_atInfinity(false)
     {
         addLine(line);
-    }
-
-    VanishingPoint(const VanishingPoint &)
-    {
-        assert(false);
     }
 
     ~VanishingPoint()
@@ -320,6 +316,10 @@ public:
     // stub function
     void update(int x, int y)
     {
+        assert(lines.size()> 1);
+
+        // update vanishing point
+        m_atInfinity = intersectInfiniteLines(*lines[0], *lines[1], *m_point);
     }
 
     void registerCascade(SelectableGroup &selectables)
@@ -336,11 +336,14 @@ public:
         lines.push_back(new LineSegment(line));
     }
 
-    bool computeVanishingPoint(Point2D &vpoint) const
+    Point2D* point() const
     {
-        assert(lines.size()> 1);
+        return m_point;
+    }
 
-        return intersectInfiniteLines(*lines[0], *lines[1], vpoint);
+    bool atInfinity() const
+    {
+        return m_atInfinity;
     }
 
     void render(IplImage *temp, const CvScalar &col) const
@@ -352,12 +355,9 @@ public:
 
         if(lines.size() > 1)
         {
-            Point2D vpoint;
-            const bool infinite = computeVanishingPoint(vpoint);
-
-            if(!infinite)
+            if(!m_atInfinity)
             {
-                cvLine(temp, cvPoint(vpoint), cvPoint(vpoint), col, 10);
+                cvLine(temp, cvPoint(*m_point), cvPoint(*m_point), col, 10);
             }
         }
     }
@@ -385,31 +385,138 @@ public:
             in >> ex >> ey;
             addLine(LineSegment(Point2D(bx, by), Point2D(ex, ey)));
         }
+
+        update(0, 0);
     }
 
 private:
+    Point2D *m_point;
+    bool m_atInfinity;
     std::vector<LineSegment*> lines;
+};
+
+// Wall Boundary
+class Wall : public Selectable
+{
+public:
+    Wall() : m_handles(new Point2D[4]), m_vpoint1(0), m_vpoint2(0) {}
+
+    void setup(const Point2D &first, const Point2D &second, VanishingPoint *vpoint1, VanishingPoint *vpoint2, VanishingPoint *vpoint3)
+    {
+        if(first.x()<=second.x() && first.y()<=second.y())
+        {
+            m_handles[0].set(Point2D((first.x()+second.x())/2, first.y()));
+            m_handles[1].set(Point2D(second.x(), (first.y()+second.y())/2));
+            m_handles[2].set(Point2D((first.x()+second.x())/2, second.y()));
+            m_handles[3].set(Point2D(first.x(), (first.y()+second.y())/2));
+        }
+        else
+        {
+            m_handles[0].set(Point2D((first.x()+second.x())/2, second.y()));
+            m_handles[1].set(Point2D(first.x(), (first.y()+second.y())/2));
+            m_handles[2].set(Point2D((first.x()+second.x())/2, first.y()));
+            m_handles[3].set(Point2D(second.x(), (first.y()+second.y())/2));
+        }
+
+        if(vpoint1->point()->x()<=vpoint2->point()->x() &&vpoint1->point()->y()<=vpoint2->point()->y())
+        {
+            m_vpoint1 = vpoint1;
+            m_vpoint2 = vpoint2;
+        }
+        else
+        {
+            m_vpoint1 = vpoint2;
+            m_vpoint2 = vpoint1;
+        }
+        m_vpoint3 = vpoint3;
+    }
+
+    // stub function
+    int selectionDistance(int x, int y)
+    {
+        return intmax;
+    }
+
+    // stub function
+    void update(int x, int y)
+    {
+    }
+
+    void registerCascade(SelectableGroup &selectables)
+    {
+        selectables.registerSelectable(this, &m_handles[0]);
+        selectables.registerSelectable(this, &m_handles[1]);
+        selectables.registerSelectable(this, &m_handles[2]);
+        selectables.registerSelectable(this, &m_handles[3]);
+    }
+
+    void render(IplImage *temp, const CvScalar &col, const int thickness) const
+    {
+        // compute corners of the wall
+        Point2D corners[4];
+        intersectInfiniteLines(LineSegment(*m_vpoint1->point(), m_handles[0]), LineSegment(*m_vpoint2->point(), m_handles[1]), corners[0]);
+        intersectInfiniteLines(LineSegment(*m_vpoint1->point(), m_handles[2]), LineSegment(*m_vpoint2->point(), m_handles[1]), corners[1]);
+        intersectInfiniteLines(LineSegment(*m_vpoint1->point(), m_handles[2]), LineSegment(*m_vpoint2->point(), m_handles[3]), corners[2]);
+        intersectInfiniteLines(LineSegment(*m_vpoint1->point(), m_handles[0]), LineSegment(*m_vpoint2->point(), m_handles[3]), corners[3]);
+
+        // draw wall edges
+        cvLine(temp, cvPoint(corners[0]), cvPoint(corners[1]), col, thickness);
+        cvLine(temp, cvPoint(corners[1]), cvPoint(corners[2]), col, thickness);
+        cvLine(temp, cvPoint(corners[2]), cvPoint(corners[3]), col, thickness);
+        cvLine(temp, cvPoint(corners[3]), cvPoint(corners[0]), col, thickness);
+
+        // draw the edges between walls and floors/ceilings
+        cvLine(temp, cvPoint(corners[0]+(corners[0]-*m_vpoint3->point())*10), cvPoint(corners[0]), col, thickness);
+        cvLine(temp, cvPoint(corners[1]+(corners[1]-*m_vpoint3->point())*10), cvPoint(corners[1]), col, thickness);
+        cvLine(temp, cvPoint(corners[2]+(corners[2]-*m_vpoint3->point())*10), cvPoint(corners[2]), col, thickness);
+        cvLine(temp, cvPoint(corners[3]+(corners[3]-*m_vpoint3->point())*10), cvPoint(corners[3]), col, thickness);
+
+        // draw control points
+        cvLine(temp, cvPoint(m_handles[0]), cvPoint(m_handles[0]), CV_RGB(0, 0, 0), thickness*5);
+        cvLine(temp, cvPoint(m_handles[1]), cvPoint(m_handles[1]), CV_RGB(0, 0, 0), thickness*5);
+        cvLine(temp, cvPoint(m_handles[2]), cvPoint(m_handles[2]), CV_RGB(0, 0, 0), thickness*5);
+        cvLine(temp, cvPoint(m_handles[3]), cvPoint(m_handles[3]), CV_RGB(0, 0, 0), thickness*5);
+    }
+
+private:
+    Point2D *m_handles;
+    VanishingPoint *m_vpoint1;
+    VanishingPoint *m_vpoint2;
+    VanishingPoint *m_vpoint3;
 };
 
 const Point2D outsidePoint(-100, -100);
 
 // line segments
-class Annotation
+class Annotation : public Selectable
 {
 public:
     int width;
     int height;
 
-    Annotation(): width(0), height(0), currLine(new LineSegment(outsidePoint, outsidePoint)), selectedObject(NULL), roomRays(4), roomCorners(4)
+    Annotation() 
+        : width(0), height(0), currLine(new LineSegment(outsidePoint, outsidePoint)), selectedObject(NULL), m_wall(0)
     {
-        for(unsigned int i = 0; i < roomRays.size();    i++) roomRays[i] = new LineSegment();
-        for(unsigned int i = 0; i < roomCorners.size(); i++) roomCorners[i] = new Point2D();
+        //for(unsigned int i = 0; i < roomRays.size();    i++) roomRays[i] = new LineSegment();
+        //for(unsigned int i = 0; i < roomCorners.size(); i++) roomCorners[i] = new Point2D();
     }
 
-    Annotation(int w, int h) : width(w), height(h), currLine(new LineSegment(outsidePoint, outsidePoint)), selectedObject(NULL), roomRays(4), roomCorners(4)
+    Annotation(int w, int h) 
+        : width(w), height(h), currLine(new LineSegment(outsidePoint, outsidePoint)), selectedObject(NULL), m_wall(0)
     {
-        for(unsigned int i = 0; i < roomRays.size();    i++) roomRays[i] = new LineSegment();
-        for(unsigned int i = 0; i < roomCorners.size(); i++) roomCorners[i] = new Point2D();
+        //for(unsigned int i = 0; i < roomRays.size();    i++) roomRays[i] = new LineSegment();
+        //for(unsigned int i = 0; i < roomCorners.size(); i++) roomCorners[i] = new Point2D();
+    }
+
+    // stub function
+    int selectionDistance(int x, int y)
+    {
+        return intmax;
+    }
+
+    // stub function
+    void update(int x, int y)
+    {
     }
 
     void BeginUpdate(int x, int y)
@@ -440,40 +547,40 @@ public:
 
         if(vanishings.size()>=3)
         {
-            // compute vanishing points and find the farthest pair
-            Point2D vpoints[3];
-            vanishings[0]->computeVanishingPoint(vpoints[0]);
-            vanishings[1]->computeVanishingPoint(vpoints[1]);
-            vanishings[2]->computeVanishingPoint(vpoints[2]);
-            const int dist01 = static_cast<int>(vpoints[0].dist2(vpoints[1]));
-            const int dist12 = static_cast<int>(vpoints[1].dist2(vpoints[2]));
-            const int dist02 = static_cast<int>(vpoints[0].dist2(vpoints[2]));
+            //// compute vanishing points and find the farthest pair
+            //Point2D *vpoints[3];
+            //vanishings[0]->computeVanishingPoint(vpoints[0]);
+            //vanishings[1]->computeVanishingPoint(vpoints[1]);
+            //vanishings[2]->computeVanishingPoint(vpoints[2]);
+            //const int dist01 = static_cast<int>(vpoints[0].dist2(vpoints[1]));
+            //const int dist12 = static_cast<int>(vpoints[1].dist2(vpoints[2]));
+            //const int dist02 = static_cast<int>(vpoints[0].dist2(vpoints[2]));
 
-            Point2D *vpointA = NULL;
-            Point2D *vpointB = NULL;
-            if(dist01>=dist12 && dist01>=dist02)
-            {
-                vpointA = &vpoints[0];
-                vpointB = &vpoints[1];
-            }
-            if(dist12>=dist01 && dist12>=dist02)
-            {
-                vpointA = &vpoints[1];
-                vpointB = &vpoints[2];
-            }
-            if(dist02>=dist01 && dist02>=dist12)
-            {
-                vpointA = &vpoints[0];
-                vpointB = &vpoints[2];
-            }
+            //Point2D *vpointA = NULL;
+            //Point2D *vpointB = NULL;
+            //if(dist01>=dist12 && dist01>=dist02)
+            //{
+            //    vpointA = &vpoints[0];
+            //    vpointB = &vpoints[1];
+            //}
+            //if(dist12>=dist01 && dist12>=dist02)
+            //{
+            //    vpointA = &vpoints[1];
+            //    vpointB = &vpoints[2];
+            //}
+            //if(dist02>=dist01 && dist02>=dist12)
+            //{
+            //    vpointA = &vpoints[0];
+            //    vpointB = &vpoints[2];
+            //}
 
-            // recompute room corners
-            Point2D centreTopLeft(width/2-100, height/2-100);
-            Point2D centreBotRight(width/2+100, height/2+100);
-            intersectInfiniteLines(LineSegment(*vpointA, centreTopLeft),  LineSegment(*vpointB, centreTopLeft),  *roomCorners[0]);
-            intersectInfiniteLines(LineSegment(*vpointA, centreTopLeft),  LineSegment(*vpointB, centreBotRight), *roomCorners[1]);
-            intersectInfiniteLines(LineSegment(*vpointA, centreBotRight), LineSegment(*vpointB, centreBotRight), *roomCorners[2]);
-            intersectInfiniteLines(LineSegment(*vpointA, centreBotRight), LineSegment(*vpointB, centreTopLeft),  *roomCorners[3]);
+            //// recompute room corners
+            //Point2D centreTopLeft(width/2-100, height/2-100);
+            //Point2D centreBotRight(width/2+100, height/2+100);
+            //intersectInfiniteLines(LineSegment(*vpointA, centreTopLeft),  LineSegment(*vpointB, centreTopLeft),  *roomCorners[0]);
+            //intersectInfiniteLines(LineSegment(*vpointA, centreTopLeft),  LineSegment(*vpointB, centreBotRight), *roomCorners[1]);
+            //intersectInfiniteLines(LineSegment(*vpointA, centreBotRight), LineSegment(*vpointB, centreBotRight), *roomCorners[2]);
+            //intersectInfiniteLines(LineSegment(*vpointA, centreBotRight), LineSegment(*vpointB, centreTopLeft),  *roomCorners[3]);
         }
     }
 
@@ -496,12 +603,22 @@ public:
                 }
                 else
                 {
+                    // create a new vanishing point if not enough exit
                     if(vanishings.size() < 3)
                     {
                         vanishings.push_back(new VanishingPoint(*currLine));
                         vanishings.back()->addLine(LineSegment(Point2D(width-currLine->beg().x(), height-currLine->beg().y()), Point2D(width-currLine->end().x(), height-currLine->end().y())));
+
+                        selectableObjects.registerSelectable(this, vanishings.back());
                         vanishings.back()->registerCascade(selectableObjects);
+
                         std::cout << "ADDED LINE [" << currLine->beg().x() << " " << currLine->beg().y() << "] to [" << currLine->end().x() << " " << currLine->end().y() << "]" << std::endl;
+                    }
+                    else if(!m_wall)    // add WallBoundary
+                    {
+                        m_wall = new Wall();
+                        m_wall->setup(currLine->beg(), currLine->end(), vanishings[0], vanishings[1], vanishings[2]);
+                        m_wall->registerCascade(selectableObjects);
                     }
                 }
             }
@@ -525,29 +642,34 @@ public:
             if(vanishings.size()==2) currLine->render(temp, CV_RGB(0, 0, 255), 2);
         }
 
+        if(m_wall)
+        {
+            m_wall->render(temp, CV_RGB(255, 0, 0), 2);
+        }
+
         // find the vanishing point in the image
         Point2D vpoint;
         for(unsigned int i = 0; i < vanishings.size(); i++)
         {
-            vanishings[i]->computeVanishingPoint(vpoint);
+            vpoint.set(*vanishings[i]->point());
             if(vpoint.x()>=0 && vpoint.x()<=width && vpoint.y()>=0 && vpoint.y()<=height)
             {
                 break;
             }
         }
 
-        const unsigned int ncorners = roomCorners.size();
-        for(unsigned int i = 0; i < roomCorners.size(); i++)
-        {
-            // draw corners
-            LineSegment(*roomCorners[i], *roomCorners[i]).render(temp, CV_RGB(255, 0, 0), 4);
+        //const unsigned int ncorners = roomCorners.size();
+        //for(unsigned int i = 0; i < roomCorners.size(); i++)
+        //{
+        //    // draw corners
+        //    LineSegment(*roomCorners[i], *roomCorners[i]).render(temp, CV_RGB(255, 0, 0), 4);
 
-            // draw boundaries between side walls and ceilings/floors
-            LineSegment(vpoint, *roomCorners[i]+(*roomCorners[i]-vpoint)*10).render(temp, CV_RGB(255, 0, 0), 4);
+        //    // draw boundaries between side walls and ceilings/floors
+        //    LineSegment(vpoint, *roomCorners[i]+(*roomCorners[i]-vpoint)*10).render(temp, CV_RGB(255, 0, 0), 4);
 
-            // draw back walls
-            LineSegment(*roomCorners[i], *(roomCorners[(i+1)%ncorners])).render(temp, CV_RGB(255, 0, 0), 4);
-        }
+        //    // draw back walls
+        //    LineSegment(*roomCorners[i], *(roomCorners[(i+1)%ncorners])).render(temp, CV_RGB(255, 0, 0), 4);
+        //}
     }
 
     void save(std::ofstream &out) const
@@ -571,6 +693,7 @@ public:
             vanishings[i]->load(in);
         }
 
+        // register components
         registerCascade(selectableObjects);
     }
 
@@ -579,6 +702,7 @@ public:
         // register all components
         for(unsigned int i = 0; i < vanishings.size(); i++)
         {
+            selectables.registerSelectable(this, vanishings[i]);
             vanishings[i]->registerCascade(selectables);
         }
     }
@@ -590,9 +714,10 @@ private:
     SelectableGroup selectableObjects;
 
     std::vector<VanishingPoint*> vanishings;
+    Wall *m_wall;
 
-    std::vector<LineSegment*> roomRays;
-    std::vector<Point2D*> roomCorners;
+    //std::vector<LineSegment*> roomRays;
+    //std::vector<Point2D*> roomCorners;
 };
 
 bool renderUpdate = false;
