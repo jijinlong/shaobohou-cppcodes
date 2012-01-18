@@ -197,7 +197,7 @@ CvPoint cvPoint(const Point2D &other)
 class LineSegment : public Selectable
 {
 public:
-    LineSegment() : m_beg(0), m_end(0) {}
+    LineSegment() : m_beg(new Point2D()), m_end(new Point2D()) {}
     LineSegment(const Point2D &beg) : m_beg(new Point2D(beg)), m_end(0) {}
     LineSegment(const Point2D &beg, const Point2D &end) : m_beg(new Point2D(beg)), m_end(new Point2D(end)) {}
     LineSegment(const LineSegment &other) : m_beg(new Point2D(*other.m_beg)), m_end(new Point2D(*other.m_end)) {}
@@ -236,6 +236,16 @@ public:
     const Point2D& end() const
     {
         return *m_end;
+    }
+
+    void setBeg(const Point2D &beg)
+    {
+        m_beg->set(beg);
+    }
+
+    void setEnd(const Point2D &end)
+    {
+        m_end->set(end);
     }
 
     void render(IplImage *temp, const CvScalar &col, const int thickness) const
@@ -381,6 +391,8 @@ private:
     std::vector<LineSegment*> lines;
 };
 
+const Point2D outsidePoint(-100, -100);
+
 // line segments
 class Annotation
 {
@@ -388,13 +400,13 @@ public:
     int width;
     int height;
 
-    Annotation(): width(0), height(0), currLine(NULL), selectedObject(NULL), roomRays(4), roomCorners(4)
+    Annotation(): width(0), height(0), currLine(new LineSegment(outsidePoint, outsidePoint)), selectedObject(NULL), roomRays(4), roomCorners(4)
     {
         for(unsigned int i = 0; i < roomRays.size();    i++) roomRays[i] = new LineSegment();
         for(unsigned int i = 0; i < roomCorners.size(); i++) roomCorners[i] = new Point2D();
     }
 
-    Annotation(int w, int h) : width(w), height(h), currLine(NULL), selectedObject(NULL), roomRays(4), roomCorners(4)
+    Annotation(int w, int h) : width(w), height(h), currLine(new LineSegment(outsidePoint, outsidePoint)), selectedObject(NULL), roomRays(4), roomCorners(4)
     {
         for(unsigned int i = 0; i < roomRays.size();    i++) roomRays[i] = new LineSegment();
         for(unsigned int i = 0; i < roomCorners.size(); i++) roomCorners[i] = new Point2D();
@@ -403,99 +415,100 @@ public:
     void BeginUpdate(int x, int y)
     {
         selectedObject = selectableObjects.select(x, y);
-        //////if(selectedPoint==NULL)
-        //////{
-        //////    currLine = new LineSegment(Point2D(x, y));
-        //////}
-        //////else
-        //////{
-        //////    std::cout << "SELECTED POINT [" << selectedPoint->x() << " " << selectedPoint->y() << "]" << std::endl;
-        //////}
+
+        // 
+        if(!selectedObject)
+        {
+            currLine->setBeg(Point2D(x, y));
+            currLine->setEnd(Point2D(x, y));
+        }
     }
 
     void Update(int x, int y)
     {
-        //////if(selectedPoint==NULL)
-        //////{
-        //////    if(currLine)
-        //////    {
-        //////        currLine->endPoint = Point2D(x, y);
-        //////    }
-        //////}
-        //////else
-        //////{
-        //////    selectedPoint->x = x;
-        //////    selectedPoint->y = y;
-        //////}
-
         if(selectedObject)
         {
             selectedObject->updateCascade(x, y);
         }
-
-        // compute vanishing points and find the farthest pair
-        Point2D vpoints[3];
-        vanishings[0]->computeVanishingPoint(vpoints[0]);
-        vanishings[1]->computeVanishingPoint(vpoints[1]);
-        vanishings[2]->computeVanishingPoint(vpoints[2]);
-        const int dist01 = static_cast<int>(vpoints[0].dist2(vpoints[1]));
-        const int dist12 = static_cast<int>(vpoints[1].dist2(vpoints[2]));
-        const int dist02 = static_cast<int>(vpoints[0].dist2(vpoints[2]));
-
-        Point2D *vpointA = NULL;
-        Point2D *vpointB = NULL;
-        if(dist01>dist12 && dist01>dist02)
+        else
         {
-            vpointA = &vpoints[0];
-            vpointB = &vpoints[1];
-        }
-        if(dist12>dist01 && dist12>dist02)
-        {
-            vpointA = &vpoints[1];
-            vpointB = &vpoints[2];
-        }
-        if(dist02>dist01 && dist02>dist12)
-        {
-            vpointA = &vpoints[0];
-            vpointB = &vpoints[2];
+            if(currLine->beg().x()>=0 && currLine->beg().x()>=0)
+            {
+                currLine->setEnd(Point2D(x,y));
+            }
         }
 
-        // recompute room corners
-        Point2D centreTopLeft(width/2-100, height/2-100);
-        Point2D centreBotRight(width/2+100, height/2+100);
-        intersectInfiniteLines(LineSegment(*vpointA, centreTopLeft),  LineSegment(*vpointB, centreTopLeft),  *roomCorners[0]);
-        intersectInfiniteLines(LineSegment(*vpointA, centreTopLeft),  LineSegment(*vpointB, centreBotRight), *roomCorners[1]);
-        intersectInfiniteLines(LineSegment(*vpointA, centreBotRight), LineSegment(*vpointB, centreBotRight), *roomCorners[2]);
-        intersectInfiniteLines(LineSegment(*vpointA, centreBotRight), LineSegment(*vpointB, centreTopLeft),  *roomCorners[3]);
+        if(vanishings.size()>=3)
+        {
+            // compute vanishing points and find the farthest pair
+            Point2D vpoints[3];
+            vanishings[0]->computeVanishingPoint(vpoints[0]);
+            vanishings[1]->computeVanishingPoint(vpoints[1]);
+            vanishings[2]->computeVanishingPoint(vpoints[2]);
+            const int dist01 = static_cast<int>(vpoints[0].dist2(vpoints[1]));
+            const int dist12 = static_cast<int>(vpoints[1].dist2(vpoints[2]));
+            const int dist02 = static_cast<int>(vpoints[0].dist2(vpoints[2]));
+
+            Point2D *vpointA = NULL;
+            Point2D *vpointB = NULL;
+            if(dist01>=dist12 && dist01>=dist02)
+            {
+                vpointA = &vpoints[0];
+                vpointB = &vpoints[1];
+            }
+            if(dist12>=dist01 && dist12>=dist02)
+            {
+                vpointA = &vpoints[1];
+                vpointB = &vpoints[2];
+            }
+            if(dist02>=dist01 && dist02>=dist12)
+            {
+                vpointA = &vpoints[0];
+                vpointB = &vpoints[2];
+            }
+
+            // recompute room corners
+            Point2D centreTopLeft(width/2-100, height/2-100);
+            Point2D centreBotRight(width/2+100, height/2+100);
+            intersectInfiniteLines(LineSegment(*vpointA, centreTopLeft),  LineSegment(*vpointB, centreTopLeft),  *roomCorners[0]);
+            intersectInfiniteLines(LineSegment(*vpointA, centreTopLeft),  LineSegment(*vpointB, centreBotRight), *roomCorners[1]);
+            intersectInfiniteLines(LineSegment(*vpointA, centreBotRight), LineSegment(*vpointB, centreBotRight), *roomCorners[2]);
+            intersectInfiniteLines(LineSegment(*vpointA, centreBotRight), LineSegment(*vpointB, centreTopLeft),  *roomCorners[3]);
+        }
     }
 
     void EndUpdate(int x, int y)
     {
-        //////if(selectedPoint==NULL)
-        //////{
-        //////    if(currLine)
-        //////    {
-        //////        if(vanishings.size()<3 && !(currLine->beg().equals(currLine->end())))
-        //////        {
-        //////            vanishings.push_back(VanishingPoint(*currLine));
-        //////            vanishings.back().addLine(LineSegment(Point2D(width-currLine->beg().x(), height-currLine->beg().y()), Point2D(width-currLine->end().x(), height-currLine->end().y())));
-        //////            std::cout << "ADDED LINE [" << currLine->beg().x() << " " << currLine->beg().y() << "] to [" << currLine->end().x() << " " << currLine->end().y() << "]" << std::endl;
-        //////        }
-
-        //////        delete currLine;
-        //////        currLine = NULL;
-        //////    }
-        //////}
-        //////else
-        //////{
-        //////    selectedPoint->set(x, y);
-        //////}
-
+        // cascade update
         if(selectedObject)
         {
             selectedObject->updateCascade(x, y);
         }
+        else
+        {
+            if(currLine->beg().x()>=0 && currLine->beg().x()>=0)
+            {
+                currLine->setEnd(Point2D(x,y));
 
+                if(currLine->beg().equals(currLine->end()))
+                {
+
+                }
+                else
+                {
+                    if(vanishings.size() < 3)
+                    {
+                        vanishings.push_back(new VanishingPoint(*currLine));
+                        vanishings.back()->addLine(LineSegment(Point2D(width-currLine->beg().x(), height-currLine->beg().y()), Point2D(width-currLine->end().x(), height-currLine->end().y())));
+                        vanishings.back()->registerCascade(selectableObjects);
+                        std::cout << "ADDED LINE [" << currLine->beg().x() << " " << currLine->beg().y() << "] to [" << currLine->end().x() << " " << currLine->end().y() << "]" << std::endl;
+                    }
+                }
+            }
+        }
+
+        currLine->setBeg(outsidePoint);
+        currLine->setEnd(outsidePoint);
         selectedObject = NULL;
     }
 
@@ -564,7 +577,7 @@ public:
     void registerCascade(SelectableGroup &selectables)
     {
         // register all components
-        for(int i = 0; i < vanishings.size(); i++)
+        for(unsigned int i = 0; i < vanishings.size(); i++)
         {
             vanishings[i]->registerCascade(selectables);
         }
@@ -611,6 +624,29 @@ void MouseCallback(int event, int x, int y, int flags, void* param)
 //void SwitchCallback(int position)
 //{
 //	const int bah = 0;
+//}
+
+//// Returns an empty string if dialog is canceled
+//std::string openfilename(char *filter = "All Files (*.*)\0*.*\0", HWND owner = NULL) 
+//{
+//    OPENFILENAME ofn;
+//    char fileName[MAX_PATH] = "";
+//    ZeroMemory(&ofn, sizeof(ofn));
+//
+//    ofn.lStructSize = sizeof(OPENFILENAME);
+//    ofn.hwndOwner = owner;
+//    ofn.lpstrFilter = filter;
+//    ofn.lpstrFile = fileName;
+//    ofn.nMaxFile = MAX_PATH;
+//    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+//    ofn.lpstrDefExt = "";
+//
+//    std::string fileNameStr;
+//
+//    if ( GetOpenFileName(&ofn) )
+//        fileNameStr = fileName;
+//
+//    return fileNameStr;
 //}
 
 //int _tmain(int argc, _TCHAR* argv[])
