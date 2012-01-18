@@ -15,88 +15,230 @@
 
 // see yu2008inferring and hedau2009recovering
 
+const int intmax = std::numeric_limits<int>::max();
 
-// Point Functions
-class Point2D
+
+// Selectable interface
+class Selectable
 {
 public:
-    Point2D() : x(0), y(0) {}
-    Point2D(const int xx, const int yy) : x(xx), y(yy) {}
+    friend class SelectableGroup;
+
+    Selectable() : m_dim(0), m_parent(0) {}
+
+    // return true if the selection distance of the current instance is smaller than bestDist
+    virtual int selectionDistance(int x, int y) = 0;
+
+    void select(int x, int y, Selectable *&selected, int &bestDist, const int maxDist)
+    {
+        const int currDist =  selectionDistance(x, y);
+        if(currDist <= maxDist)
+        {
+            if(!selected || m_dim<selected->m_dim || (m_dim==selected->m_dim && currDist<bestDist))
+            {
+                selected = this;
+                bestDist = currDist;
+            }
+        }
+    }
+
+    // update the selected instance
+    virtual void update(int x, int y) = 0;
+
+    void updateCascade(int x, int y)
+    {
+        update(x, y);
+
+        if(m_parent)
+        {
+            m_parent->updateCascade(x, y);
+        }
+    }
+
+private:
+    int m_dim;
+    Selectable *m_parent;
+};
+
+// Selectable Group
+class SelectableGroup
+{
+public:
+    Selectable* select(const int x, const int y, const int radius=10)
+    {
+        Selectable *selected = 0;
+
+        int bestDist = intmax;
+        for(unsigned int i = 0; i < selectables.size(); i++)
+        {
+            selectables[i]->select(x, y, selected, bestDist, radius*radius);
+        }
+
+        return selected;
+    }
+
+    void addSelectable(Selectable *sel)
+    {
+        selectables.push_back(sel);
+    }
+
+    void registerSelectable(Selectable *parent, Selectable *child)
+    {
+        if(parent && child)
+        {
+            child->m_parent = parent;
+        }
+    }
+
+    std::vector<Selectable*> selectables;
+};
+
+SelectableGroup selectableObjects;
+
+
+// Point Functions
+class Point2D : public Selectable
+{
+public:
+    typedef double Real;
+
+    friend CvPoint cvPoint(const Point2D &other);
+
+    Point2D() : m_x(0), m_y(0) {}
+    Point2D(const Real x, const Real y) : m_x(x), m_y(y) {}
+
+    int selectionDistance(int x, int y)
+    {
+        return static_cast<int>(dist2(Point2D(x, y)));
+    }
+
+    void update(int x, int y)
+    {
+        set(x, y);
+    }
+
+    const Real& x() const
+    {
+        return m_x;
+    }
+
+    const Real& y() const
+    {
+        return m_y;
+    }
+
+    void set(int x, int y)
+    {
+        m_x = x;
+        m_y = y;
+    }
+
+    bool equals(const Point2D &other) const
+    {
+        return this->m_x==other.m_x && this->m_y==other.m_y;
+    }
+
+    Real dist2(const Point2D &other) const
+    {
+        const Real dx = this->m_x - other.m_x;
+        const Real dy = this->m_y - other.m_y;
+        return dx*dx + dy*dy;
+    }
 
     Point2D operator-(const Point2D &other) const
     {
-        return Point2D(x-other.x, y-other.y);
+        return Point2D(m_x-other.m_x, m_y-other.m_y);
     }
 
     Point2D operator+(const Point2D &other) const
     {
-        return Point2D(x+other.x, y+other.y);
+        return Point2D(m_x+other.m_x, m_y+other.m_y);
     }
 
-    Point2D operator*(const int s) const
+    Point2D operator*(const Real s) const
     {
-        return Point2D(x*s, y*s);
+        return Point2D(m_x*s, m_y*s);
     }
 
-    int x, y;
+private:
+    Real m_x, m_y;
 };
 
 CvPoint cvPoint(const Point2D &other)
 {
-    return cvPoint(other.x, other.y);
-}
-
-bool equals(const Point2D &A, const Point2D &B)
-{
-    return A.x==B.x && A.y==B.y;
-}
-
-long dist2(const Point2D &p1, const Point2D &p2)
-{
-    const int dx = p1.x - p2.x;
-    const int dy = p1.y - p2.y;
-    return dx*dx + dy*dy;
+    return cvPoint(static_cast<int>(other.m_x), static_cast<int>(other.m_y));
 }
 
 
 // Line Class and Functions
-class LineSegment
+class LineSegment : public Selectable
 {
 public:
     LineSegment() {}
-    LineSegment(const Point2D &beg) : begPoint(beg) {}
-    LineSegment(const Point2D &beg, const Point2D &end) : begPoint(beg), endPoint(end) {}
+    LineSegment(const Point2D &beg) : m_beg(beg) {}
+    LineSegment(const Point2D &beg, const Point2D &end) : m_beg(beg), m_end(end) {}
+
+    // stub function
+    int selectionDistance(int x, int y)
+    {
+        return intmax;
+    }
+
+    // stub function
+    void update(int x, int y)
+    {
+    }
+
+    const Point2D& beg() const
+    {
+        return m_beg;
+    }
+
+    const Point2D& end() const
+    {
+        return m_end;
+    }
+
+    Point2D& beg()
+    {
+        return m_beg;
+    }
+
+    Point2D& end()
+    {
+        return m_end;
+    }
 
     Point2D* GetNearestEndPoint(int x, int y)
     {
-        long begDist2 = dist2(Point2D(x, y), begPoint);
-        long endDist2 = dist2(Point2D(x, y), endPoint);
+        const int begDist2 = static_cast<int>(Point2D(x, y).dist2(m_beg));
+        const int endDist2 = static_cast<int>(Point2D(x, y).dist2(m_end));
 
-        return begDist2<endDist2 ? &begPoint : &endPoint;
+        return begDist2<endDist2 ? &m_beg : &m_end;
     }
 
     void render(IplImage *temp, const CvScalar &col, const int thickness) const
     {
-        cvLine(temp, cvPoint(begPoint), cvPoint(endPoint), col, thickness);
-        cvLine(temp, cvPoint(begPoint), cvPoint(begPoint), CV_RGB(0, 0, 0), thickness*2);
-        cvLine(temp, cvPoint(endPoint), cvPoint(endPoint), CV_RGB(0, 0, 0), thickness*2);
+        cvLine(temp, cvPoint(m_beg), cvPoint(m_end), col, thickness);
+        cvLine(temp, cvPoint(m_beg), cvPoint(m_beg), CV_RGB(0, 0, 0), thickness*2);
+        cvLine(temp, cvPoint(m_end), cvPoint(m_end), CV_RGB(0, 0, 0), thickness*2);
     }
 
-    Point2D begPoint, endPoint;
+private:
+    Point2D m_beg, m_end;
 };
 
 bool intersectInfiniteLines(const LineSegment &line0, const LineSegment &line1, Point2D &vpoint)
 {
-    const double &x1 = line0.begPoint.x; const double &y1 = line0.begPoint.y;
-    const double &x2 = line0.endPoint.x; const double &y2 = line0.endPoint.y;
-    const double &x3 = line1.begPoint.x; const double &y3 = line1.begPoint.y;
-    const double &x4 = line1.endPoint.x; const double &y4 = line1.endPoint.y;
+    const double x1 = line0.beg().x(); const double y1 = line0.beg().y();
+    const double x2 = line0.end().x(); const double y2 = line0.end().y();
+    const double x3 = line1.beg().x(); const double y3 = line1.beg().y();
+    const double x4 = line1.end().x(); const double y4 = line1.end().y();
 
     double den =  (y4-y3)*(x2-x1) - (x4-x3)*(y2-y1);
     if(fabs(den) < 1e-6)
     {
-        vpoint.x = static_cast<int>(((x2-x1)+(x4-x3))/2);
-        vpoint.y = static_cast<int>(((y2-y1)+(y4-y3))/2);
+        vpoint.set(static_cast<int>(((x2-x1)+(x4-x3))/2), static_cast<int>(((y2-y1)+(y4-y3))/2));
 
         return true;
     }
@@ -108,8 +250,7 @@ bool intersectInfiniteLines(const LineSegment &line0, const LineSegment &line1, 
         const double u1 = num1/den;
         //u2 = num2/den;
 
-        vpoint.x = static_cast<int>(x1+u1*(x2-x1));
-        vpoint.y = static_cast<int>(y1+u1*(y2-y1));
+        vpoint.set(static_cast<int>(x1+u1*(x2-x1)), static_cast<int>(y1+u1*(y2-y1)));
 
         return false;
     }
@@ -138,7 +279,7 @@ public:
         for(unsigned int i = 0; i < lines.size(); i++)
         {
             Point2D *tempPoint = lines[i].GetNearestEndPoint(x, y);
-            const long tempDist2 = dist2(Point2D(x, y), *tempPoint);
+            const int tempDist2 = static_cast<int>(Point2D(x, y).dist2(*tempPoint));
 
             if(tempDist2 < bestDist2)
             {
@@ -186,8 +327,8 @@ public:
         out << lines.size() << std::endl;
         for(unsigned int i = 0; i < lines.size(); i++)
         {
-            out << lines[i].begPoint.x << " " << lines[i].begPoint.y << "  ";
-            out << lines[i].endPoint.x << " " << lines[i].endPoint.y << std::endl;;
+            out << lines[i].beg().x() << " " << lines[i].beg().y() << "  ";
+            out << lines[i].end().x() << " " << lines[i].end().y() << std::endl;;
         }
     }
 
@@ -199,8 +340,17 @@ public:
         lines = std::vector<LineSegment>(nlines);
         for(unsigned int i = 0; i < lines.size(); i++)
         {
-            in >> lines[i].begPoint.x >> lines[i].begPoint.y;
-            in >> lines[i].endPoint.x >> lines[i].endPoint.y;
+            int bx, by, ex, ey;
+            in >> bx >> by;
+            in >> ex >> ey;
+            lines[i] = LineSegment(Point2D(bx, by), Point2D(ex, ey));
+
+            // setup Selectable hierarchy
+            selectableObjects.addSelectable(&lines[i]);
+            selectableObjects.addSelectable(&lines[i].beg());
+            selectableObjects.addSelectable(&lines[i].end());
+            selectableObjects.registerSelectable(&lines[i], &lines[i].beg());
+            selectableObjects.registerSelectable(&lines[i], &lines[i].end());
         }
     }
 
@@ -215,35 +365,40 @@ public:
     int width;
     int height;
 
-    Annotation(): width(0), height(0), currLine(NULL), selectedPoint(NULL), roomRays(4), roomCorners(4) {};
-    Annotation(int w, int h) : width(w), height(h), currLine(NULL), selectedPoint(NULL), roomRays(4), roomCorners(4) {};
+    Annotation(): width(0), height(0), currLine(NULL), selectedObject(NULL), roomRays(4), roomCorners(4) {};
+    Annotation(int w, int h) : width(w), height(h), currLine(NULL), selectedObject(NULL), roomRays(4), roomCorners(4) {};
 
     void BeginUpdate(int x, int y)
     {
-        selectedPoint = SelectPoint(x, y);
-        if(selectedPoint==NULL)
-        {
-            currLine = new LineSegment(Point2D(x, y));
-        }
-        else
-        {
-            std::cout << "SELECTED POINT [" << selectedPoint->x << " " << selectedPoint->y << "]" << std::endl;
-        }
+        selectedObject = selectableObjects.select(x, y);
+        //////if(selectedPoint==NULL)
+        //////{
+        //////    currLine = new LineSegment(Point2D(x, y));
+        //////}
+        //////else
+        //////{
+        //////    std::cout << "SELECTED POINT [" << selectedPoint->x() << " " << selectedPoint->y() << "]" << std::endl;
+        //////}
     }
 
     void Update(int x, int y)
     {
-        if(selectedPoint==NULL)
+        //////if(selectedPoint==NULL)
+        //////{
+        //////    if(currLine)
+        //////    {
+        //////        currLine->endPoint = Point2D(x, y);
+        //////    }
+        //////}
+        //////else
+        //////{
+        //////    selectedPoint->x = x;
+        //////    selectedPoint->y = y;
+        //////}
+
+        if(selectedObject)
         {
-            if(currLine)
-            {
-                currLine->endPoint = Point2D(x, y);
-            }
-        }
-        else
-        {
-            selectedPoint->x = x;
-            selectedPoint->y = y;
+            selectedObject->updateCascade(x, y);
         }
 
         // compute vanishing points and find the farthest pair
@@ -251,9 +406,9 @@ public:
         vanishings[0].computeVanishingPoint(vpoints[0]);
         vanishings[1].computeVanishingPoint(vpoints[1]);
         vanishings[2].computeVanishingPoint(vpoints[2]);
-        long dist01 = dist2(vpoints[0], vpoints[1]);
-        long dist12 = dist2(vpoints[1], vpoints[2]);
-        long dist02 = dist2(vpoints[0], vpoints[2]);
+        const int dist01 = static_cast<int>(vpoints[0].dist2(vpoints[1]));
+        const int dist12 = static_cast<int>(vpoints[1].dist2(vpoints[2]));
+        const int dist02 = static_cast<int>(vpoints[0].dist2(vpoints[2]));
 
         Point2D *vpointA = NULL;
         Point2D *vpointB = NULL;
@@ -284,27 +439,32 @@ public:
 
     void EndUpdate(int x, int y)
     {
-        if(selectedPoint==NULL)
-        {
-            if(currLine)
-            {
-                if(vanishings.size()<3 && !equals(currLine->begPoint, currLine->endPoint))
-                {
-                    vanishings.push_back(VanishingPoint(*currLine));
-                    vanishings.back().addLine(LineSegment(Point2D(width-currLine->begPoint.x, height-currLine->begPoint.y), Point2D(width-currLine->endPoint.x, height-currLine->endPoint.y)));
-                    std::cout << "ADDED LINE [" << currLine->begPoint.x << " " << currLine->begPoint.y << "] to [" << currLine->endPoint.x << " " << currLine->endPoint.y << "]" << std::endl;
-                }
+        //////if(selectedPoint==NULL)
+        //////{
+        //////    if(currLine)
+        //////    {
+        //////        if(vanishings.size()<3 && !(currLine->beg().equals(currLine->end())))
+        //////        {
+        //////            vanishings.push_back(VanishingPoint(*currLine));
+        //////            vanishings.back().addLine(LineSegment(Point2D(width-currLine->beg().x(), height-currLine->beg().y()), Point2D(width-currLine->end().x(), height-currLine->end().y())));
+        //////            std::cout << "ADDED LINE [" << currLine->beg().x() << " " << currLine->beg().y() << "] to [" << currLine->end().x() << " " << currLine->end().y() << "]" << std::endl;
+        //////        }
 
-                delete currLine;
-                currLine = NULL;
-            }
-        }
-        else
+        //////        delete currLine;
+        //////        currLine = NULL;
+        //////    }
+        //////}
+        //////else
+        //////{
+        //////    selectedPoint->set(x, y);
+        //////}
+
+        if(selectedObject)
         {
-            selectedPoint->x = x;
-            selectedPoint->y = y;
-            selectedPoint = NULL;
+            selectedObject->updateCascade(x, y);
         }
+
+        selectedObject = NULL;
     }
 
     void render(IplImage *temp) const
@@ -325,7 +485,7 @@ public:
         for(unsigned int i = 0; i < vanishings.size(); i++)
         {
             vanishings[i].computeVanishingPoint(vpoint);
-            if(vpoint.x>=0 && vpoint.x<=width && vpoint.y>=0 && vpoint.y<=height)
+            if(vpoint.x()>=0 && vpoint.x()<=width && vpoint.y()>=0 && vpoint.y()<=height)
             {
                 break;
             }
@@ -369,7 +529,7 @@ public:
 
 private:
     LineSegment *currLine;
-    Point2D *selectedPoint;
+    Selectable *selectedObject;
 
     std::vector<VanishingPoint> vanishings;
 
@@ -388,7 +548,7 @@ private:
             
             if(tempPoint)
             {
-                const long tempDist2 = dist2(Point2D(x, y), *tempPoint);
+                const int tempDist2 = static_cast<int>(Point2D(x, y).dist2(*tempPoint));
 
                 if(tempDist2 < bestDist2)
                 {
@@ -407,25 +567,28 @@ private:
     }
 };
 
-Annotation annotation;
+Annotation *annotation = NULL;
 bool renderUpdate = false;
 void MouseCallback(int event, int x, int y, int flags, void* param)
 {
-    switch(event)
+    if(annotation)
     {
-    case CV_EVENT_MOUSEMOVE:
-        annotation.Update(x, y);
-        renderUpdate = true;
-        break;
+        switch(event)
+        {
+        case CV_EVENT_MOUSEMOVE:
+            annotation->Update(x, y);
+            renderUpdate = true;
+            break;
 
-    case CV_EVENT_LBUTTONDOWN:
-        annotation.BeginUpdate(x, y);
-        break;
+        case CV_EVENT_LBUTTONDOWN:
+            annotation->BeginUpdate(x, y);
+            break;
 
-    case CV_EVENT_LBUTTONUP:
-        annotation.EndUpdate(x, y);
-        renderUpdate = true;
-        break;
+        case CV_EVENT_LBUTTONUP:
+            annotation->EndUpdate(x, y);
+            renderUpdate = true;
+            break;
+        }
     }
 }
 
@@ -445,11 +608,11 @@ int main(int argc, char *argv[])
 
 
     // load annotation from file if exists
-    annotation = Annotation(img->width, img->height);
+    annotation = new Annotation(img->width, img->height);
     std::ifstream fin(imageName+".dat");
     if(fin.is_open())
     {
-        annotation.load(fin);
+        annotation->load(fin);
         renderUpdate = true;
     }
 
@@ -465,7 +628,7 @@ int main(int argc, char *argv[])
         if(renderUpdate)
         {
             cvCopyImage(img, temp);
-            annotation.render(temp);
+            annotation->render(temp);
             cvShowImage(windowName.c_str(), temp);
 
             renderUpdate = false;
@@ -481,8 +644,10 @@ int main(int argc, char *argv[])
 
     // save annotation to file
     std::ofstream fout(imageName+".dat");
-    annotation.save(fout);
+    annotation->save(fout);
     fout.close();
+
+    delete annotation;
 
     return 0;
 }
