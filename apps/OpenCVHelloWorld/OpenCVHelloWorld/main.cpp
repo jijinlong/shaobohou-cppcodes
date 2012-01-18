@@ -137,6 +137,12 @@ public:
         m_y = y;
     }
 
+    void set(const Point2D &other)
+    {
+        m_x = other.m_x;
+        m_y = other.m_y;
+    }
+
     bool equals(const Point2D &other) const
     {
         return this->m_x==other.m_x && this->m_y==other.m_y;
@@ -181,16 +187,12 @@ public:
     LineSegment() : m_beg(0), m_end(0) {}
     LineSegment(const Point2D &beg) : m_beg(new Point2D(beg)), m_end(0) {}
     LineSegment(const Point2D &beg, const Point2D &end) : m_beg(new Point2D(beg)), m_end(new Point2D(end)) {}
-
-    LineSegment(const LineSegment &)
-    {
-      assert(false);
-    }
+    LineSegment(const LineSegment &other) : m_beg(new Point2D(*other.m_beg)), m_end(new Point2D(*other.m_end)) {}
 
     ~LineSegment()
     {
-      if(m_beg) delete m_beg;
-      if(m_end) delete m_end;
+        if(m_beg) delete m_beg;
+        if(m_end) delete m_end;
     }
 
     // stub function
@@ -284,15 +286,15 @@ public:
 
     VanishingPoint(const VanishingPoint &)
     {
-      assert(false);
+        assert(false);
     }
 
     ~VanishingPoint()
     {
-      for(unsigned int i = 0; i < lines.size(); i++)
-      {
-        delete lines[i];
-      }
+        for(unsigned int i = 0; i < lines.size(); i++)
+        {
+            delete lines[i];
+        }
     }
 
     // stub function
@@ -404,8 +406,17 @@ public:
     int width;
     int height;
 
-    Annotation(): width(0), height(0), currLine(NULL), selectedObject(NULL), roomRays(4), roomCorners(4) {};
-    Annotation(int w, int h) : width(w), height(h), currLine(NULL), selectedObject(NULL), roomRays(4), roomCorners(4) {};
+    Annotation(): width(0), height(0), currLine(NULL), selectedObject(NULL), roomRays(4), roomCorners(4)
+    {
+        for(unsigned int i = 0; i < roomRays.size();    i++) roomRays[i] = new LineSegment();
+        for(unsigned int i = 0; i < roomCorners.size(); i++) roomCorners[i] = new Point2D();
+    }
+
+    Annotation(int w, int h) : width(w), height(h), currLine(NULL), selectedObject(NULL), roomRays(4), roomCorners(4)
+    {
+        for(unsigned int i = 0; i < roomRays.size();    i++) roomRays[i] = new LineSegment();
+        for(unsigned int i = 0; i < roomCorners.size(); i++) roomCorners[i] = new Point2D();
+    }
 
     void BeginUpdate(int x, int y)
     {
@@ -585,7 +596,7 @@ private:
         for(unsigned int i = 0; i < vanishings.size(); i++)
         {
             Point2D *tempPoint = vanishings[i]->SelectPoint(x, y, radius);
-            
+
             if(tempPoint)
             {
                 const int tempDist2 = static_cast<int>(Point2D(x, y).dist2(*tempPoint));
