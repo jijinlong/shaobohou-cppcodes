@@ -18,6 +18,9 @@
 const int intmax = std::numeric_limits<int>::max();
 
 
+// pre-declare
+class SelectableGroup;
+
 // Selectable interface
 class Selectable
 {
@@ -55,6 +58,8 @@ public:
         }
     }
 
+    virtual void registerCascade(SelectableGroup &selectables) = 0;
+
 private:
     int m_dim;
     Selectable *m_parent;
@@ -80,24 +85,28 @@ public:
         return selected;
     }
 
-    void addSelectable(Selectable *sel)
-    {
-        selectables.push_back(sel);
-    }
-
     void registerSelectable(Selectable *parent, Selectable *child)
     {
         if(parent && child)
         {
             child->m_parent = parent;
+
+            // insert parent if absent
+            if(std::find(selectables.begin(), selectables.end(), parent)==selectables.end())
+            {
+                selectables.push_back(parent);
+            }
+
+            // insert child if absent
+            if(std::find(selectables.begin(), selectables.end(), child)==selectables.end())
+            {
+                selectables.push_back(child);
+            }
         }
     }
 
     std::vector<Selectable*> selectables;
 };
-
-SelectableGroup selectableObjects;
-
 
 // Point Functions
 class Point2D : public Selectable
@@ -119,6 +128,10 @@ public:
     void update(int x, int y)
     {
         set(x, y);
+    }
+
+    void registerCascade(SelectableGroup &selectables)
+    {
     }
 
     const Real& x() const
@@ -206,22 +219,21 @@ public:
     {
     }
 
+    void registerCascade(SelectableGroup &selectables)
+    {
+        selectables.registerSelectable(this, m_beg);
+        m_beg->registerCascade(selectables);
+
+        selectables.registerSelectable(this, m_end);
+        m_end->registerCascade(selectables);
+    }
+
     const Point2D& beg() const
     {
         return *m_beg;
     }
 
     const Point2D& end() const
-    {
-        return *m_end;
-    }
-
-    Point2D& beg()
-    {
-        return *m_beg;
-    }
-
-    Point2D& end()
     {
         return *m_end;
     }
@@ -300,6 +312,15 @@ public:
     {
     }
 
+    void registerCascade(SelectableGroup &selectables)
+    {
+        for(unsigned int i = 0; i < lines.size(); i++)
+        {
+            selectables.registerSelectable(this, lines[i]);
+            lines[i]->registerCascade(selectables);
+        }
+    }
+
     void addLine(const LineSegment &line)
     {
         lines.push_back(new LineSegment(line));
@@ -353,13 +374,6 @@ public:
             in >> bx >> by;
             in >> ex >> ey;
             addLine(LineSegment(Point2D(bx, by), Point2D(ex, ey)));
-
-            // setup Selectable hierarchy
-            selectableObjects.addSelectable(lines[i]);
-            selectableObjects.addSelectable(&lines[i]->beg());
-            selectableObjects.addSelectable(&lines[i]->end());
-            selectableObjects.registerSelectable(lines[i], &lines[i]->beg());
-            selectableObjects.registerSelectable(lines[i], &lines[i]->end());
         }
     }
 
@@ -543,12 +557,24 @@ public:
             vanishings.push_back(new VanishingPoint);
             vanishings[i]->load(in);
         }
+
+        registerCascade(selectableObjects);
+    }
+
+    void registerCascade(SelectableGroup &selectables)
+    {
+        // register all components
+        for(int i = 0; i < vanishings.size(); i++)
+        {
+            vanishings[i]->registerCascade(selectables);
+        }
     }
 
 
 private:
     LineSegment *currLine;
     Selectable *selectedObject;
+    SelectableGroup selectableObjects;
 
     std::vector<VanishingPoint*> vanishings;
 
@@ -556,8 +582,8 @@ private:
     std::vector<Point2D*> roomCorners;
 };
 
-Annotation *annotation = NULL;
 bool renderUpdate = false;
+Annotation *annotation = NULL;
 void MouseCallback(int event, int x, int y, int flags, void* param)
 {
     if(annotation)
@@ -604,7 +630,6 @@ int main(int argc, char *argv[])
         annotation->load(fin);
         renderUpdate = true;
     }
-
 
     cvNamedWindow(windowName.c_str(), 1);
     cvShowImage(windowName.c_str(), img);
