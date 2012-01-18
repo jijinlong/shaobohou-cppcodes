@@ -478,6 +478,15 @@ public:
         cvLine(temp, cvPoint(m_handles[3]), cvPoint(m_handles[3]), CV_RGB(0, 0, 0), thickness*5);
     }
 
+    void save(std::ofstream &out) const
+    {
+        out << 4 << std::endl;
+        out << m_handles[0].x() << " " << m_handles[0].y() << std::endl;
+        out << m_handles[1].x() << " " << m_handles[1].y() << std::endl;
+        out << m_handles[2].x() << " " << m_handles[2].y() << std::endl;
+        out << m_handles[3].x() << " " << m_handles[3].y() << std::endl;
+    }
+
 private:
     Point2D *m_handles;
     VanishingPoint *m_vpoint1;
@@ -497,15 +506,11 @@ public:
     Annotation() 
         : width(0), height(0), currLine(new LineSegment(outsidePoint, outsidePoint)), selectedObject(NULL), m_wall(0)
     {
-        //for(unsigned int i = 0; i < roomRays.size();    i++) roomRays[i] = new LineSegment();
-        //for(unsigned int i = 0; i < roomCorners.size(); i++) roomCorners[i] = new Point2D();
     }
 
     Annotation(int w, int h) 
         : width(w), height(h), currLine(new LineSegment(outsidePoint, outsidePoint)), selectedObject(NULL), m_wall(0)
     {
-        //for(unsigned int i = 0; i < roomRays.size();    i++) roomRays[i] = new LineSegment();
-        //for(unsigned int i = 0; i < roomCorners.size(); i++) roomCorners[i] = new Point2D();
     }
 
     // stub function
@@ -544,44 +549,6 @@ public:
                 currLine->setEnd(Point2D(x,y));
             }
         }
-
-        if(vanishings.size()>=3)
-        {
-            //// compute vanishing points and find the farthest pair
-            //Point2D *vpoints[3];
-            //vanishings[0]->computeVanishingPoint(vpoints[0]);
-            //vanishings[1]->computeVanishingPoint(vpoints[1]);
-            //vanishings[2]->computeVanishingPoint(vpoints[2]);
-            //const int dist01 = static_cast<int>(vpoints[0].dist2(vpoints[1]));
-            //const int dist12 = static_cast<int>(vpoints[1].dist2(vpoints[2]));
-            //const int dist02 = static_cast<int>(vpoints[0].dist2(vpoints[2]));
-
-            //Point2D *vpointA = NULL;
-            //Point2D *vpointB = NULL;
-            //if(dist01>=dist12 && dist01>=dist02)
-            //{
-            //    vpointA = &vpoints[0];
-            //    vpointB = &vpoints[1];
-            //}
-            //if(dist12>=dist01 && dist12>=dist02)
-            //{
-            //    vpointA = &vpoints[1];
-            //    vpointB = &vpoints[2];
-            //}
-            //if(dist02>=dist01 && dist02>=dist12)
-            //{
-            //    vpointA = &vpoints[0];
-            //    vpointB = &vpoints[2];
-            //}
-
-            //// recompute room corners
-            //Point2D centreTopLeft(width/2-100, height/2-100);
-            //Point2D centreBotRight(width/2+100, height/2+100);
-            //intersectInfiniteLines(LineSegment(*vpointA, centreTopLeft),  LineSegment(*vpointB, centreTopLeft),  *roomCorners[0]);
-            //intersectInfiniteLines(LineSegment(*vpointA, centreTopLeft),  LineSegment(*vpointB, centreBotRight), *roomCorners[1]);
-            //intersectInfiniteLines(LineSegment(*vpointA, centreBotRight), LineSegment(*vpointB, centreBotRight), *roomCorners[2]);
-            //intersectInfiniteLines(LineSegment(*vpointA, centreBotRight), LineSegment(*vpointB, centreTopLeft),  *roomCorners[3]);
-        }
     }
 
     void EndUpdate(int x, int y)
@@ -617,7 +584,23 @@ public:
                     else if(!m_wall)    // add WallBoundary
                     {
                         m_wall = new Wall();
-                        m_wall->setup(currLine->beg(), currLine->end(), vanishings[0], vanishings[1], vanishings[2]);
+                        const Point2D::Real dist0 =  vanishings[0]->point()->dist2(Point2D(width/2, height/2));
+                        const Point2D::Real dist1 =  vanishings[1]->point()->dist2(Point2D(width/2, height/2));
+                        const Point2D::Real dist2 =  vanishings[2]->point()->dist2(Point2D(width/2, height/2));
+
+                        if(dist0 <= std::min(dist1, dist2))
+                        {
+                            m_wall->setup(currLine->beg(), currLine->end(), vanishings[1], vanishings[2], vanishings[0]);
+                        }
+                        else if(dist1 <= std::min(dist0, dist2))
+                        {
+                            m_wall->setup(currLine->beg(), currLine->end(), vanishings[0], vanishings[2], vanishings[1]);
+                        }
+                        else // if(dist2 <= std::min(dist0, dist1))
+                        {
+                            m_wall->setup(currLine->beg(), currLine->end(), vanishings[0], vanishings[1], vanishings[2]);
+                        }
+
                         m_wall->registerCascade(selectableObjects);
                     }
                 }
@@ -657,19 +640,6 @@ public:
                 break;
             }
         }
-
-        //const unsigned int ncorners = roomCorners.size();
-        //for(unsigned int i = 0; i < roomCorners.size(); i++)
-        //{
-        //    // draw corners
-        //    LineSegment(*roomCorners[i], *roomCorners[i]).render(temp, CV_RGB(255, 0, 0), 4);
-
-        //    // draw boundaries between side walls and ceilings/floors
-        //    LineSegment(vpoint, *roomCorners[i]+(*roomCorners[i]-vpoint)*10).render(temp, CV_RGB(255, 0, 0), 4);
-
-        //    // draw back walls
-        //    LineSegment(*roomCorners[i], *(roomCorners[(i+1)%ncorners])).render(temp, CV_RGB(255, 0, 0), 4);
-        //}
     }
 
     void save(std::ofstream &out) const
@@ -678,6 +648,10 @@ public:
         for(unsigned int i = 0; i < vanishings.size(); i++)
         {
             vanishings[i]->save(out);
+        }
+        if(m_wall)
+        {
+            m_wall->save(out);
         }
     }
 
