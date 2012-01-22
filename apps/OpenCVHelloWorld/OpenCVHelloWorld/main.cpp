@@ -804,34 +804,37 @@ void MouseCallback(int event, int x, int y, int flags, void* param)
 //	const int bah = 0;
 //}
 
-//// Returns an empty string if dialog is canceled
-//std::string openfilename(char *filter = "All Files (*.*)\0*.*\0", HWND owner = NULL) 
-//{
-//    OPENFILENAME ofn;
-//    char fileName[MAX_PATH] = "";
-//    ZeroMemory(&ofn, sizeof(ofn));
-//
-//    ofn.lStructSize = sizeof(OPENFILENAME);
-//    ofn.hwndOwner = owner;
-//    ofn.lpstrFilter = filter;
-//    ofn.lpstrFile = fileName;
-//    ofn.nMaxFile = MAX_PATH;
-//    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-//    ofn.lpstrDefExt = "";
-//
-//    std::string fileNameStr;
-//
-//    if ( GetOpenFileName(&ofn) )
-//        fileNameStr = fileName;
-//
-//    return fileNameStr;
-//}
+// Returns an empty string if dialog is canceled
+std::string openfilename(char *filter = "All Files (*.*)\0*.*\0", HWND owner = NULL) 
+{
+    OPENFILENAME ofn;
+    char fileName[MAX_PATH] = "";
+    ZeroMemory(&ofn, sizeof(ofn));
+
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = owner;
+    ofn.lpstrFilter = filter;
+    ofn.lpstrFile = fileName;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+    ofn.lpstrDefExt = "";
+
+    std::string fileNameStr;
+
+    if ( GetOpenFileName(&ofn) )
+        fileNameStr = fileName;
+
+    return fileNameStr;
+}
 
 //int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, char *argv[])
 {
+    // call open file dialog
+    std::string imageName = openfilename();
+
     std::string windowName = "Annotation";
-    std::string imageName = "0000000004.jpg";
+    //std::string imageName = "0000000004.jpg";
     IplImage *img = cvLoadImage(imageName.c_str());
     IplImage *temp = cvCloneImage(img);
 
