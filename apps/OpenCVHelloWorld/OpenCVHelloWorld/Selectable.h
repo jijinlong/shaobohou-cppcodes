@@ -6,10 +6,6 @@
 #include <algorithm>
 
 
-// pre-declare
-class SelectableGroup;
-
-
 // Selectable interface
 class Selectable
 {
@@ -18,12 +14,21 @@ public:
 
     Selectable() : m_dim(0) {}
 
-    // return true if the selection distance of the current instance is smaller than bestDist
-    virtual int selectionDistance(int x, int y) = 0;
+    // computes the selection distance of this Selectable object from (x, y)
+    virtual int selection(int x, int y) = 0;
 
-    void select(int x, int y, Selectable *&selected, int &bestDist, const int maxDist)
+    // update this Selectable object with values (x, y)
+    virtual void update(int x, int y) = 0;
+
+    // register this Selectable object (and optionally its sub-components) with a Selectable group
+    virtual void registerCascade(SelectableGroup &selectables) = 0;
+
+    // set Selectable pointer selected with this pointer if its selection distance
+    // is less than the current best best selection distance bestDist, and is also
+    // less than a maximum threshold maxDist
+    void selectIfCloser(int x, int y, Selectable *&selected, int &bestDist, const int maxDist)
     {
-        const int currDist =  selectionDistance(x, y);
+        const int currDist =  selection(x, y);
         if(currDist <= maxDist)
         {
             if(!selected || m_dim<selected->m_dim || (m_dim==selected->m_dim && currDist<bestDist))
@@ -34,9 +39,7 @@ public:
         }
     }
 
-    // update the selected instance
-    virtual void update(int x, int y) = 0;
-
+    // update this Selectable object and recursive update its dependant objects
     void updateCascade(int x, int y)
     {
         update(x, y);
@@ -47,11 +50,9 @@ public:
         }
     }
 
-    virtual void registerCascade(SelectableGroup &selectables) = 0;
-
 private:
     int m_dim;
-    std::vector<Selectable*> m_parents;
+    std::vector<Selectable*> m_parents;     // other Selectable objects that depend on this Selectable object
 
     Selectable(const Selectable &other);
     Selectable& operator=(const Selectable &other);
@@ -69,7 +70,7 @@ public:
         int bestDist = std::numeric_limits<int>::max();
         for(unsigned int i = 0; i < selectables.size(); i++)
         {
-            selectables[i]->select(x, y, selected, bestDist, radius*radius);
+            selectables[i]->selectIfCloser(x, y, selected, bestDist, radius*radius);
         }
 
         return selected;
