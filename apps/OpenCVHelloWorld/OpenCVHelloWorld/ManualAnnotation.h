@@ -37,7 +37,7 @@ public:
 
     void BeginUpdate(int x, int y)
     {
-        selectedObject = selectableObjects.select(x, y);
+        selectedObject = selectableObjects.selectObject(x, y);
 
         // 
         if(!selectedObject)
@@ -87,7 +87,7 @@ public:
                         vanishings.push_back(new VanishingPoint(*currLine));
                         vanishings.back()->addLine(LineSegment(Point2D(width-currLine->beg().x(), height-currLine->beg().y()), Point2D(width-currLine->end().x(), height-currLine->end().y())));
 
-                        selectableObjects.registerSelectable(this, vanishings.back());
+                        selectableObjects.registerObject(this, vanishings.back());
                         vanishings.back()->registerCascade(selectableObjects);
 
                         std::cout << "ADDED LINE [" << currLine->beg().x() << " " << currLine->beg().y() << "] to [" << currLine->end().x() << " " << currLine->end().y() << "]" << std::endl;
@@ -201,7 +201,7 @@ public:
         // register all components
         for(unsigned int i = 0; i < vanishings.size(); i++)
         {
-            selectables.registerSelectable(this, vanishings[i]);
+            selectables.registerObject(this, vanishings[i]);
             vanishings[i]->registerCascade(selectables);
         }
         if(m_wall)

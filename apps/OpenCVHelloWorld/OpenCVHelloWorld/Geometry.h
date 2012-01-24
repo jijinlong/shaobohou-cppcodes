@@ -120,10 +120,10 @@ public:
 
     void registerCascade(SelectableGroup &selectables)
     {
-        selectables.registerSelectable(this, m_beg);
+        selectables.registerObject(this, m_beg);
         m_beg->registerCascade(selectables);
 
-        selectables.registerSelectable(this, m_end);
+        selectables.registerObject(this, m_end);
         m_end->registerCascade(selectables);
     }
 
