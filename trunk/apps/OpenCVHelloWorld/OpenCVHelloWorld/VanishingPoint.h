@@ -58,9 +58,9 @@ public:
         lines.push_back(new LineSegment(line));
     }
 
-    Point2D* point() const
+    const Point2D& point() const
     {
-        return m_point;
+        return *m_point;
     }
 
     bool atInfinity() const

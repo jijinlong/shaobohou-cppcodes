@@ -95,9 +95,9 @@ public:
                     else if(!m_wall)    // add WallBoundary
                     {
                         m_wall = new VanishingWall();
-                        const Point2D::Real dist0 =  vanishings[0]->point()->dist2(Point2D(width/2, height/2));
-                        const Point2D::Real dist1 =  vanishings[1]->point()->dist2(Point2D(width/2, height/2));
-                        const Point2D::Real dist2 =  vanishings[2]->point()->dist2(Point2D(width/2, height/2));
+                        const Point2D::Real dist0 =  vanishings[0]->point().dist2(Point2D(width/2, height/2));
+                        const Point2D::Real dist1 =  vanishings[1]->point().dist2(Point2D(width/2, height/2));
+                        const Point2D::Real dist2 =  vanishings[2]->point().dist2(Point2D(width/2, height/2));
 
                         if(dist0 <= std::min(dist1, dist2))
                         {
@@ -145,7 +145,7 @@ public:
         Point2D vpoint;
         for(unsigned int i = 0; i < vanishings.size(); i++)
         {
-            vpoint.set(*vanishings[i]->point());
+            vpoint.set(vanishings[i]->point());
             if(vpoint.x()>=0 && vpoint.x()<=width && vpoint.y()>=0 && vpoint.y()<=height)
             {
                 break;

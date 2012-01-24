@@ -28,7 +28,7 @@ public:
             m_handles[3].set(Point2D(second.x(), (first.y()+second.y())/2));
         }
 
-        if(vpoint1->point()->x()<=vpoint2->point()->x() &&vpoint1->point()->y()<=vpoint2->point()->y())
+        if(vpoint1->point().x()<=vpoint2->point().x() &&vpoint1->point().y()<=vpoint2->point().y())
         {
             m_vpoint1 = vpoint1;
             m_vpoint2 = vpoint2;
@@ -43,9 +43,9 @@ public:
 
     void setup(const std::vector<VanishingPoint*> &vanishings, const int width, const int height)
     {
-        const Point2D::Real dist0 =  vanishings[0]->point()->dist2(Point2D(width/2, height/2));
-        const Point2D::Real dist1 =  vanishings[1]->point()->dist2(Point2D(width/2, height/2));
-        const Point2D::Real dist2 =  vanishings[2]->point()->dist2(Point2D(width/2, height/2));
+        const Point2D::Real dist0 =  vanishings[0]->point().dist2(Point2D(width/2, height/2));
+        const Point2D::Real dist1 =  vanishings[1]->point().dist2(Point2D(width/2, height/2));
+        const Point2D::Real dist2 =  vanishings[2]->point().dist2(Point2D(width/2, height/2));
 
         Point2D::Real Xmin = m_handles[0].x(), Xmax =  m_handles[0].x();
         Point2D::Real Ymin = m_handles[0].y(), Ymax =  m_handles[0].y();
@@ -96,10 +96,10 @@ public:
         if(m_vpoint1 && m_vpoint2 && m_vpoint3)
         {
             Point2D corners[4];
-            intersectInfiniteLines(LineSegment(*m_vpoint1->point(), m_handles[0]), LineSegment(*m_vpoint2->point(), m_handles[1]), corners[0]);
-            intersectInfiniteLines(LineSegment(*m_vpoint1->point(), m_handles[2]), LineSegment(*m_vpoint2->point(), m_handles[1]), corners[1]);
-            intersectInfiniteLines(LineSegment(*m_vpoint1->point(), m_handles[2]), LineSegment(*m_vpoint2->point(), m_handles[3]), corners[2]);
-            intersectInfiniteLines(LineSegment(*m_vpoint1->point(), m_handles[0]), LineSegment(*m_vpoint2->point(), m_handles[3]), corners[3]);
+            intersectInfiniteLines(LineSegment(m_vpoint1->point(), m_handles[0]), LineSegment(m_vpoint2->point(), m_handles[1]), corners[0]);
+            intersectInfiniteLines(LineSegment(m_vpoint1->point(), m_handles[2]), LineSegment(m_vpoint2->point(), m_handles[1]), corners[1]);
+            intersectInfiniteLines(LineSegment(m_vpoint1->point(), m_handles[2]), LineSegment(m_vpoint2->point(), m_handles[3]), corners[2]);
+            intersectInfiniteLines(LineSegment(m_vpoint1->point(), m_handles[0]), LineSegment(m_vpoint2->point(), m_handles[3]), corners[3]);
 
             // draw wall edges
             cvLine(temp, cvPoint(corners[0]), cvPoint(corners[1]), col, thickness);
@@ -108,10 +108,10 @@ public:
             cvLine(temp, cvPoint(corners[3]), cvPoint(corners[0]), col, thickness);
 
             // draw the edges between walls and floors/ceilings
-            cvLine(temp, cvPoint(corners[0]+(corners[0]-*m_vpoint3->point())*10), cvPoint(corners[0]), col, thickness);
-            cvLine(temp, cvPoint(corners[1]+(corners[1]-*m_vpoint3->point())*10), cvPoint(corners[1]), col, thickness);
-            cvLine(temp, cvPoint(corners[2]+(corners[2]-*m_vpoint3->point())*10), cvPoint(corners[2]), col, thickness);
-            cvLine(temp, cvPoint(corners[3]+(corners[3]-*m_vpoint3->point())*10), cvPoint(corners[3]), col, thickness);
+            cvLine(temp, cvPoint(corners[0]+(corners[0]-m_vpoint3->point())*10), cvPoint(corners[0]), col, thickness);
+            cvLine(temp, cvPoint(corners[1]+(corners[1]-m_vpoint3->point())*10), cvPoint(corners[1]), col, thickness);
+            cvLine(temp, cvPoint(corners[2]+(corners[2]-m_vpoint3->point())*10), cvPoint(corners[2]), col, thickness);
+            cvLine(temp, cvPoint(corners[3]+(corners[3]-m_vpoint3->point())*10), cvPoint(corners[3]), col, thickness);
 
             // draw control points
             cvLine(temp, cvPoint(m_handles[0]), cvPoint(m_handles[0]), CV_RGB(0, 0, 0), thickness*5);
@@ -131,10 +131,10 @@ public:
 
         // save wall corners
         Point2D corners[4];
-        intersectInfiniteLines(LineSegment(*m_vpoint1->point(), m_handles[0]), LineSegment(*m_vpoint2->point(), m_handles[1]), corners[0]);
-        intersectInfiniteLines(LineSegment(*m_vpoint1->point(), m_handles[2]), LineSegment(*m_vpoint2->point(), m_handles[1]), corners[1]);
-        intersectInfiniteLines(LineSegment(*m_vpoint1->point(), m_handles[2]), LineSegment(*m_vpoint2->point(), m_handles[3]), corners[2]);
-        intersectInfiniteLines(LineSegment(*m_vpoint1->point(), m_handles[0]), LineSegment(*m_vpoint2->point(), m_handles[3]), corners[3]);
+        intersectInfiniteLines(LineSegment(m_vpoint1->point(), m_handles[0]), LineSegment(m_vpoint2->point(), m_handles[1]), corners[0]);
+        intersectInfiniteLines(LineSegment(m_vpoint1->point(), m_handles[2]), LineSegment(m_vpoint2->point(), m_handles[1]), corners[1]);
+        intersectInfiniteLines(LineSegment(m_vpoint1->point(), m_handles[2]), LineSegment(m_vpoint2->point(), m_handles[3]), corners[2]);
+        intersectInfiniteLines(LineSegment(m_vpoint1->point(), m_handles[0]), LineSegment(m_vpoint2->point(), m_handles[3]), corners[3]);
 
         out << 4 << std::endl;
         out << corners[0].x() << " " << corners[0].y() << std::endl;
