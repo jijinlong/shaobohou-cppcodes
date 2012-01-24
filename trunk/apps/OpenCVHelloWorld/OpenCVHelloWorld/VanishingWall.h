@@ -84,10 +84,10 @@ public:
 
     void registerCascade(SelectableGroup &selectables)
     {
-        selectables.registerSelectable(this, &m_handles[0]);
-        selectables.registerSelectable(this, &m_handles[1]);
-        selectables.registerSelectable(this, &m_handles[2]);
-        selectables.registerSelectable(this, &m_handles[3]);
+        selectables.registerObject(this, &m_handles[0]);
+        selectables.registerObject(this, &m_handles[1]);
+        selectables.registerObject(this, &m_handles[2]);
+        selectables.registerObject(this, &m_handles[3]);
     }
 
     void render(IplImage *temp, const CvScalar &col, const int thickness) const

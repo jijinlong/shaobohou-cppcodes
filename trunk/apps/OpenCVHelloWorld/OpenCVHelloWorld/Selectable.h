@@ -63,7 +63,11 @@ private:
 class SelectableGroup
 {
 public:
-    Selectable* select(const int x, const int y, const int radius=10)
+
+    // select the lowest dimensional object with a fixed radius around (x, y).
+    // if multiple objects of the same dimensionaity are within the radius,
+    // then select the nearest one
+    Selectable* selectObject(const int x, const int y, const int radius=10)
     {
         Selectable *selected = 0;
 
@@ -76,7 +80,8 @@ public:
         return selected;
     }
 
-    void registerSelectable(Selectable *parent, Selectable *child)
+    // register selectable parent as a dependant of Selectable child
+    void registerObject(Selectable *parent, Selectable *child)
     {
         if(parent && child)
         {
@@ -96,6 +101,7 @@ public:
         }
     }
 
+private:
     std::vector<Selectable*> selectables;
 };
 

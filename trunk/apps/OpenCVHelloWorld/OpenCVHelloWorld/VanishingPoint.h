@@ -45,7 +45,7 @@ public:
     {
         for(unsigned int i = 0; i < lines.size(); i++)
         {
-            selectables.registerSelectable(this, lines[i]);
+            selectables.registerObject(this, lines[i]);
             lines[i]->registerCascade(selectables);
         }
     }
