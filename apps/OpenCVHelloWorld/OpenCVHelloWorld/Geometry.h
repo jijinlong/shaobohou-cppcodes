@@ -19,20 +19,25 @@ public:
     Point2D(const Real x, const Real y) : m_x(x), m_y(y) {}
     Point2D(const Point2D &other) : m_x(other.m_x), m_y(other.m_y) {}
 
+    // select function
     int select(int x, int y)
     {
         return static_cast<int>(dist2(Point2D(x, y)));
     }
 
+    // update function
     void update(int x, int y)
     {
         set(x, y);
     }
 
+    // stub function
     void registerCascade(SelectableGroup &selectables)
     {
     }
 
+
+    // accessors and modifiers
     const Real& x() const
     {
         return m_x;
@@ -55,18 +60,25 @@ public:
         m_y = other.m_y;
     }
 
+
+    // test equality at integer coordinates
     bool equals(const Point2D &other) const
     {
-        return this->m_x==other.m_x && this->m_y==other.m_y;
+        return static_cast<int>(this->m_x)==static_cast<int>(other.m_x) && 
+               static_cast<int>(this->m_y)==static_cast<int>(other.m_y);
     }
 
+    // squared distance function
     Real dist2(const Point2D &other) const
     {
         const Real dx = this->m_x - other.m_x;
         const Real dy = this->m_y - other.m_y;
+
         return dx*dx + dy*dy;
     }
 
+
+    // arithmetic operators
     Point2D operator-(const Point2D &other) const
     {
         return Point2D(m_x-other.m_x, m_y-other.m_y);
@@ -86,6 +98,7 @@ private:
     Real m_x, m_y;
 };
 
+// Point2D to CvPoint operator
 CvPoint cvPoint(const Point2D &other)
 {
     return cvPoint(static_cast<int>(other.m_x), static_cast<int>(other.m_y));
@@ -118,6 +131,7 @@ public:
     {
     }
 
+    // register function
     void registerCascade(SelectableGroup &selectables)
     {
         selectables.registerObject(this, m_beg);
@@ -127,6 +141,8 @@ public:
         m_end->registerCascade(selectables);
     }
 
+
+    // accessors and modifiers
     const Point2D& beg() const
     {
         return *m_beg;
@@ -147,6 +163,8 @@ public:
         m_end->set(end);
     }
 
+
+    // rendering function
     void render(IplImage *temp, const CvScalar &col, const int thickness) const
     {
         cvLine(temp, cvPoint(*m_beg), cvPoint(*m_end), col, thickness);
@@ -159,6 +177,10 @@ private:
     Point2D *m_end;
 };
 
+
+// computes the intersection of two infinites as Point2D vpoint
+// return true if the intersection point is at infinity
+// consider switching to homogenous coordinates?
 bool intersectInfiniteLines(const LineSegment &line0, const LineSegment &line1, Point2D &vpoint)
 {
     const double x1 = line0.beg().x(); const double y1 = line0.beg().y();
