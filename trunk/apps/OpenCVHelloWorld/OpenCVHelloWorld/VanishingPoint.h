@@ -20,6 +20,7 @@ public:
 
     ~VanishingPoint()
     {
+        delete m_point;
         for(unsigned int i = 0; i < lines.size(); i++)
         {
             delete lines[i];
@@ -35,12 +36,13 @@ public:
     // stub function
     void update(int x, int y)
     {
-        assert(lines.size()> 1);
+        assert(lines.size() > 1);
 
         // update vanishing point
         m_atInfinity = intersectInfiniteLines(*lines[0], *lines[1], *m_point);
     }
 
+    // register function
     void registerCascade(SelectableGroup &selectables)
     {
         for(unsigned int i = 0; i < lines.size(); i++)
@@ -50,6 +52,7 @@ public:
         }
     }
 
+    // a new line constraint to the vanishing set
     void addLine(const LineSegment &line)
     {
         lines.push_back(new LineSegment(line));
