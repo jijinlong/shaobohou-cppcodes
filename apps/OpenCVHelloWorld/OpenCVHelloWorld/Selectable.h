@@ -15,7 +15,7 @@ public:
     Selectable() : m_dim(0) {}
 
     // computes the selection distance of this Selectable object from (x, y)
-    virtual int selection(int x, int y) = 0;
+    virtual int select(int x, int y) = 0;
 
     // update this Selectable object with values (x, y)
     virtual void update(int x, int y) = 0;
@@ -28,7 +28,7 @@ public:
     // less than a maximum threshold maxDist
     void selectIfCloser(int x, int y, Selectable *&selected, int &bestDist, const int maxDist)
     {
-        const int currDist =  selection(x, y);
+        const int currDist =  select(x, y);
         if(currDist <= maxDist)
         {
             if(!selected || m_dim<selected->m_dim || (m_dim==selected->m_dim && currDist<bestDist))

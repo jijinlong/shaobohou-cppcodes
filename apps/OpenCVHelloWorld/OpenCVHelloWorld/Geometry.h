@@ -19,7 +19,7 @@ public:
     Point2D(const Real x, const Real y) : m_x(x), m_y(y) {}
     Point2D(const Point2D &other) : m_x(other.m_x), m_y(other.m_y) {}
 
-    int selection(int x, int y)
+    int select(int x, int y)
     {
         return static_cast<int>(dist2(Point2D(x, y)));
     }
@@ -108,7 +108,7 @@ public:
     }
 
     // stub function
-    int selection(int x, int y)
+    int select(int x, int y)
     {
         return std::numeric_limits<int>::max();
     }
