@@ -27,7 +27,7 @@ public:
     }
 
     // stub function
-    int selection(int x, int y)
+    int select(int x, int y)
     {
         return std::numeric_limits<int>::max();
     }
