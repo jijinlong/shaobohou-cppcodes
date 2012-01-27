@@ -58,16 +58,19 @@ public:
         lines.push_back(new LineSegment(line));
     }
 
+    // accessor for the vanishing point
     const Point2D& point() const
     {
         return *m_point;
     }
 
+    // return true is the vanishing point is at infinity
     bool atInfinity() const
     {
         return m_atInfinity;
     }
 
+    // rendering function
     void render(IplImage *temp, const CvScalar &col) const
     {
         for(unsigned int i = 0; i < lines.size(); i++)
@@ -84,16 +87,17 @@ public:
         }
     }
 
+    // output function
     void save(std::ofstream &out) const
     {
         out << lines.size() << std::endl;
         for(unsigned int i = 0; i < lines.size(); i++)
         {
-            out << lines[i]->beg().x() << " " << lines[i]->beg().y() << "  ";
-            out << lines[i]->end().x() << " " << lines[i]->end().y() << std::endl;;
+            out << *lines[i] << std::endl;;
         }
     }
 
+    // input function
     void load(std::ifstream &in)
     {
         int nlines = 0;
@@ -102,10 +106,9 @@ public:
         lines.clear();
         for(int i = 0; i < nlines; i++)
         {
-            int bx, by, ex, ey;
-            in >> bx >> by;
-            in >> ex >> ey;
-            addLine(LineSegment(Point2D(bx, by), Point2D(ex, ey)));
+            LineSegment temp;
+            in >> temp;
+            addLine(temp);
         }
 
         update(0, 0);
