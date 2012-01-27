@@ -73,11 +73,13 @@ public:
     // rendering function
     void render(IplImage *temp, const CvScalar &col) const
     {
+        // render vanishing lines
         for(unsigned int i = 0; i < lines.size(); i++)
         {
             lines[i]->render(temp, col, 2);
         }
 
+        // render vanishing points
         if(lines.size() > 1)
         {
             if(!m_atInfinity)
@@ -111,6 +113,7 @@ public:
             addLine(temp);
         }
 
+        // compute auxiliary parameters
         update(0, 0);
     }
 

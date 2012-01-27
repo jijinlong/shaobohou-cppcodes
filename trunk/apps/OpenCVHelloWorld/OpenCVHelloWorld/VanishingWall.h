@@ -19,13 +19,13 @@ public:
     // setup function
     void setup(const Point2D &first, const Point2D &second, const std::vector<VanishingPoint*> &vanishings, const int width, const int height)
     {
-        // compute bounding box
+        // compute the bounding box
         const Point2D::Real Xmin = std::min(first.x(), second.x());
         const Point2D::Real Xmax = std::max(first.x(), second.x());
         const Point2D::Real Ymin = std::min(first.y(), second.y());
         const Point2D::Real Ymax = std::max(first.y(), second.y());
 
-        // initialise control points
+        // initialise control points in clockwise winding
         m_handles[0].set(Point2D((Xmin+Xmax)/2, Ymin));
         m_handles[1].set(Point2D(Xmax, (Ymin+Ymax)/2));
         m_handles[2].set(Point2D((Xmin+Xmax)/2, Ymax));
@@ -75,7 +75,7 @@ public:
             std::swap(m_vpoint1, m_vpoint2);
         }
 
-        // recompute corners and control points
+        // recompute the corners and control points
         computeCorners(corners, *m_vpoint1, *m_vpoint2);
         m_handles[0].set((corners[3]+corners[0])/2);
         m_handles[1].set((corners[0]+corners[1])/2);
@@ -103,6 +103,7 @@ public:
         selectables.registerObject(this, &m_handles[3]);
     }
 
+    // recompute the corners of the back wall
     void computeCorners(Point2D corners[4], const VanishingPoint &vpoint1, const VanishingPoint &vpoint2) const
     {
         intersectInfiniteLines(LineSegment(vpoint1.point(), m_handles[0]), LineSegment(vpoint2.point(), m_handles[1]), corners[0]);

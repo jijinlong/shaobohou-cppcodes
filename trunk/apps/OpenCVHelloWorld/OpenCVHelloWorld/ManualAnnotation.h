@@ -24,6 +24,18 @@ public:
     {
     }
 
+    ~ManualAnnotation()
+    {
+        if(currLine) delete currLine;
+
+        for(unsigned int i = 0; i < m_vanishings.size(); i++)
+        {
+            delete m_vanishings[i];
+        }
+
+        if(m_wall) delete m_wall;
+    }
+
     // stub function
     int select(int x, int y)
     {
@@ -82,20 +94,20 @@ public:
                 else
                 {
                     // create a new vanishing point if not enough exit
-                    if(vanishings.size() < 3)
+                    if(m_vanishings.size() < 3)
                     {
-                        vanishings.push_back(new VanishingPoint(*currLine));
-                        vanishings.back()->addLine(LineSegment(Point2D(width-currLine->beg().x(), height-currLine->beg().y()), Point2D(width-currLine->end().x(), height-currLine->end().y())));
+                        m_vanishings.push_back(new VanishingPoint(*currLine));
+                        m_vanishings.back()->addLine(LineSegment(Point2D(width-currLine->beg().x(), height-currLine->beg().y()), Point2D(width-currLine->end().x(), height-currLine->end().y())));
 
-                        selectableObjects.registerObject(this, vanishings.back());
-                        vanishings.back()->registerCascade(selectableObjects);
+                        selectableObjects.registerObject(this, m_vanishings.back());
+                        m_vanishings.back()->registerCascade(selectableObjects);
 
                         std::cout << "ADDED LINE [" << currLine->beg().x() << " " << currLine->beg().y() << "] to [" << currLine->end().x() << " " << currLine->end().y() << "]" << std::endl;
                     }
                     else if(!m_wall)    // add WallBoundary
                     {
                         m_wall = new VanishingWall();
-                        m_wall->setup(currLine->beg(), currLine->end(), vanishings, width, height);
+                        m_wall->setup(currLine->beg(), currLine->end(), m_vanishings, width, height);
                         m_wall->registerCascade(selectableObjects);
                     }
                 }
@@ -109,34 +121,37 @@ public:
 
     void render(IplImage *temp) const
     {
-        if(vanishings.size()>0) vanishings[0]->render(temp, CV_RGB(255, 0, 0));
-        if(vanishings.size()>1) vanishings[1]->render(temp, CV_RGB(0, 255, 0));
-        if(vanishings.size()>2) vanishings[2]->render(temp, CV_RGB(0, 0, 255));
+        if(m_vanishings.size()>0) m_vanishings[0]->render(temp, CV_RGB(255, 0, 0));
+        if(m_vanishings.size()>1) m_vanishings[1]->render(temp, CV_RGB(0, 255, 0));
+        if(m_vanishings.size()>2) m_vanishings[2]->render(temp, CV_RGB(0, 0, 255));
 
         if(currLine)
         {
-            if(m_wall)
+            if(m_wall || m_vanishings.size()<3)
             {
-                if(vanishings.size()==0) currLine->render(temp, CV_RGB(255, 0, 0), 2);
-                if(vanishings.size()==1) currLine->render(temp, CV_RGB(0, 255, 0), 2);
-                if(vanishings.size()==2) currLine->render(temp, CV_RGB(0, 0, 255), 2);
+                if(m_vanishings.size()==0) currLine->render(temp, CV_RGB(255, 0, 0), 2);
+                if(m_vanishings.size()==1) currLine->render(temp, CV_RGB(0, 255, 0), 2);
+                if(m_vanishings.size()==2) currLine->render(temp, CV_RGB(0, 0, 255), 2);
             }
             else
             {
-                const Point2D::Real Xmin = std::min(currLine->beg().x(), currLine->end().x());
-                const Point2D::Real Xmax = std::max(currLine->beg().x(), currLine->end().x());
-                const Point2D::Real Ymin = std::min(currLine->beg().y(), currLine->end().y());
-                const Point2D::Real Ymax = std::max(currLine->beg().y(), currLine->end().y());
+                if(!m_wall && m_vanishings.size()>=3)
+                {
+                    const Point2D::Real Xmin = std::min(currLine->beg().x(), currLine->end().x());
+                    const Point2D::Real Xmax = std::max(currLine->beg().x(), currLine->end().x());
+                    const Point2D::Real Ymin = std::min(currLine->beg().y(), currLine->end().y());
+                    const Point2D::Real Ymax = std::max(currLine->beg().y(), currLine->end().y());
 
-                Point2D topLeft(Xmin, Ymin);
-                Point2D topRight(Xmax, Ymin);
-                Point2D botRight(Xmax, Ymax);
-                Point2D botLeft(Xmin, Ymax);
+                    Point2D topLeft(Xmin, Ymin);
+                    Point2D topRight(Xmax, Ymin);
+                    Point2D botRight(Xmax, Ymax);
+                    Point2D botLeft(Xmin, Ymax);
 
-                LineSegment(topLeft,  topRight).render(temp, CV_RGB(255, 0, 0), 2);
-                LineSegment(topRight, botRight).render(temp, CV_RGB(255, 0, 0), 2);
-                LineSegment(botRight, botLeft).render(temp, CV_RGB(255, 0, 0), 2);
-                LineSegment(botLeft,  topLeft).render(temp, CV_RGB(255, 0, 0), 2);
+                    LineSegment(topLeft,  topRight).render(temp, CV_RGB(255, 0, 0), 2);
+                    LineSegment(topRight, botRight).render(temp, CV_RGB(255, 0, 0), 2);
+                    LineSegment(botRight, botLeft).render(temp, CV_RGB(255, 0, 0), 2);
+                    LineSegment(botLeft,  topLeft).render(temp, CV_RGB(255, 0, 0), 2);
+                }
             }
         }
 
@@ -144,25 +159,14 @@ public:
         {
             m_wall->render(temp, CV_RGB(255, 0, 0), 2);
         }
-
-        // find the vanishing point in the image
-        Point2D vpoint;
-        for(unsigned int i = 0; i < vanishings.size(); i++)
-        {
-            vpoint.set(vanishings[i]->point());
-            if(vpoint.x()>=0 && vpoint.x()<=width && vpoint.y()>=0 && vpoint.y()<=height)
-            {
-                break;
-            }
-        }
     }
 
     void save(std::ofstream &out) const
     {
-        out << vanishings.size() << std::endl;
-        for(unsigned int i = 0; i < vanishings.size(); i++)
+        out << m_vanishings.size() << std::endl;
+        for(unsigned int i = 0; i < m_vanishings.size(); i++)
         {
-            vanishings[i]->save(out);
+            m_vanishings[i]->save(out);
         }
         if(m_wall)
         {
@@ -179,16 +183,16 @@ public:
         int nvanishings = 0;
         in >> nvanishings;
 
-        vanishings.clear();
+        m_vanishings.clear();
         for(int i = 0; i < nvanishings; i++)
         {
-            vanishings.push_back(new VanishingPoint());
-            vanishings[i]->load(in);
+            m_vanishings.push_back(new VanishingPoint());
+            m_vanishings[i]->load(in);
         }
         m_wall = new VanishingWall();
         if(m_wall->load(in))
         {
-            m_wall->setup(vanishings, width, height);
+            m_wall->setup(m_vanishings, width, height);
         }
         else
         {
@@ -202,12 +206,14 @@ public:
 
     void registerCascade(SelectableGroup &selectables)
     {
-        // register all components
-        for(unsigned int i = 0; i < vanishings.size(); i++)
+        // register vanishings points
+        for(unsigned int i = 0; i < m_vanishings.size(); i++)
         {
-            selectables.registerObject(this, vanishings[i]);
-            vanishings[i]->registerCascade(selectables);
+            selectables.registerObject(this, m_vanishings[i]);
+            m_vanishings[i]->registerCascade(selectables);
         }
+
+        // register room geometry
         if(m_wall)
         {
             m_wall->registerCascade(selectables);
@@ -220,7 +226,7 @@ private:
     Selectable *selectedObject;
     SelectableGroup selectableObjects;
 
-    std::vector<VanishingPoint*> vanishings;
+    std::vector<VanishingPoint*> m_vanishings;
     VanishingWall *m_wall;
 };
 

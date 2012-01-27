@@ -15,9 +15,9 @@ public:
 
     friend CvPoint cvPoint(const Point2D &other);
 
-    Point2D() : m_x(0), m_y(0) {}
-    Point2D(const Real x, const Real y) : m_x(x), m_y(y) {}
-    Point2D(const Point2D &other) : m_x(other.m_x), m_y(other.m_y) {}
+    Point2D() : m_x(0), m_y(0), m_z(0) {}
+    Point2D(const Real x, const Real y) : m_x(x), m_y(y), m_z(1) {}
+    Point2D(const Point2D &other) : m_x(other.m_x), m_y(other.m_y), m_z(1) {}
 
     // select function
     int select(int x, int y)
@@ -104,6 +104,15 @@ public:
         return m_x*other.x() + m_y*other.y();
     }
 
+    Point2D cross(const Point2D &other) const
+    {
+        const Real nx = this->m_y*other.m_z - this->m_z*other.m_y;
+        const Real ny = this->m_z*other.m_x - this->m_x*other.m_z;
+        const Real nz = this->m_x*other.m_y - this->m_y*other.m_x;
+
+        return Point2D(nx/nz, ny/nz);
+    }
+
     Real length2() const
     {
         return this->dot(*this);
@@ -113,7 +122,7 @@ public:
     friend std::istream& operator>>(std::istream &in, Point2D &point);
 
 private:
-    Real m_x, m_y;
+    Real m_x, m_y, m_z;
 };
 
 std::ostream& operator<<(std::ostream &out, const Point2D &point)
