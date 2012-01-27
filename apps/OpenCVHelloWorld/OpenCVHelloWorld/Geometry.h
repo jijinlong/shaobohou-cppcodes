@@ -48,7 +48,7 @@ public:
         return m_y;
     }
 
-    void set(int x, int y)
+    void set(const Real x, const Real y)
     {
         m_x = x;
         m_y = y;
@@ -94,9 +94,41 @@ public:
         return Point2D(m_x*s, m_y*s);
     }
 
+    Point2D operator/(const Real s) const
+    {
+        return Point2D(m_x/s, m_y/s);
+    }
+
+    Real dot(const Point2D &other) const
+    {
+        return m_x*other.x() + m_y*other.y();
+    }
+
+    Real length2() const
+    {
+        return this->dot(*this);
+    }
+
+    friend std::ostream& operator<<(std::ostream &out, const Point2D &point);
+    friend std::istream& operator>>(std::istream &in, Point2D &point);
+
 private:
     Real m_x, m_y;
 };
+
+std::ostream& operator<<(std::ostream &out, const Point2D &point)
+{
+    out << static_cast<int>(point.m_x+0.5) << " " << static_cast<int>(point.m_y+0.5);
+
+    return out;
+}
+
+std::istream& operator>>(std::istream &in, Point2D &point)
+{
+    in >> point.m_x >> point.m_y;
+
+    return in;
+}
 
 // Point2D to CvPoint operator
 CvPoint cvPoint(const Point2D &other)
@@ -164,6 +196,16 @@ public:
     }
 
 
+    // distance function
+    Point2D::Real dist2line(const Point2D &point)
+    {
+        const Point2D::Real u = (point-*m_beg).dot(*m_end-*m_beg) / (*m_end-*m_beg).length2();
+        const Point2D closestPointOnLine(*m_beg + (*m_end-*m_beg)*u);
+
+        return closestPointOnLine.dist2(point);
+    }
+
+
     // rendering function
     void render(IplImage *temp, const CvScalar &col, const int thickness) const
     {
@@ -172,10 +214,27 @@ public:
         cvLine(temp, cvPoint(*m_end), cvPoint(*m_end), CV_RGB(0, 0, 0), thickness*5);
     }
 
+    friend std::ostream& operator<<(std::ostream &out, const LineSegment &line);
+    friend std::istream& operator>>(std::istream &in, LineSegment &line);
+
 private:
     Point2D *m_beg;
     Point2D *m_end;
 };
+
+std::ostream& operator<<(std::ostream &out, const LineSegment &line)
+{
+    out << *line.m_beg << "  " << *line.m_end;
+
+    return out;
+}
+
+std::istream& operator>>(std::istream &in, LineSegment &line)
+{
+    in >> *line.m_beg >> *line.m_end;
+
+    return in;
+}
 
 
 // computes the intersection of two infinites as Point2D vpoint
@@ -203,7 +262,7 @@ bool intersectInfiniteLines(const LineSegment &line0, const LineSegment &line1, 
         const double u1 = num1/den;
         //u2 = num2/den;
 
-        vpoint.set(static_cast<int>(x1+u1*(x2-x1)), static_cast<int>(y1+u1*(y2-y1)));
+        vpoint.set(x1+u1*(x2-x1), y1+u1*(y2-y1));
 
         return false;
     }

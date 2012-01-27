@@ -95,23 +95,7 @@ public:
                     else if(!m_wall)    // add WallBoundary
                     {
                         m_wall = new VanishingWall();
-                        const Point2D::Real dist0 =  vanishings[0]->point().dist2(Point2D(width/2, height/2));
-                        const Point2D::Real dist1 =  vanishings[1]->point().dist2(Point2D(width/2, height/2));
-                        const Point2D::Real dist2 =  vanishings[2]->point().dist2(Point2D(width/2, height/2));
-
-                        if(dist0 <= std::min(dist1, dist2))
-                        {
-                            m_wall->setup(currLine->beg(), currLine->end(), vanishings[1], vanishings[2], vanishings[0]);
-                        }
-                        else if(dist1 <= std::min(dist0, dist2))
-                        {
-                            m_wall->setup(currLine->beg(), currLine->end(), vanishings[0], vanishings[2], vanishings[1]);
-                        }
-                        else // if(dist2 <= std::min(dist0, dist1))
-                        {
-                            m_wall->setup(currLine->beg(), currLine->end(), vanishings[0], vanishings[1], vanishings[2]);
-                        }
-
+                        m_wall->setup(currLine->beg(), currLine->end(), vanishings, width, height);
                         m_wall->registerCascade(selectableObjects);
                     }
                 }
@@ -131,9 +115,29 @@ public:
 
         if(currLine)
         {
-            if(vanishings.size()==0) currLine->render(temp, CV_RGB(255, 0, 0), 2);
-            if(vanishings.size()==1) currLine->render(temp, CV_RGB(0, 255, 0), 2);
-            if(vanishings.size()==2) currLine->render(temp, CV_RGB(0, 0, 255), 2);
+            if(m_wall)
+            {
+                if(vanishings.size()==0) currLine->render(temp, CV_RGB(255, 0, 0), 2);
+                if(vanishings.size()==1) currLine->render(temp, CV_RGB(0, 255, 0), 2);
+                if(vanishings.size()==2) currLine->render(temp, CV_RGB(0, 0, 255), 2);
+            }
+            else
+            {
+                const Point2D::Real Xmin = std::min(currLine->beg().x(), currLine->end().x());
+                const Point2D::Real Xmax = std::max(currLine->beg().x(), currLine->end().x());
+                const Point2D::Real Ymin = std::min(currLine->beg().y(), currLine->end().y());
+                const Point2D::Real Ymax = std::max(currLine->beg().y(), currLine->end().y());
+
+                Point2D topLeft(Xmin, Ymin);
+                Point2D topRight(Xmax, Ymin);
+                Point2D botRight(Xmax, Ymax);
+                Point2D botLeft(Xmin, Ymax);
+
+                LineSegment(topLeft,  topRight).render(temp, CV_RGB(255, 0, 0), 2);
+                LineSegment(topRight, botRight).render(temp, CV_RGB(255, 0, 0), 2);
+                LineSegment(botRight, botLeft).render(temp, CV_RGB(255, 0, 0), 2);
+                LineSegment(botLeft,  topLeft).render(temp, CV_RGB(255, 0, 0), 2);
+            }
         }
 
         if(m_wall)
