@@ -7,7 +7,120 @@
 #include <cv.h>
 
 
-// Point Functions
+namespace Geometry 
+{;
+
+typedef double Real;
+
+
+class Vector2D;
+class Vector3D;
+class HomgPoint2D;
+class HomgLine2D;
+class Point2D;
+
+
+// 2D Vector
+class Vector2D
+{
+public:
+    Vector2D() : m_x(0), m_y(0) {};
+    Vector2D(const Real &nx, const Real &ny) : m_x(nx), m_y(ny) {};
+
+    Real& x() { return m_x; }
+    Real& y() { return m_y; }
+
+    const Real& x() const { return m_x; }
+    const Real& y() const { return m_y; }
+
+private:
+    Real m_x, m_y;
+};
+
+// 3D Vector
+class Vector3D
+{
+public:
+    Vector3D() : m_x(0), m_y(0), m_z(0) {};
+    Vector3D(const Real &nx, const Real &ny, const Real &nz) : m_x(nx), m_y(ny), m_z(nz) {};
+
+    Real& x() { return m_x; }
+    Real& y() { return m_y; }
+    Real& z() { return m_z; }
+
+    const Real& x() const { return m_x; }
+    const Real& y() const { return m_y; }
+    const Real& z() const { return m_z; }
+
+    Vector3D cross(const Vector3D &other) const
+    {
+        const Real nx = this->m_y*other.m_z - this->m_z*other.m_y;
+        const Real ny = this->m_z*other.m_x - this->m_x*other.m_z;
+        const Real nz = this->m_x*other.m_y - this->m_y*other.m_x;
+
+        return Vector3D(nx, ny, nz);
+    }
+
+private:
+    Real m_x, m_y, m_z;
+};
+
+// 2D Point in homogeneous coordinate
+class HomgPoint2D
+{
+public:
+    friend class HomgLine2D;
+
+    HomgPoint2D() :  m_vec(0, 0, 1) {}
+    HomgPoint2D(const Real &nx, const Real &ny, const Real &nw=1) :  m_vec(nx, ny, nw) {}
+    explicit HomgPoint2D(const Vector3D &other) : m_vec(other) {}
+
+    // construct from a cartesian point
+    explicit HomgPoint2D(const Point2D &other);
+
+    // construct a homogeneous 2d line by joining two homgeneous 2d points
+    HomgPoint2D(const HomgLine2D &line1, const HomgLine2D &line2);
+
+    Real& x() { return m_vec.x(); }
+    Real& y() { return m_vec.y(); }
+    Real& w() { return m_vec.z(); }
+
+    const Real& x() const { return m_vec.x(); }
+    const Real& y() const { return m_vec.y(); }
+    const Real& w() const { return m_vec.z(); }
+
+private:
+    Vector3D m_vec;
+};
+
+// 2D Line in homogeneous coordinate
+class HomgLine2D
+{
+public:
+    friend class HomgPoint2D;
+
+    HomgLine2D() :  m_vec(0, 0, 1) {}
+    HomgLine2D(const Real &na, const Real &nb, const Real &nc) :  m_vec(na, nb, nc) {}
+    explicit HomgLine2D(const Vector3D &other) : m_vec(other) {}
+
+    // construct a homogeneous 2d point by intersecting two homgeneous 2d lines
+    HomgLine2D(const HomgPoint2D &point1, const HomgPoint2D &point2);
+
+    Real& a() { return m_vec.x(); }
+    Real& b() { return m_vec.y(); }
+    Real& c() { return m_vec.z(); }
+
+    const Real& a() const { return m_vec.x(); }
+    const Real& b() const { return m_vec.y(); }
+    const Real& c() const { return m_vec.z(); }
+
+private:
+    Vector3D m_vec;
+};
+
+
+
+// 2D point
 class Point2D : public Selectable
 {
 public:
@@ -15,9 +128,18 @@ public:
 
     friend CvPoint cvPoint(const Point2D &other);
 
-    Point2D() : m_x(0), m_y(0), m_z(0) {}
-    Point2D(const Real x, const Real y) : m_x(x), m_y(y), m_z(1) {}
-    Point2D(const Point2D &other) : m_x(other.m_x), m_y(other.m_y), m_z(1) {}
+    Point2D() : m_x(0), m_y(0) {}
+    Point2D(const Real x, const Real y) : m_x(x), m_y(y) {}
+    Point2D(const Point2D &other) : m_x(other.m_x), m_y(other.m_y) {}
+
+    // construct a cartesian point from a homgeneous point
+    explicit Point2D(const HomgPoint2D &p);
+
+    Point2D& operator=(const Point2D &other)
+    {
+        set(other);
+        return *this;
+    }
 
     // select function
     int select(int x, int y)
@@ -65,7 +187,7 @@ public:
     bool equals(const Point2D &other) const
     {
         return static_cast<int>(this->m_x)==static_cast<int>(other.m_x) && 
-               static_cast<int>(this->m_y)==static_cast<int>(other.m_y);
+            static_cast<int>(this->m_y)==static_cast<int>(other.m_y);
     }
 
     // squared distance function
@@ -104,46 +226,26 @@ public:
         return m_x*other.x() + m_y*other.y();
     }
 
-    Point2D cross(const Point2D &other) const
-    {
-        const Real nx = this->m_y*other.m_z - this->m_z*other.m_y;
-        const Real ny = this->m_z*other.m_x - this->m_x*other.m_z;
-        const Real nz = this->m_x*other.m_y - this->m_y*other.m_x;
-
-        return Point2D(nx/nz, ny/nz);
-    }
-
     Real length2() const
     {
         return this->dot(*this);
     }
 
+
     friend std::ostream& operator<<(std::ostream &out, const Point2D &point);
     friend std::istream& operator>>(std::istream &in, Point2D &point);
 
+
 private:
-    Real m_x, m_y, m_z;
+    Real m_x, m_y;
 };
 
-std::ostream& operator<<(std::ostream &out, const Point2D &point)
-{
-    out << static_cast<int>(point.m_x+0.5) << " " << static_cast<int>(point.m_y+0.5);
-
-    return out;
-}
-
-std::istream& operator>>(std::istream &in, Point2D &point)
-{
-    in >> point.m_x >> point.m_y;
-
-    return in;
-}
+// I/O operators
+std::ostream& operator<<(std::ostream &out, const Point2D &point);
+std::istream& operator>>(std::istream &in, Point2D &point);
 
 // Point2D to CvPoint operator
-CvPoint cvPoint(const Point2D &other)
-{
-    return cvPoint(static_cast<int>(other.m_x), static_cast<int>(other.m_y));
-}
+CvPoint cvPoint(const Point2D &other);
 
 
 // Line Class and Functions
@@ -204,6 +306,11 @@ public:
         m_end->set(end);
     }
 
+    HomgLine2D homgLine() const
+    {
+        return HomgLine2D(HomgPoint2D(*m_beg), HomgPoint2D(*m_end));
+    }
+
 
     // distance function
     Point2D::Real dist2line(const Point2D &point)
@@ -231,50 +338,14 @@ private:
     Point2D *m_end;
 };
 
-std::ostream& operator<<(std::ostream &out, const LineSegment &line)
-{
-    out << *line.m_beg << "  " << *line.m_end;
+// I/O operators
+std::ostream& operator<<(std::ostream &out, const LineSegment &line);
+std::istream& operator>>(std::istream &in, LineSegment &line);
 
-    return out;
-}
-
-std::istream& operator>>(std::istream &in, LineSegment &line)
-{
-    in >> *line.m_beg >> *line.m_end;
-
-    return in;
-}
+// computes the intersection of two infinite line in homogeneous 2D coordinate
+HomgPoint2D intersectInfiniteLines(const LineSegment &line0, const LineSegment &line1);
 
 
-// computes the intersection of two infinites as Point2D vpoint
-// return true if the intersection point is at infinity
-// consider switching to homogenous coordinates?
-bool intersectInfiniteLines(const LineSegment &line0, const LineSegment &line1, Point2D &vpoint)
-{
-    const double x1 = line0.beg().x(); const double y1 = line0.beg().y();
-    const double x2 = line0.end().x(); const double y2 = line0.end().y();
-    const double x3 = line1.beg().x(); const double y3 = line1.beg().y();
-    const double x4 = line1.end().x(); const double y4 = line1.end().y();
-
-    double den =  (y4-y3)*(x2-x1) - (x4-x3)*(y2-y1);
-    if(fabs(den) < 1e-6)
-    {
-        vpoint.set(static_cast<int>(((x2-x1)+(x4-x3))/2), static_cast<int>(((y2-y1)+(y4-y3))/2));
-
-        return true;
-    }
-    else
-    {
-        const double num1 = (x4-x3)*(y1-y3) - (y4-y3)*(x1-x3);
-        //double num2 = (x2-x1)*(y1-y3) - (y2-y1)*(x1-x3);
-
-        const double u1 = num1/den;
-        //u2 = num2/den;
-
-        vpoint.set(x1+u1*(x2-x1), y1+u1*(y2-y1));
-
-        return false;
-    }
 }
 
 

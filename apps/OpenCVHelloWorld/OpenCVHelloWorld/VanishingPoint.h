@@ -8,22 +8,24 @@
 #include <iostream>
 
 
+using namespace Geometry;
+
+
 // vanishing point
 class VanishingPoint : public Selectable
 {
 public:
-    VanishingPoint() : m_point(new Point2D()), m_atInfinity(false) {}
-    VanishingPoint(const LineSegment &line) : m_point(new Point2D()), m_atInfinity(false)
+    VanishingPoint() {}
+    VanishingPoint(const LineSegment &line)
     {
         addLine(line);
     }
 
     ~VanishingPoint()
     {
-        delete m_point;
-        for(unsigned int i = 0; i < lines.size(); i++)
+        for(unsigned int i = 0; i < m_lines.size(); i++)
         {
-            delete lines[i];
+            delete m_lines[i];
         }
     }
 
@@ -36,66 +38,57 @@ public:
     // stub function
     void update(int x, int y)
     {
-        assert(lines.size() > 1);
+        assert(m_lines.size() > 1);
 
         // update vanishing point
-        m_atInfinity = intersectInfiniteLines(*lines[0], *lines[1], *m_point);
+        m_point = intersectInfiniteLines(*m_lines[0], *m_lines[1]);
     }
 
     // register function
     void registerCascade(SelectableGroup &selectables)
     {
-        for(unsigned int i = 0; i < lines.size(); i++)
+        for(unsigned int i = 0; i < m_lines.size(); i++)
         {
-            selectables.registerObject(this, lines[i]);
-            lines[i]->registerCascade(selectables);
+            selectables.registerObject(this, m_lines[i]);
+            m_lines[i]->registerCascade(selectables);
         }
     }
 
     // a new line constraint to the vanishing set
     void addLine(const LineSegment &line)
     {
-        lines.push_back(new LineSegment(line));
+        m_lines.push_back(new LineSegment(line));
     }
 
     // accessor for the vanishing point
-    const Point2D& point() const
+    const HomgPoint2D& point() const
     {
-        return *m_point;
-    }
-
-    // return true is the vanishing point is at infinity
-    bool atInfinity() const
-    {
-        return m_atInfinity;
+        return m_point;
     }
 
     // rendering function
     void render(IplImage *temp, const CvScalar &col) const
     {
         // render vanishing lines
-        for(unsigned int i = 0; i < lines.size(); i++)
+        for(unsigned int i = 0; i < m_lines.size(); i++)
         {
-            lines[i]->render(temp, col, 2);
+            m_lines[i]->render(temp, col, 2);
         }
 
         // render vanishing points
-        if(lines.size() > 1)
+        if(m_lines.size() > 1)
         {
-            if(!m_atInfinity)
-            {
-                cvLine(temp, cvPoint(*m_point), cvPoint(*m_point), col, 10);
-            }
+            cvLine(temp, cvPoint(Point2D(m_point)), cvPoint(Point2D(m_point)), col, 10);
         }
     }
 
     // output function
     void save(std::ofstream &out) const
     {
-        out << lines.size() << std::endl;
-        for(unsigned int i = 0; i < lines.size(); i++)
+        out << m_lines.size() << std::endl;
+        for(unsigned int i = 0; i < m_lines.size(); i++)
         {
-            out << *lines[i] << std::endl;;
+            out << *m_lines[i] << std::endl;;
         }
     }
 
@@ -105,7 +98,7 @@ public:
         int nlines = 0;
         in >> nlines;
 
-        lines.clear();
+        m_lines.clear();
         for(int i = 0; i < nlines; i++)
         {
             LineSegment temp;
@@ -118,9 +111,8 @@ public:
     }
 
 private:
-    Point2D *m_point;
-    bool m_atInfinity;
-    std::vector<LineSegment*> lines;
+    HomgPoint2D m_point;
+    std::vector<LineSegment*> m_lines;
 };
 
 
