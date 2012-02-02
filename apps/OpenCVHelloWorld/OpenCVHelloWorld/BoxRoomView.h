@@ -113,7 +113,7 @@ public:
             std::swap(m_vpoints[0], m_vpoints[1]);
         }
 
-        // recompute the corners and control points
+        // recompute the handle points
         computeCorners(corners, *m_vpoints[0], *m_vpoints[1]);
         m_handles[0]->set((corners[3]+corners[0])/2);
         m_handles[1]->set((corners[0]+corners[1])/2);
@@ -149,13 +149,20 @@ public:
         }
     }
 
-    // recompute the corners of the back wall
+    // recompute the corners of the back wall;
     void computeCorners(Point2D corners[4], const VanishingPoint &vpoint1, const VanishingPoint &vpoint2) const
     {
-        corners[0] = Point2D(intersectInfiniteLines(LineSegment(Point2D(vpoint1.point()), *m_handles[0]), LineSegment(Point2D(vpoint2.point()), *m_handles[1])));
-        corners[1] = Point2D(intersectInfiniteLines(LineSegment(Point2D(vpoint1.point()), *m_handles[2]), LineSegment(Point2D(vpoint2.point()), *m_handles[1])));
-        corners[2] = Point2D(intersectInfiniteLines(LineSegment(Point2D(vpoint1.point()), *m_handles[2]), LineSegment(Point2D(vpoint2.point()), *m_handles[3])));
-        corners[3] = Point2D(intersectInfiniteLines(LineSegment(Point2D(vpoint1.point()), *m_handles[0]), LineSegment(Point2D(vpoint2.point()), *m_handles[3])));
+        // cast two rays from each vanishing point outside of the image
+        LineSegment hline0(Point2D(vpoint1.point()), *m_handles[0]);
+        LineSegment hline2(Point2D(vpoint1.point()), *m_handles[2]);
+        LineSegment vline1(Point2D(vpoint2.point()), *m_handles[1]);
+        LineSegment vline3(Point2D(vpoint2.point()), *m_handles[3]);
+
+        // intersect rays from different vanishing points to form corners
+        corners[0] = Point2D(intersectInfiniteLines(hline0, vline1));
+        corners[1] = Point2D(intersectInfiniteLines(hline2, vline1));
+        corners[2] = Point2D(intersectInfiniteLines(hline2, vline3));
+        corners[3] = Point2D(intersectInfiniteLines(hline0, vline3));
     }
 
     // render function
@@ -171,6 +178,12 @@ public:
             Point2D corners[4];
             computeCorners(corners, *m_vpoints[0], *m_vpoints[1]);
 
+            // draw control points
+            cvLine(temp, cvPoint(*m_handles[0]), cvPoint(*m_handles[0]), CV_RGB(0, 0, 0), thickness*5);
+            cvLine(temp, cvPoint(*m_handles[1]), cvPoint(*m_handles[1]), CV_RGB(0, 0, 0), thickness*5);
+            cvLine(temp, cvPoint(*m_handles[2]), cvPoint(*m_handles[2]), CV_RGB(0, 0, 0), thickness*5);
+            cvLine(temp, cvPoint(*m_handles[3]), cvPoint(*m_handles[3]), CV_RGB(0, 0, 0), thickness*5);
+
             // draw wall edges
             cvLine(temp, cvPoint(corners[0]), cvPoint(corners[1]), col, thickness);
             cvLine(temp, cvPoint(corners[1]), cvPoint(corners[2]), col, thickness);
@@ -182,12 +195,6 @@ public:
             cvLine(temp, cvPoint(corners[1]+(corners[1]-Point2D(m_vpoints[2]->point()))*10), cvPoint(corners[1]), col, thickness);
             cvLine(temp, cvPoint(corners[2]+(corners[2]-Point2D(m_vpoints[2]->point()))*10), cvPoint(corners[2]), col, thickness);
             cvLine(temp, cvPoint(corners[3]+(corners[3]-Point2D(m_vpoints[2]->point()))*10), cvPoint(corners[3]), col, thickness);
-
-            // draw control points
-            cvLine(temp, cvPoint(*m_handles[0]), cvPoint(*m_handles[0]), CV_RGB(0, 0, 0), thickness*5);
-            cvLine(temp, cvPoint(*m_handles[1]), cvPoint(*m_handles[1]), CV_RGB(0, 0, 0), thickness*5);
-            cvLine(temp, cvPoint(*m_handles[2]), cvPoint(*m_handles[2]), CV_RGB(0, 0, 0), thickness*5);
-            cvLine(temp, cvPoint(*m_handles[3]), cvPoint(*m_handles[3]), CV_RGB(0, 0, 0), thickness*5);
         }
     }
 
