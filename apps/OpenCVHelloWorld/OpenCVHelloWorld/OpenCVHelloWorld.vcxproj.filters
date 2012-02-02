@@ -29,13 +29,13 @@
     <ClInclude Include="Geometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ManualAnnotation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VanishingPoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VanishingWall.h">
+    <ClInclude Include="BoxRoomView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnnotationTool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

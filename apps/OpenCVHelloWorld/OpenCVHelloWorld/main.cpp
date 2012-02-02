@@ -3,8 +3,8 @@
 
 //#include "stdafx.h"
 
-#include "ManualAnnotation.h"
-#include "VanishingWall.h"
+#include "AnnotationTool.h"
+#include "BoxRoomView.h"
 #include "VanishingPoint.h"
 #include "Geometry.h"
 #include "Selectable.h"
@@ -19,7 +19,7 @@
 
 
 bool renderUpdate = false;
-ManualAnnotation *annotation = NULL;
+AnnotationTool *annotation = NULL;
 void MouseCallback(int event, int x, int y, int flags, void* param)
 {
     if(annotation)
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 
 
     // load annotation from file if exists
-    annotation = new ManualAnnotation(img->width, img->height);
+    annotation = new AnnotationTool(img->width, img->height);
     std::ifstream fin(imageName+".dat");
     if(fin.is_open())
     {

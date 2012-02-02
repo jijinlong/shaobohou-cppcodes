@@ -1,30 +1,30 @@
-#ifndef MANUAL_ANNOTATION_H
-#define MANUAL_ANNOTATION_H
+#ifndef ANNOTATION_TOOL_H
+#define ANNOTATION_TOOL_H
 
 
-#include "VanishingWall.h"
+#include "BoxRoomView.h"
 
 
 const Point2D outsidePoint(-100, -100);
 
 // line segments
-class ManualAnnotation : public Selectable
+class AnnotationTool : public Selectable
 {
 public:
     int width;
     int height;
 
-    ManualAnnotation() 
+    AnnotationTool() 
         : width(0), height(0), currLine(new LineSegment(outsidePoint, outsidePoint)), selectedObject(NULL), m_wall(0)
     {
     }
 
-    ManualAnnotation(int w, int h) 
+    AnnotationTool(int w, int h) 
         : width(w), height(h), currLine(new LineSegment(outsidePoint, outsidePoint)), selectedObject(NULL), m_wall(0)
     {
     }
 
-    ~ManualAnnotation()
+    ~AnnotationTool()
     {
         if(currLine) delete currLine;
 
@@ -106,7 +106,7 @@ public:
                     }
                     else if(!m_wall)    // add WallBoundary
                     {
-                        m_wall = new VanishingWall();
+                        m_wall = new BoxRoomView();
                         m_wall->setup(currLine->beg(), currLine->end(), m_vanishings, width, height);
                         m_wall->registerCascade(selectableObjects);
                     }
@@ -189,7 +189,7 @@ public:
             m_vanishings.push_back(new VanishingPoint());
             m_vanishings[i]->load(in);
         }
-        m_wall = new VanishingWall();
+        m_wall = new BoxRoomView();
         if(m_wall->load(in))
         {
             m_wall->setup(m_vanishings, width, height);
@@ -227,7 +227,7 @@ private:
     SelectableGroup selectableObjects;
 
     std::vector<VanishingPoint*> m_vanishings;
-    VanishingWall *m_wall;
+    BoxRoomView *m_wall;
 };
 
 
