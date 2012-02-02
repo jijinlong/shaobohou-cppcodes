@@ -11,28 +11,14 @@ const Point2D outsidePoint(-100, -100);
 class AnnotationTool : public Selectable
 {
 public:
-    int width;
-    int height;
-
     AnnotationTool() 
-        : width(0), height(0), currLine(new LineSegment(outsidePoint, outsidePoint)), selectedObject(NULL), m_wall(new BoxRoomView())
-    {
-    }
-
-    AnnotationTool(int w, int h) 
-        : width(w), height(h), currLine(new LineSegment(outsidePoint, outsidePoint)), selectedObject(NULL), m_wall(new BoxRoomView())
+        : currLine(new LineSegment(outsidePoint, outsidePoint)), selectedObject(NULL)
     {
     }
 
     ~AnnotationTool()
     {
         if(currLine) delete currLine;
-
-        //for(unsigned int i = 0; i < m_vanishings.size(); i++)
-        //{
-        //    delete m_vanishings[i];
-        //}
-
         if(m_wall) delete m_wall;
     }
 
@@ -45,6 +31,11 @@ public:
     // stub function
     void update(int x, int y)
     {
+    }
+
+    void initBoxRoomView(const int w, const int h)
+    {
+        m_wall = new BoxRoomView(w, h);
     }
 
     void BeginUpdate(int x, int y)
@@ -105,7 +96,7 @@ public:
                     }
                     else
                     {
-                        m_wall->setup(currLine->beg(), currLine->end(), Point2D(width/2, height/2));
+                        m_wall->setup(currLine->beg(), currLine->end());
                         m_wall->registerCascade(selectableObjects);
                     }
                 }
@@ -123,15 +114,15 @@ public:
         {
             if(m_wall->initialisedEnoughVanishingPoints())
             {
-                const Point2D::Real Xmin = std::min(currLine->beg().x(), currLine->end().x());
-                const Point2D::Real Xmax = std::max(currLine->beg().x(), currLine->end().x());
-                const Point2D::Real Ymin = std::min(currLine->beg().y(), currLine->end().y());
-                const Point2D::Real Ymax = std::max(currLine->beg().y(), currLine->end().y());
+                const Real Xmin = std::min(currLine->beg().x(), currLine->end().x());
+                const Real Xmax = std::max(currLine->beg().x(), currLine->end().x());
+                const Real Ymin = std::min(currLine->beg().y(), currLine->end().y());
+                const Real Ymax = std::max(currLine->beg().y(), currLine->end().y());
 
-                Point2D topLeft(Xmin, Ymin);
+                Point2D topLeft( Xmin, Ymin);
                 Point2D topRight(Xmax, Ymin);
                 Point2D botRight(Xmax, Ymax);
-                Point2D botLeft(Xmin, Ymax);
+                Point2D botLeft( Xmin, Ymax);
 
                 LineSegment(topLeft,  topRight).render(temp, CV_RGB(255, 0, 0), 2);
                 LineSegment(topRight, botRight).render(temp, CV_RGB(255, 0, 0), 2);
@@ -160,7 +151,7 @@ public:
     void load(std::ifstream &in)
     {
         m_wall->load(in);
-        m_wall->setup(Point2D(width/2, height/2));
+        m_wall->setup();
 
         // register components
         registerCascade(selectableObjects);
@@ -178,11 +169,10 @@ public:
 
 private:
     LineSegment *currLine;
+    BoxRoomView *m_wall;
+
     Selectable *selectedObject;
     SelectableGroup selectableObjects;
-
-    //std::vector<VanishingPoint*> m_vanishings;
-    BoxRoomView *m_wall;
 };
 
 

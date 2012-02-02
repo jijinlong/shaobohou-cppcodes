@@ -3,31 +3,41 @@
 
 
 #include "VanishingPoint.h"
+#include "Macros.h"
 
 
 // projective view of a box room defined by three vanishing points
 class BoxRoomView : public Selectable
 {
 public:
-    BoxRoomView() : m_vpoint1(0), m_vpoint2(0), m_vpoint3(0), m_handles(new Point2D[4]) {}
+    static const int MAX_VPOINTS = 3;
+    static const int MAX_HANDLES = 4;
+
+    BoxRoomView(const int w, const int h) : m_width(w), m_height(h)
+    {
+        FOR(i, MAX_HANDLES)
+        {
+            m_handles.push_back(new Point2D());
+        }
+    }
 
     ~BoxRoomView()
     {
-        delete [] m_handles;
-        if(m_vpoint1) delete m_vpoint1;
-        if(m_vpoint2) delete m_vpoint2;
-        if(m_vpoint3) delete m_vpoint3;
+        FOR(i, m_vpoints.size())
+        {
+            delete m_vpoints[i];
+        }
+
+        FOR(i, m_handles.size())
+        {
+            delete m_handles[i];
+        }
     }
 
     // has all three vanishing points been initialised
     int numberOfVanishingPoints() const
     {
-        int count = 0;
-        if(m_vpoint1) ++count;
-        if(m_vpoint2) ++count;
-        if(m_vpoint3) ++count;
-
-        return count;
+        return static_cast<int>(m_vpoints.size());
     }
 
     // has all three vanishing points been initialised
@@ -39,83 +49,76 @@ public:
     // initialise a new vanishing point if more needed
     VanishingPoint* initialiseNewVanishingPoint(const LineSegment &line)
     {
-        // find an uninitialised vanishing point
-        VanishingPoint **vpoint = 0;
-        if(!m_vpoint1) vpoint = &m_vpoint1;
-        if(!m_vpoint2) vpoint = &m_vpoint2;
-        if(!m_vpoint3) vpoint = &m_vpoint3;
+        VanishingPoint *vpoint = 0;
 
         // initialise a new vanishing point
         if(vpoint)
         {
-            *vpoint = new VanishingPoint(line);
-            (*vpoint)->addLine(LineSegment(Point2D(line.beg())+Point2D(10, 10), Point2D(line.end())+Point2D(10, 10)));
-
-            return *vpoint;
+            vpoint = new VanishingPoint(line);
+            vpoint->addLine(LineSegment(Point2D(line.beg())+Point2D(10, 10), Point2D(line.end())+Point2D(10, 10)));
+            m_vpoints.push_back(vpoint);
         }
         
-        return 0;
+        return vpoint;
     }
 
     // setup function
-    void setup(const Point2D &first, const Point2D &second, const Point2D &centre)
+    void setup(const Point2D &first, const Point2D &second)
     {
         // compute the bounding box
-        const Point2D::Real Xmin = std::min(first.x(), second.x());
-        const Point2D::Real Xmax = std::max(first.x(), second.x());
-        const Point2D::Real Ymin = std::min(first.y(), second.y());
-        const Point2D::Real Ymax = std::max(first.y(), second.y());
+        const Real Xmin = std::min(first.x(), second.x());
+        const Real Xmax = std::max(first.x(), second.x());
+        const Real Ymin = std::min(first.y(), second.y());
+        const Real Ymax = std::max(first.y(), second.y());
 
         // initialise control points in clockwise winding
-        m_handles[0].set(Point2D((Xmin+Xmax)/2, Ymin));
-        m_handles[1].set(Point2D(Xmax, (Ymin+Ymax)/2));
-        m_handles[2].set(Point2D((Xmin+Xmax)/2, Ymax));
-        m_handles[3].set(Point2D(Xmin, (Ymin+Ymax)/2));
+        m_handles[0]->set(Point2D((Xmin+Xmax)/2, Ymin));
+        m_handles[1]->set(Point2D(Xmax, (Ymin+Ymax)/2));
+        m_handles[2]->set(Point2D((Xmin+Xmax)/2, Ymax));
+        m_handles[3]->set(Point2D(Xmin, (Ymin+Ymax)/2));
 
         // call the real setup function
-        setup(centre);
+        setup();
     }
 
     // setup function
-    void setup(const Point2D &centre)
+    void setup()
     {
-        // compute distances of vanishing points to the centre of the image
-        const Point2D::Real dist0 =  Point2D(m_vpoint1->point()).dist2(centre);
-        const Point2D::Real dist1 =  Point2D(m_vpoint2->point()).dist2(centre);
-        const Point2D::Real dist2 =  Point2D(m_vpoint3->point()).dist2(centre);
+        assert(initialisedEnoughVanishingPoints());
 
-        // choose the closest vanishing point to construct the back wall
-        if(dist0 <= std::min(dist1, dist2))
+        // find the vanishing point closest to the centre of the image
+        const Point2D centre(m_width/2, m_height/2);
+        VanishingPoint **insidePoint = &m_vpoints[0];
+        FOR(i, m_vpoints.size())
         {
-            std::swap(m_vpoint1, m_vpoint3);
+            const Real oldDist = Point2D((*insidePoint)->point()).dist2(centre);
+            const Real newDist = Point2D(  m_vpoints[i]->point()).dist2(centre);
+
+            if(newDist <= oldDist)
+            {
+                insidePoint = &m_vpoints[i];
+            }
         }
-        else if(dist1 <= std::min(dist0, dist2))
-        {
-            std::swap(m_vpoint2, m_vpoint3);
-        }
-        else // if(dist2 <= std::min(dist0, dist1))
-        {
-            std::swap(m_vpoint3, m_vpoint3);
-        }
+        std::swap(*insidePoint, m_vpoints.back());   // move the inside vanishing point to the back
 
         // swap vanishing points if necessary, the correct order 
         // should form a quadrilaterial with longer edges
         Point2D corners[4];
-        computeCorners(corners, *m_vpoint1, *m_vpoint2);
-        const Point2D::Real len1 = corners[0].dist2(corners[1]);
-        computeCorners(corners, *m_vpoint2, *m_vpoint1);
-        const Point2D::Real len2 = corners[0].dist2(corners[1]);
+        computeCorners(corners, *m_vpoints[0], *m_vpoints[1]);
+        const Real len1 = corners[0].dist2(corners[1]);
+        computeCorners(corners, *m_vpoints[1], *m_vpoints[0]);
+        const Real len2 = corners[0].dist2(corners[1]);
         if(len2 > len1)
         {
-            std::swap(m_vpoint1, m_vpoint2);
+            std::swap(m_vpoints[0], m_vpoints[1]);
         }
 
         // recompute the corners and control points
-        computeCorners(corners, *m_vpoint1, *m_vpoint2);
-        m_handles[0].set((corners[3]+corners[0])/2);
-        m_handles[1].set((corners[0]+corners[1])/2);
-        m_handles[2].set((corners[1]+corners[2])/2);
-        m_handles[3].set((corners[2]+corners[3])/2);
+        computeCorners(corners, *m_vpoints[0], *m_vpoints[1]);
+        m_handles[0]->set((corners[3]+corners[0])/2);
+        m_handles[1]->set((corners[0]+corners[1])/2);
+        m_handles[2]->set((corners[1]+corners[2])/2);
+        m_handles[3]->set((corners[2]+corners[3])/2);
     }
 
     // stub function
@@ -133,50 +136,40 @@ public:
     void registerCascade(SelectableGroup &selectables)
     {
         // register vanishing points
-        if(m_vpoint1)
+        FOR(i, m_vpoints.size())
         {
-            selectables.registerObject(this, m_vpoint1);
-            m_vpoint1->registerCascade(selectables);
-        }
-        if(m_vpoint2)
-        {
-            selectables.registerObject(this, m_vpoint2);
-            m_vpoint2->registerCascade(selectables);
-        }
-        if(m_vpoint3)
-        {
-            selectables.registerObject(this, m_vpoint3);
-            m_vpoint3->registerCascade(selectables);
+            selectables.registerObject(this, m_vpoints[i]);
+            m_vpoints[i]->registerCascade(selectables);
         }
 
         // register handle points
-        selectables.registerObject(this, &m_handles[0]);
-        selectables.registerObject(this, &m_handles[1]);
-        selectables.registerObject(this, &m_handles[2]);
-        selectables.registerObject(this, &m_handles[3]);
+        FOR(i, m_handles.size())
+        {
+            selectables.registerObject(this, m_handles[i]);
+        }
     }
 
     // recompute the corners of the back wall
     void computeCorners(Point2D corners[4], const VanishingPoint &vpoint1, const VanishingPoint &vpoint2) const
     {
-        corners[0] = Point2D(intersectInfiniteLines(LineSegment(Point2D(vpoint1.point()), m_handles[0]), LineSegment(Point2D(vpoint2.point()), m_handles[1])));
-        corners[1] = Point2D(intersectInfiniteLines(LineSegment(Point2D(vpoint1.point()), m_handles[2]), LineSegment(Point2D(vpoint2.point()), m_handles[1])));
-        corners[2] = Point2D(intersectInfiniteLines(LineSegment(Point2D(vpoint1.point()), m_handles[2]), LineSegment(Point2D(vpoint2.point()), m_handles[3])));
-        corners[3] = Point2D(intersectInfiniteLines(LineSegment(Point2D(vpoint1.point()), m_handles[0]), LineSegment(Point2D(vpoint2.point()), m_handles[3])));
+        corners[0] = Point2D(intersectInfiniteLines(LineSegment(Point2D(vpoint1.point()), *m_handles[0]), LineSegment(Point2D(vpoint2.point()), *m_handles[1])));
+        corners[1] = Point2D(intersectInfiniteLines(LineSegment(Point2D(vpoint1.point()), *m_handles[2]), LineSegment(Point2D(vpoint2.point()), *m_handles[1])));
+        corners[2] = Point2D(intersectInfiniteLines(LineSegment(Point2D(vpoint1.point()), *m_handles[2]), LineSegment(Point2D(vpoint2.point()), *m_handles[3])));
+        corners[3] = Point2D(intersectInfiniteLines(LineSegment(Point2D(vpoint1.point()), *m_handles[0]), LineSegment(Point2D(vpoint2.point()), *m_handles[3])));
     }
 
     // render function
     void render(IplImage *temp, const CvScalar &col, const int thickness) const
     {
-        if(m_vpoint1) m_vpoint1->render(temp, CV_RGB(255, 0, 0));
-        if(m_vpoint2) m_vpoint2->render(temp, CV_RGB(0, 255, 0));
-        if(m_vpoint3) m_vpoint3->render(temp, CV_RGB(0, 0, 255));
+        if(m_vpoints.size()>0) m_vpoints[0]->render(temp, CV_RGB(255, 0, 0));
+        if(m_vpoints.size()>1) m_vpoints[1]->render(temp, CV_RGB(0, 255, 0));
+        if(m_vpoints.size()>2) m_vpoints[2]->render(temp, CV_RGB(0, 0, 255));
 
         // compute corners of the wall
-        if(m_vpoint1 && m_vpoint2 && m_vpoint3)
+        if(initialisedEnoughVanishingPoints())
         {
             Point2D corners[4];
-            computeCorners(corners, *m_vpoint1, *m_vpoint2);
+            computeCorners(corners, *m_vpoints[0], *m_vpoints[1]);
 
             // draw wall edges
             cvLine(temp, cvPoint(corners[0]), cvPoint(corners[1]), col, thickness);
@@ -185,16 +178,16 @@ public:
             cvLine(temp, cvPoint(corners[3]), cvPoint(corners[0]), col, thickness);
 
             // draw the edges between walls and floors/ceilings
-            cvLine(temp, cvPoint(corners[0]+(corners[0]-Point2D(m_vpoint3->point()))*10), cvPoint(corners[0]), col, thickness);
-            cvLine(temp, cvPoint(corners[1]+(corners[1]-Point2D(m_vpoint3->point()))*10), cvPoint(corners[1]), col, thickness);
-            cvLine(temp, cvPoint(corners[2]+(corners[2]-Point2D(m_vpoint3->point()))*10), cvPoint(corners[2]), col, thickness);
-            cvLine(temp, cvPoint(corners[3]+(corners[3]-Point2D(m_vpoint3->point()))*10), cvPoint(corners[3]), col, thickness);
+            cvLine(temp, cvPoint(corners[0]+(corners[0]-Point2D(m_vpoints[2]->point()))*10), cvPoint(corners[0]), col, thickness);
+            cvLine(temp, cvPoint(corners[1]+(corners[1]-Point2D(m_vpoints[2]->point()))*10), cvPoint(corners[1]), col, thickness);
+            cvLine(temp, cvPoint(corners[2]+(corners[2]-Point2D(m_vpoints[2]->point()))*10), cvPoint(corners[2]), col, thickness);
+            cvLine(temp, cvPoint(corners[3]+(corners[3]-Point2D(m_vpoints[2]->point()))*10), cvPoint(corners[3]), col, thickness);
 
             // draw control points
-            cvLine(temp, cvPoint(m_handles[0]), cvPoint(m_handles[0]), CV_RGB(0, 0, 0), thickness*5);
-            cvLine(temp, cvPoint(m_handles[1]), cvPoint(m_handles[1]), CV_RGB(0, 0, 0), thickness*5);
-            cvLine(temp, cvPoint(m_handles[2]), cvPoint(m_handles[2]), CV_RGB(0, 0, 0), thickness*5);
-            cvLine(temp, cvPoint(m_handles[3]), cvPoint(m_handles[3]), CV_RGB(0, 0, 0), thickness*5);
+            cvLine(temp, cvPoint(*m_handles[0]), cvPoint(*m_handles[0]), CV_RGB(0, 0, 0), thickness*5);
+            cvLine(temp, cvPoint(*m_handles[1]), cvPoint(*m_handles[1]), CV_RGB(0, 0, 0), thickness*5);
+            cvLine(temp, cvPoint(*m_handles[2]), cvPoint(*m_handles[2]), CV_RGB(0, 0, 0), thickness*5);
+            cvLine(temp, cvPoint(*m_handles[3]), cvPoint(*m_handles[3]), CV_RGB(0, 0, 0), thickness*5);
         }
     }
 
@@ -202,28 +195,29 @@ public:
     void save(std::ofstream &out) const
     {
         // save vanishing points
-        out << numberOfVanishingPoints() << std::endl;
-        if(m_vpoint1) m_vpoint1->save(out);
-        if(m_vpoint2) m_vpoint2->save(out);
-        if(m_vpoint3) m_vpoint3->save(out);
+        out << m_vpoints.size() << std::endl;
+        FOR(i, m_vpoints.size())
+        {
+            m_vpoints[i]->save(out);
+        }
 
         if(initialisedEnoughVanishingPoints())
         {
             // save handle points
-            out << 4 << std::endl;
-            out << m_handles[0] << std::endl;
-            out << m_handles[1] << std::endl;
-            out << m_handles[2] << std::endl;
-            out << m_handles[3] << std::endl;
+            out << m_handles.size() << std::endl;
+            FOR(i, m_handles.size())
+            {
+                out << *m_handles[i] << std::endl;
+            }
 
             // save wall corners
             Point2D corners[4];
-            computeCorners(corners, *m_vpoint1, *m_vpoint2);
+            computeCorners(corners, *m_vpoints[0], *m_vpoints[1]);
             out << 4 << std::endl;
-            out << corners[0] << std::endl;
-            out << corners[1] << std::endl;
-            out << corners[2] << std::endl;
-            out << corners[3] << std::endl;
+            FOR(i, 4)
+            {
+                out << corners[i] << std::endl;
+            }
         }
         else
         {
@@ -237,41 +231,32 @@ public:
         // load vanishing points
         int nvanishings = 0;
         in >> nvanishings;
-        if(nvanishings > 0)
+        FOR(i, nvanishings)
         {
-            m_vpoint1 = new VanishingPoint();
-            m_vpoint1->load(in);
-        }
-        if(nvanishings > 1)
-        {
-            m_vpoint2 = new VanishingPoint();
-            m_vpoint2->load(in);
-        }
-        if(nvanishings > 2)
-        {
-            m_vpoint3 = new VanishingPoint();
-            m_vpoint3->load(in);
+            m_vpoints.push_back(new VanishingPoint());
+            m_vpoints.back()->load(in);
         }
 
         // load handles
         int nhandles = 0;
         in >> nhandles;
-        if(nhandles==4)
+        if(nhandles==MAX_HANDLES)
         {
-            for(int i = 0; i < nhandles; i++)
+            FOR(i, nhandles)
             {
                 Point2D temp;
                 in >> temp;
-                m_handles[i].set(temp);
+                m_handles[i]->set(temp);
             }
         }
+
+        const int bah = 0;
     }
 
 private:
-    VanishingPoint *m_vpoint1;
-    VanishingPoint *m_vpoint2;
-    VanishingPoint *m_vpoint3;
-    Point2D *m_handles;
+    int m_width, m_height;
+    std::vector<VanishingPoint*> m_vpoints;
+    std::vector<Point2D*> m_handles;
 };
 
 

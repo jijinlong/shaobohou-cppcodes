@@ -87,6 +87,7 @@
     <ClInclude Include="AnnotationTool.h" />
     <ClInclude Include="BoxRoomView.h" />
     <ClInclude Include="Geometry.h" />
+    <ClInclude Include="Macros.h" />
     <ClInclude Include="Selectable.h" />
     <ClInclude Include="VanishingPoint.h" />
   </ItemGroup>

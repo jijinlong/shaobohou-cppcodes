@@ -128,8 +128,6 @@ private:
 class Point2D : public Selectable
 {
 public:
-    typedef double Real;
-
     friend CvPoint cvPoint(const Point2D &other);
 
     Point2D() : m_x(0), m_y(0) {}
@@ -312,9 +310,9 @@ public:
 
 
     // distance function
-    Point2D::Real dist2line(const Point2D &point)
+    Real dist2line(const Point2D &point)
     {
-        const Point2D::Real u = (point-*m_beg).dot(*m_end-*m_beg) / (*m_end-*m_beg).length2();
+        const Real u = (point-*m_beg).dot(*m_end-*m_beg) / (*m_end-*m_beg).length2();
         const Point2D closestPointOnLine(*m_beg + (*m_end-*m_beg)*u);
 
         return closestPointOnLine.dist2(point);
