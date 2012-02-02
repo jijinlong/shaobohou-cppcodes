@@ -3,6 +3,7 @@
 
 
 #include "Geometry.h"
+#include "Macros.h"
 
 #include <fstream>
 #include <iostream>
@@ -23,7 +24,7 @@ public:
 
     ~VanishingPoint()
     {
-        for(unsigned int i = 0; i < m_lines.size(); i++)
+        FOR(i, m_lines.size())
         {
             delete m_lines[i];
         }
@@ -47,7 +48,7 @@ public:
     // register function
     void registerCascade(SelectableGroup &selectables)
     {
-        for(unsigned int i = 0; i < m_lines.size(); i++)
+        FOR(i, m_lines.size())
         {
             selectables.registerObject(this, m_lines[i]);
             m_lines[i]->registerCascade(selectables);
@@ -70,7 +71,7 @@ public:
     void render(IplImage *temp, const CvScalar &col) const
     {
         // render vanishing lines
-        for(unsigned int i = 0; i < m_lines.size(); i++)
+        FOR(i, m_lines.size())
         {
             m_lines[i]->render(temp, col, 2);
         }
@@ -86,7 +87,7 @@ public:
     void save(std::ofstream &out) const
     {
         out << m_lines.size() << std::endl;
-        for(unsigned int i = 0; i < m_lines.size(); i++)
+        FOR(i, m_lines.size())
         {
             out << *m_lines[i] << std::endl;;
         }
@@ -99,7 +100,7 @@ public:
         in >> nlines;
 
         m_lines.clear();
-        for(int i = 0; i < nlines; i++)
+        FOR(i, nlines)
         {
             LineSegment temp;
             in >> temp;
