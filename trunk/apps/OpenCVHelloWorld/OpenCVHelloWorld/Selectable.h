@@ -2,6 +2,7 @@
 #define SELECTABLE_H
 
 
+#include <set>
 #include <vector>
 #include <algorithm>
 
@@ -46,15 +47,15 @@ public:
     {
         update(x, y);
 
-        for(unsigned int i = 0; i < m_parents.size(); i++)
+        for(std::set<Selectable*>::iterator it = m_parents.begin(); it != m_parents.end(); it++)
         {
-            m_parents[i]->updateCascade(x, y);
+            (*it)->updateCascade(x, y);
         }
     }
 
 private:
     int m_dim;
-    std::vector<Selectable*> m_parents;     // other Selectable objects that depend on this Selectable object
+    std::set<Selectable*> m_parents;     // other Selectable objects that depend on this Selectable object
 
     Selectable(const Selectable &other);
     Selectable& operator=(const Selectable &other);
@@ -74,9 +75,9 @@ public:
         Selectable *selected = 0;
 
         int bestDist = std::numeric_limits<int>::max();
-        for(unsigned int i = 0; i < selectables.size(); i++)
+        for(std::set<Selectable*>::iterator it = selectables.begin(); it != selectables.end(); it++)
         {
-            selectables[i]->selectIfCloser(x, y, selected, bestDist, radius*radius);
+            (*it)->selectIfCloser(x, y, selected, bestDist, radius*radius);
         }
 
         return selected;
@@ -87,24 +88,24 @@ public:
     {
         if(parent && child)
         {
-            child->m_parents.push_back(parent);
+            child->m_parents.insert(parent);
 
             // insert parent if absent
             if(std::find(selectables.begin(), selectables.end(), parent)==selectables.end())
             {
-                selectables.push_back(parent);
+                selectables.insert(parent);
             }
 
             // insert child if absent
             if(std::find(selectables.begin(), selectables.end(), child)==selectables.end())
             {
-                selectables.push_back(child);
+                selectables.insert(child);
             }
         }
     }
 
 private:
-    std::vector<Selectable*> selectables;
+    std::set<Selectable*> selectables;
 };
 
 
