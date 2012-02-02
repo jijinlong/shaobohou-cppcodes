@@ -1,17 +1,17 @@
-#ifndef VANISHING_WALL_H
-#define VANISHING_WALL_H
+#ifndef BOX_ROOM_VIEW_H
+#define BOX_ROOM_VIEW_H
 
 
 #include "VanishingPoint.h"
 
 
 // Wall Boundary
-class VanishingWall : public Selectable
+class BoxRoomView : public Selectable
 {
 public:
-    VanishingWall() : m_handles(new Point2D[4]), m_vpoint1(0), m_vpoint2(0), m_vpoint3(0) {}
+    BoxRoomView() : m_handles(new Point2D[4]), m_vpoint1(0), m_vpoint2(0), m_vpoint3(0) {}
 
-    ~VanishingWall()
+    ~BoxRoomView()
     {
         delete [] m_handles;
     }

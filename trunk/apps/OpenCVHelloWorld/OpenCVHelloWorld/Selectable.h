@@ -13,6 +13,7 @@ public:
     friend class SelectableGroup;
 
     Selectable() : m_dim(0) {}
+    virtual ~Selectable() {}
 
     // computes the selection distance of this Selectable object from (x, y)
     virtual int select(int x, int y) = 0;
