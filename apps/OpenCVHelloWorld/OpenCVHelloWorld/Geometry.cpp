@@ -13,6 +13,13 @@ HomgPoint2D::HomgPoint2D(const HomgLine2D &line1, const HomgLine2D &line2)
 {}
 
 
+// construct from cartesian line
+HomgLine2D::HomgLine2D(const LineSegment &line)
+    : m_vec(HomgPoint2D(line.beg()).m_vec.cross(HomgPoint2D(line.end()).m_vec))
+{
+
+}
+
 // construct a homogeneous 2d point by intersecting two homgeneous 2d lines
 HomgLine2D::HomgLine2D(const HomgPoint2D &point1, const HomgPoint2D &point2)
     : m_vec(point1.m_vec.cross(point2.m_vec))
@@ -66,9 +73,7 @@ std::istream& operator>>(std::istream &in, LineSegment &line)
 // computes the intersection of two infinite line in homogeneous 2D coordinate
 HomgPoint2D intersectInfiniteLines(const LineSegment &line1, const LineSegment &line2)
 {
-    HomgLine2D hline1(HomgPoint2D(line1.beg()), HomgPoint2D(line1.end()));
-    HomgLine2D hline2(HomgPoint2D(line2.beg()), HomgPoint2D(line2.end()));
-    return HomgPoint2D(hline1, hline2);
+    return HomgPoint2D(HomgLine2D(line1), HomgLine2D(line2));
 }
 
 

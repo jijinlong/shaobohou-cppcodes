@@ -20,6 +20,7 @@ class Vector3D;
 class HomgPoint2D;
 class HomgLine2D;
 class Point2D;
+class LineSegment;
 
 
 // 2D Vector
@@ -107,6 +108,9 @@ public:
     HomgLine2D() :  m_vec(0, 0, 1) {}
     HomgLine2D(const Real &na, const Real &nb, const Real &nc) :  m_vec(na, nb, nc) {}
     explicit HomgLine2D(const Vector3D &other) : m_vec(other) {}
+
+    // construct from cartesian line
+    explicit HomgLine2D(const LineSegment &line);
 
     // construct a homogeneous 2d point by intersecting two homgeneous 2d lines
     HomgLine2D(const HomgPoint2D &point1, const HomgPoint2D &point2);
