@@ -3,6 +3,7 @@
 
 //#include "stdafx.h"
 
+
 #include "AnnotationTool.h"
 #include "BoxRoomView.h"
 #include "VanishingPoint.h"
@@ -85,7 +86,8 @@ int main(int argc, char *argv[])
 
 
     // load annotation from file if exists
-    annotation = new AnnotationTool(img->width, img->height);
+    annotation = new AnnotationTool();
+    annotation->initBoxRoomView(img->width, img->height);
     std::ifstream fin(imageName+".dat");
     if(fin.is_open())
     {
