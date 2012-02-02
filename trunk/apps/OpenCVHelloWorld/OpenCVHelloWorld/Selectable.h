@@ -23,9 +23,10 @@ public:
     // register this Selectable object (and optionally its sub-components) with a Selectable group
     virtual void registerCascade(SelectableGroup &selectables) = 0;
 
-    // set Selectable pointer selected with this pointer if its selection distance
-    // is less than the current best best selection distance bestDist, and is also
-    // less than a maximum threshold maxDist
+    // replace the Selectable pointer selected if the current Selectable is with 
+    // a maximum threshold maxDist and is "closer" than selected, an Selectable 
+    // is closer if its dimensionality is lower, or if its selection distance is
+    // less than bestDist and the dimensionalities are the same.
     void selectIfCloser(int x, int y, Selectable *&selected, int &bestDist, const int maxDist)
     {
         const int currDist =  select(x, y);

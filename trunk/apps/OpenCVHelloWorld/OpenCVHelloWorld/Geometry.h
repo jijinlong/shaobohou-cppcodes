@@ -10,9 +10,11 @@
 namespace Geometry 
 {;
 
+// floating point type
 typedef double Real;
 
 
+// pre-declaration
 class Vector2D;
 class Vector3D;
 class HomgPoint2D;
@@ -36,6 +38,7 @@ public:
 private:
     Real m_x, m_y;
 };
+
 
 // 3D Vector
 class Vector3D
@@ -65,6 +68,7 @@ private:
     Real m_x, m_y, m_z;
 };
 
+
 // 2D Point in homogeneous coordinate
 class HomgPoint2D
 {
@@ -93,6 +97,7 @@ private:
     Vector3D m_vec;
 };
 
+
 // 2D Line in homogeneous coordinate
 class HomgLine2D
 {
@@ -117,7 +122,6 @@ public:
 private:
     Vector3D m_vec;
 };
-
 
 
 // 2D point
@@ -304,11 +308,6 @@ public:
     void setEnd(const Point2D &end)
     {
         m_end->set(end);
-    }
-
-    HomgLine2D homgLine() const
-    {
-        return HomgLine2D(HomgPoint2D(*m_beg), HomgPoint2D(*m_end));
     }
 
 
