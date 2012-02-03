@@ -24,7 +24,7 @@ public:
 
     ~VanishingPoint()
     {
-        FOR(i, m_lines.size())
+        FORLOOP(i, m_lines.size())
         {
             delete m_lines[i];
         }
@@ -48,7 +48,7 @@ public:
     // register function
     void registerCascade(SelectableGroup &selectables)
     {
-        FOR(i, m_lines.size())
+        FORLOOP(i, m_lines.size())
         {
             selectables.registerObject(this, m_lines[i]);
             m_lines[i]->registerCascade(selectables);
@@ -71,7 +71,7 @@ public:
     void render(IplImage *temp, const CvScalar &col) const
     {
         // render vanishing lines
-        FOR(i, m_lines.size())
+        FORLOOP(i, m_lines.size())
         {
             m_lines[i]->render(temp, col, 2);
         }
@@ -87,7 +87,7 @@ public:
     void save(std::ofstream &out) const
     {
         out << m_lines.size() << std::endl;
-        FOR(i, m_lines.size())
+        FORLOOP(i, m_lines.size())
         {
             out << *m_lines[i] << std::endl;;
         }
@@ -100,7 +100,7 @@ public:
         in >> nlines;
 
         m_lines.clear();
-        FOR(i, nlines)
+        FORLOOP(i, nlines)
         {
             LineSegment temp;
             in >> temp;
