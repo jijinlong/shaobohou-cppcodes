@@ -30,8 +30,8 @@ public:
     Vector2D() : m_x(0), m_y(0) {};
     Vector2D(const Real &nx, const Real &ny) : m_x(nx), m_y(ny) {};
 
-    Real& x() { return m_x; }
-    Real& y() { return m_y; }
+    //////Real& x() { return m_x; }
+    //////Real& y() { return m_y; }
 
     const Real& x() const { return m_x; }
     const Real& y() const { return m_y; }
@@ -48,9 +48,9 @@ public:
     Vector3D() : m_x(0), m_y(0), m_z(0) {};
     Vector3D(const Real &nx, const Real &ny, const Real &nz) : m_x(nx), m_y(ny), m_z(nz) {};
 
-    Real& x() { return m_x; }
-    Real& y() { return m_y; }
-    Real& z() { return m_z; }
+    //////Real& x() { return m_x; }
+    //////Real& y() { return m_y; }
+    //////Real& z() { return m_z; }
 
     const Real& x() const { return m_x; }
     const Real& y() const { return m_y; }
@@ -86,15 +86,16 @@ public:
     // construct a homogeneous 2d line by joining two homgeneous 2d points
     HomgPoint2D(const HomgLine2D &line1, const HomgLine2D &line2);
 
-    Real& x() { return m_vec.x(); }
-    Real& y() { return m_vec.y(); }
-    Real& w() { return m_vec.z(); }
+    //////Real& x() { return m_vec.x(); }
+    //////Real& y() { return m_vec.y(); }
+    //////Real& w() { return m_vec.z(); }
 
     const Real& x() const { return m_vec.x(); }
     const Real& y() const { return m_vec.y(); }
     const Real& w() const { return m_vec.z(); }
 
-    bool atInfinity(const Real tol=0) const
+    // return true iff the point is at infinity
+    bool ideal(const Real tol=0) const
     {
         return fabs(w()) <= tol;
     }
@@ -120,9 +121,9 @@ public:
     // construct a homogeneous 2d point by intersecting two homgeneous 2d lines
     HomgLine2D(const HomgPoint2D &point1, const HomgPoint2D &point2);
 
-    Real& a() { return m_vec.x(); }
-    Real& b() { return m_vec.y(); }
-    Real& c() { return m_vec.z(); }
+    //////Real& a() { return m_vec.x(); }
+    //////Real& b() { return m_vec.y(); }
+    //////Real& c() { return m_vec.z(); }
 
     const Real& a() const { return m_vec.x(); }
     const Real& b() const { return m_vec.y(); }
