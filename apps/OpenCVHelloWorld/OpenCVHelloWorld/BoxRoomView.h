@@ -12,12 +12,18 @@ class BoxRoomView : public Selectable
 public:
     static const int MAX_VPOINTS = 3;
     static const int MAX_HANDLES = 4;
+    static const int MAX_CORNERS = 4;
 
     BoxRoomView(const int w, const int h) : m_width(w), m_height(h)
     {
         FORLOOP(i, MAX_HANDLES)
         {
             m_handles.push_back(new Point2D());
+        }
+
+        FORLOOP(i, MAX_CORNERS)
+        {
+            m_corners.push_back(new Point2D());
         }
     }
 
@@ -31,6 +37,11 @@ public:
         FORLOOP(i, m_handles.size())
         {
             delete m_handles[i];
+        }
+
+        FORLOOP(i, m_corners.size())
+        {
+            delete m_corners[i];
         }
     }
 
@@ -103,22 +114,21 @@ public:
 
         // swap vanishing points if necessary, the correct order 
         // should form a quadrilaterial with longer edges
-        Point2D corners[4];
-        computeCorners(corners, *m_vpoints[0], *m_vpoints[1]);
-        const Real len1 = corners[0].dist2(corners[1]);
-        computeCorners(corners, *m_vpoints[1], *m_vpoints[0]);
-        const Real len2 = corners[0].dist2(corners[1]);
+        computeCorners(*m_vpoints[0], *m_vpoints[1]);
+        const Real len1 = m_corners[0]->dist2(*m_corners[1]);
+        computeCorners(*m_vpoints[1], *m_vpoints[0]);
+        const Real len2 = m_corners[0]->dist2(*m_corners[1]);
         if(len2 > len1)
         {
             std::swap(m_vpoints[0], m_vpoints[1]);
         }
 
         // recompute the handle points
-        computeCorners(corners, *m_vpoints[0], *m_vpoints[1]);
-        m_handles[0]->set((corners[3]+corners[0])/2);
-        m_handles[1]->set((corners[0]+corners[1])/2);
-        m_handles[2]->set((corners[1]+corners[2])/2);
-        m_handles[3]->set((corners[2]+corners[3])/2);
+        computeCorners(*m_vpoints[0], *m_vpoints[1]);
+        m_handles[0]->set((*m_corners[3]+*m_corners[0])/2);
+        m_handles[1]->set((*m_corners[0]+*m_corners[1])/2);
+        m_handles[2]->set((*m_corners[1]+*m_corners[2])/2);
+        m_handles[3]->set((*m_corners[2]+*m_corners[3])/2);
     }
 
     // stub function
@@ -130,6 +140,7 @@ public:
     // stub function
     void update(int x, int y)
     {
+        computeCorners(*m_vpoints[0], *m_vpoints[1]);
     }
 
     // register function
@@ -149,22 +160,6 @@ public:
         }
     }
 
-    // recompute the corners of the back wall;
-    void computeCorners(Point2D corners[4], const VanishingPoint &vpoint1, const VanishingPoint &vpoint2) const
-    {
-        // cast two rays from each vanishing point outside of the image
-        LineSegment hline0(Point2D(vpoint1.point()), *m_handles[0]);
-        LineSegment hline2(Point2D(vpoint1.point()), *m_handles[2]);
-        LineSegment vline1(Point2D(vpoint2.point()), *m_handles[1]);
-        LineSegment vline3(Point2D(vpoint2.point()), *m_handles[3]);
-
-        // intersect rays from different vanishing points to form corners
-        corners[0] = Point2D(intersectInfiniteLines(hline0, vline1));
-        corners[1] = Point2D(intersectInfiniteLines(hline2, vline1));
-        corners[2] = Point2D(intersectInfiniteLines(hline2, vline3));
-        corners[3] = Point2D(intersectInfiniteLines(hline0, vline3));
-    }
-
     // render function
     void render(IplImage *temp, const CvScalar &col, const int thickness) const
     {
@@ -175,9 +170,6 @@ public:
         // compute corners of the wall
         if(initialisedEnoughVanishingPoints())
         {
-            Point2D corners[4];
-            computeCorners(corners, *m_vpoints[0], *m_vpoints[1]);
-
             // draw control points
             cvLine(temp, cvPoint(*m_handles[0]), cvPoint(*m_handles[0]), CV_RGB(0, 0, 0), thickness*5);
             cvLine(temp, cvPoint(*m_handles[1]), cvPoint(*m_handles[1]), CV_RGB(0, 0, 0), thickness*5);
@@ -185,16 +177,16 @@ public:
             cvLine(temp, cvPoint(*m_handles[3]), cvPoint(*m_handles[3]), CV_RGB(0, 0, 0), thickness*5);
 
             // draw wall edges
-            cvLine(temp, cvPoint(corners[0]), cvPoint(corners[1]), col, thickness);
-            cvLine(temp, cvPoint(corners[1]), cvPoint(corners[2]), col, thickness);
-            cvLine(temp, cvPoint(corners[2]), cvPoint(corners[3]), col, thickness);
-            cvLine(temp, cvPoint(corners[3]), cvPoint(corners[0]), col, thickness);
+            cvLine(temp, cvPoint(*m_corners[0]), cvPoint(*m_corners[1]), col, thickness);
+            cvLine(temp, cvPoint(*m_corners[1]), cvPoint(*m_corners[2]), col, thickness);
+            cvLine(temp, cvPoint(*m_corners[2]), cvPoint(*m_corners[3]), col, thickness);
+            cvLine(temp, cvPoint(*m_corners[3]), cvPoint(*m_corners[0]), col, thickness);
 
             // draw the edges between walls and floors/ceilings
-            cvLine(temp, cvPoint(corners[0]+(corners[0]-Point2D(m_vpoints[2]->point()))*10), cvPoint(corners[0]), col, thickness);
-            cvLine(temp, cvPoint(corners[1]+(corners[1]-Point2D(m_vpoints[2]->point()))*10), cvPoint(corners[1]), col, thickness);
-            cvLine(temp, cvPoint(corners[2]+(corners[2]-Point2D(m_vpoints[2]->point()))*10), cvPoint(corners[2]), col, thickness);
-            cvLine(temp, cvPoint(corners[3]+(corners[3]-Point2D(m_vpoints[2]->point()))*10), cvPoint(corners[3]), col, thickness);
+            cvLine(temp, cvPoint(*m_corners[0]+(*m_corners[0]-Point2D(m_vpoints[2]->point()))*10), cvPoint(*m_corners[0]), col, thickness);
+            cvLine(temp, cvPoint(*m_corners[1]+(*m_corners[1]-Point2D(m_vpoints[2]->point()))*10), cvPoint(*m_corners[1]), col, thickness);
+            cvLine(temp, cvPoint(*m_corners[2]+(*m_corners[2]-Point2D(m_vpoints[2]->point()))*10), cvPoint(*m_corners[2]), col, thickness);
+            cvLine(temp, cvPoint(*m_corners[3]+(*m_corners[3]-Point2D(m_vpoints[2]->point()))*10), cvPoint(*m_corners[3]), col, thickness);
         }
     }
 
@@ -218,12 +210,10 @@ public:
             }
 
             // save wall corners
-            Point2D corners[4];
-            computeCorners(corners, *m_vpoints[0], *m_vpoints[1]);
             out << 4 << std::endl;
             FORLOOP(i, 4)
             {
-                out << corners[i] << std::endl;
+                out << *m_corners[i] << std::endl;
             }
         }
         else
@@ -244,7 +234,7 @@ public:
             m_vpoints.back()->load(in);
         }
 
-        // load handles
+        // load handle points
         int nhandles = 0;
         in >> nhandles;
         if(nhandles==MAX_HANDLES)
@@ -256,14 +246,29 @@ public:
                 m_handles[i]->set(temp);
             }
         }
-
-        const int bah = 0;
     }
 
 private:
     int m_width, m_height;
     std::vector<VanishingPoint*> m_vpoints;
     std::vector<Point2D*> m_handles;
+    std::vector<Point2D*> m_corners;
+
+    // recompute the corners of the back wall;
+    void computeCorners(const VanishingPoint &vpoint1, const VanishingPoint &vpoint2) const
+    {
+        // cast two rays from each vanishing point outside of the image
+        LineSegment hline0(Point2D(vpoint1.point()), *m_handles[0]);
+        LineSegment hline2(Point2D(vpoint1.point()), *m_handles[2]);
+        LineSegment vline1(Point2D(vpoint2.point()), *m_handles[1]);
+        LineSegment vline3(Point2D(vpoint2.point()), *m_handles[3]);
+
+        // intersect rays from different vanishing points to form corners
+        m_corners[0]->set(Point2D(intersectInfiniteLines(hline0, vline1)));
+        m_corners[1]->set(Point2D(intersectInfiniteLines(hline2, vline1)));
+        m_corners[2]->set(Point2D(intersectInfiniteLines(hline2, vline3)));
+        m_corners[3]->set(Point2D(intersectInfiniteLines(hline0, vline3)));
+    }
 };
 
 
