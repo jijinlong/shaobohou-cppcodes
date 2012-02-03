@@ -63,7 +63,7 @@ public:
         VanishingPoint *vpoint = 0;
 
         // initialise a new vanishing point
-        if(vpoint)
+        if(!initialisedEnoughVanishingPoints())
         {
             vpoint = new VanishingPoint(line);
             vpoint->addLine(LineSegment(Point2D(line.beg())+Point2D(10, 10), Point2D(line.end())+Point2D(10, 10)));
@@ -74,7 +74,7 @@ public:
     }
 
     // setup function
-    void setup(const Point2D &first, const Point2D &second)
+    void initialiseRoomGeometry(const Point2D &first, const Point2D &second)
     {
         // compute the bounding box
         const Real Xmin = std::min(first.x(), second.x());
@@ -89,11 +89,11 @@ public:
         m_handles[3]->set(Point2D(Xmin, (Ymin+Ymax)/2));
 
         // call the real setup function
-        setup();
+        constructRoomGeometry();
     }
 
     // setup function
-    void setup()
+    void constructRoomGeometry()
     {
         assert(initialisedEnoughVanishingPoints());
 
@@ -105,12 +105,13 @@ public:
             const Real oldDist = Point2D((*insidePoint)->point()).dist2(centre);
             const Real newDist = Point2D(  m_vpoints[i]->point()).dist2(centre);
 
-            if(newDist <= oldDist)
+            if(newDist <= oldDist || (*insidePoint)->point().atInfinity())
             {
                 insidePoint = &m_vpoints[i];
             }
         }
         std::swap(*insidePoint, m_vpoints.back());   // move the inside vanishing point to the back
+        assert(!m_vpoints.back()->point().atInfinity());
 
         // swap vanishing points if necessary, the correct order 
         // should form a quadrilaterial with longer edges
@@ -245,6 +246,9 @@ public:
                 in >> temp;
                 m_handles[i]->set(temp);
             }
+
+            // rebuild room geometry
+            constructRoomGeometry();
         }
     }
 
@@ -258,16 +262,16 @@ private:
     void computeCorners(const VanishingPoint &vpoint1, const VanishingPoint &vpoint2) const
     {
         // cast two rays from each vanishing point outside of the image
-        LineSegment hline0(Point2D(vpoint1.point()), *m_handles[0]);
-        LineSegment hline2(Point2D(vpoint1.point()), *m_handles[2]);
-        LineSegment vline1(Point2D(vpoint2.point()), *m_handles[1]);
-        LineSegment vline3(Point2D(vpoint2.point()), *m_handles[3]);
+        HomgLine2D hline0(vpoint1.point(), HomgPoint2D(*m_handles[0]));
+        HomgLine2D hline2(vpoint1.point(), HomgPoint2D(*m_handles[2]));
+        HomgLine2D vline1(vpoint2.point(), HomgPoint2D(*m_handles[1]));
+        HomgLine2D vline3(vpoint2.point(), HomgPoint2D(*m_handles[3]));
 
         // intersect rays from different vanishing points to form corners
-        m_corners[0]->set(Point2D(intersectInfiniteLines(hline0, vline1)));
-        m_corners[1]->set(Point2D(intersectInfiniteLines(hline2, vline1)));
-        m_corners[2]->set(Point2D(intersectInfiniteLines(hline2, vline3)));
-        m_corners[3]->set(Point2D(intersectInfiniteLines(hline0, vline3)));
+        m_corners[0]->set(Point2D(HomgPoint2D(hline0, vline1)));
+        m_corners[1]->set(Point2D(HomgPoint2D(hline2, vline1)));
+        m_corners[2]->set(Point2D(HomgPoint2D(hline2, vline3)));
+        m_corners[3]->set(Point2D(HomgPoint2D(hline0, vline3)));
     }
 };
 

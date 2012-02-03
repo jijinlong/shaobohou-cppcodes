@@ -87,17 +87,15 @@ public:
                     // create a new vanishing point if not enough exit
                     if(m_wall->initialisedEnoughVanishingPoints())
                     {
-                        VanishingPoint *newPoint = m_wall->initialiseNewVanishingPoint(*currLine);
-
-                        selectableObjects.registerObject(this, newPoint);
-                        newPoint->registerCascade(selectableObjects);
-
-                        std::cout << "ADDED LINE [" << currLine->beg().x() << " " << currLine->beg().y() << "] to [" << currLine->end().x() << " " << currLine->end().y() << "]" << std::endl;
+                        m_wall->initialiseRoomGeometry(currLine->beg(), currLine->end());
+                        m_wall->registerCascade(selectableObjects);
                     }
                     else
                     {
-                        m_wall->setup(currLine->beg(), currLine->end());
-                        m_wall->registerCascade(selectableObjects);
+                        VanishingPoint *newPoint = m_wall->initialiseNewVanishingPoint(*currLine);
+                        newPoint->registerCascade(selectableObjects);
+
+                        std::cout << "ADDED LINE [" << currLine->beg().x() << " " << currLine->beg().y() << "] to [" << currLine->end().x() << " " << currLine->end().y() << "]" << std::endl;
                     }
                 }
             }
@@ -151,7 +149,6 @@ public:
     void load(std::ifstream &in)
     {
         m_wall->load(in);
-        m_wall->setup();
 
         // register components
         registerCascade(selectableObjects);
