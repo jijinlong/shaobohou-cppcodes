@@ -102,16 +102,18 @@ public:
         VanishingPoint **insidePoint = &m_vpoints[0];
         FORLOOP(i, m_vpoints.size())
         {
-            const Real oldDist = Point2D((*insidePoint)->point()).dist2(centre);
+            const Real oldDist = (*insidePoint)->point().ideal()  ? 
+                                 std::numeric_limits<Real>::max() : 
+                                 Point2D((*insidePoint)->point()).dist2(centre);
             const Real newDist = Point2D(  m_vpoints[i]->point()).dist2(centre);
 
-            if(newDist <= oldDist || (*insidePoint)->point().atInfinity())
+            if(newDist <= oldDist)
             {
                 insidePoint = &m_vpoints[i];
             }
         }
         std::swap(*insidePoint, m_vpoints.back());   // move the inside vanishing point to the back
-        assert(!m_vpoints.back()->point().atInfinity());
+        assert(!m_vpoints.back()->point().ideal());  // check the vanishing point is not at infinity
 
         // swap vanishing points if necessary, the correct order 
         // should form a quadrilaterial with longer edges
