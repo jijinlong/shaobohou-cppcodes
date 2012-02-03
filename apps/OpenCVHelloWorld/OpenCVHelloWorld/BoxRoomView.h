@@ -15,7 +15,7 @@ public:
 
     BoxRoomView(const int w, const int h) : m_width(w), m_height(h)
     {
-        FOR(i, MAX_HANDLES)
+        FORLOOP(i, MAX_HANDLES)
         {
             m_handles.push_back(new Point2D());
         }
@@ -23,12 +23,12 @@ public:
 
     ~BoxRoomView()
     {
-        FOR(i, m_vpoints.size())
+        FORLOOP(i, m_vpoints.size())
         {
             delete m_vpoints[i];
         }
 
-        FOR(i, m_handles.size())
+        FORLOOP(i, m_handles.size())
         {
             delete m_handles[i];
         }
@@ -89,7 +89,7 @@ public:
         // find the vanishing point closest to the centre of the image
         const Point2D centre(m_width/2, m_height/2);
         VanishingPoint **insidePoint = &m_vpoints[0];
-        FOR(i, m_vpoints.size())
+        FORLOOP(i, m_vpoints.size())
         {
             const Real oldDist = Point2D((*insidePoint)->point()).dist2(centre);
             const Real newDist = Point2D(  m_vpoints[i]->point()).dist2(centre);
@@ -136,14 +136,14 @@ public:
     void registerCascade(SelectableGroup &selectables)
     {
         // register vanishing points
-        FOR(i, m_vpoints.size())
+        FORLOOP(i, m_vpoints.size())
         {
             selectables.registerObject(this, m_vpoints[i]);
             m_vpoints[i]->registerCascade(selectables);
         }
 
         // register handle points
-        FOR(i, m_handles.size())
+        FORLOOP(i, m_handles.size())
         {
             selectables.registerObject(this, m_handles[i]);
         }
@@ -203,7 +203,7 @@ public:
     {
         // save vanishing points
         out << m_vpoints.size() << std::endl;
-        FOR(i, m_vpoints.size())
+        FORLOOP(i, m_vpoints.size())
         {
             m_vpoints[i]->save(out);
         }
@@ -212,7 +212,7 @@ public:
         {
             // save handle points
             out << m_handles.size() << std::endl;
-            FOR(i, m_handles.size())
+            FORLOOP(i, m_handles.size())
             {
                 out << *m_handles[i] << std::endl;
             }
@@ -221,7 +221,7 @@ public:
             Point2D corners[4];
             computeCorners(corners, *m_vpoints[0], *m_vpoints[1]);
             out << 4 << std::endl;
-            FOR(i, 4)
+            FORLOOP(i, 4)
             {
                 out << corners[i] << std::endl;
             }
@@ -238,7 +238,7 @@ public:
         // load vanishing points
         int nvanishings = 0;
         in >> nvanishings;
-        FOR(i, nvanishings)
+        FORLOOP(i, nvanishings)
         {
             m_vpoints.push_back(new VanishingPoint());
             m_vpoints.back()->load(in);
@@ -249,7 +249,7 @@ public:
         in >> nhandles;
         if(nhandles==MAX_HANDLES)
         {
-            FOR(i, nhandles)
+            FORLOOP(i, nhandles)
             {
                 Point2D temp;
                 in >> temp;
