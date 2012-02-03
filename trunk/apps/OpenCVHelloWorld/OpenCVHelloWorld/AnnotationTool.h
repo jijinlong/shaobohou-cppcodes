@@ -42,7 +42,7 @@ public:
     {
         selectedObject = selectableObjects.selectObject(x, y);
 
-        // 
+        // initialise a line segment
         if(!selectedObject)
         {
             currLine->setBeg(Point2D(x, y));
