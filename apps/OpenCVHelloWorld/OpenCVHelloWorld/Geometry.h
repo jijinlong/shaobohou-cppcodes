@@ -94,6 +94,11 @@ public:
     const Real& y() const { return m_vec.y(); }
     const Real& w() const { return m_vec.z(); }
 
+    bool atInfinity(const Real tol=0) const
+    {
+        return fabs(w()) <= tol;
+    }
+
 private:
     Vector3D m_vec;
 };
