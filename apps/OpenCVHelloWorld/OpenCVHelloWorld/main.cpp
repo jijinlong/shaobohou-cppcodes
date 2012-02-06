@@ -10,10 +10,14 @@
 #include "Geometry.h"
 #include "Selectable.h"
 
+#ifdef WIN32
 #include <Windows.h>
+#endif
 
 #include <cxcore.h>
 #include <highgui.h>
+
+#include <fstream>
 
 
 // see yu2008inferring and hedau2009recovering
@@ -50,6 +54,7 @@ void MouseCallback(int event, int x, int y, int flags, void* param)
 //	const int bah = 0;
 //}
 
+#ifdef WIN32
 // Returns an empty string if dialog is canceled
 std::string openfilename(char *filter = "All Files (*.*)\0*.*\0", HWND owner = NULL) 
 {
@@ -72,12 +77,26 @@ std::string openfilename(char *filter = "All Files (*.*)\0*.*\0", HWND owner = N
 
     return fileNameStr;
 }
+#endif
 
 //int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, char *argv[])
 {
     // call open file dialog
+#ifdef WIN32
     std::string imageName = openfilename();
+#else
+    std::string imageName;
+    if(argc < 2)
+    {
+        std::cout << "Usage:" << std::endl;
+        std::cout << std::string(argv[0]) << " filename" << std::endl;
+    }
+    else
+    {
+        imageName = std::string(argv[1]);
+    }
+#endif
 
     std::string windowName = "Annotation";
     //std::string imageName = "0000000004.jpg";
@@ -88,7 +107,7 @@ int main(int argc, char *argv[])
     // load annotation from file if exists
     annotation = new AnnotationTool();
     annotation->initBoxRoomView(img->width, img->height);
-    std::ifstream fin(imageName+".dat");
+    std::ifstream fin((imageName+".dat").c_str());
     if(fin.is_open())
     {
         annotation->load(fin);
@@ -121,7 +140,7 @@ int main(int argc, char *argv[])
     cvReleaseImage(&img);
 
     // save annotation to file
-    std::ofstream fout(imageName+".dat");
+    std::ofstream fout((imageName+".dat").c_str());
     annotation->save(fout);
     fout.close();
 
