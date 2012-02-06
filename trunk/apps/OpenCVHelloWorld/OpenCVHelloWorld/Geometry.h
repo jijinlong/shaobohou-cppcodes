@@ -8,7 +8,7 @@
 
 
 namespace Geometry 
-{;
+{
 
 // floating point type
 typedef double Real;
@@ -142,7 +142,7 @@ public:
 
     Point2D() : m_x(0), m_y(0) {}
     Point2D(const Real x, const Real y) : m_x(x), m_y(y) {}
-    Point2D(const Point2D &other) : m_x(other.m_x), m_y(other.m_y) {}
+    Point2D(const Point2D &other) : Selectable(), m_x(other.m_x), m_y(other.m_y) {}
 
     // construct a cartesian point from a homgeneous point
     explicit Point2D(const HomgPoint2D &p);
@@ -267,7 +267,7 @@ public:
     LineSegment() : m_beg(new Point2D()), m_end(new Point2D()) {}
     LineSegment(const Point2D &beg) : m_beg(new Point2D(beg)), m_end(0) {}
     LineSegment(const Point2D &beg, const Point2D &end) : m_beg(new Point2D(beg)), m_end(new Point2D(end)) {}
-    LineSegment(const LineSegment &other) : m_beg(new Point2D(*other.m_beg)), m_end(new Point2D(*other.m_end)) {}
+    LineSegment(const LineSegment &other) : Selectable(), m_beg(new Point2D(*other.m_beg)), m_end(new Point2D(*other.m_end)) {}
 
     ~LineSegment()
     {

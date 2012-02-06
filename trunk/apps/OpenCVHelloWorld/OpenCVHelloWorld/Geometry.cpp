@@ -1,7 +1,7 @@
 #include "Geometry.h"
 
 namespace Geometry
-{;
+{
 
 // construct from a cartesian point
 HomgPoint2D::HomgPoint2D(const Point2D &other) : m_vec(other.x(), other.y(), 1)

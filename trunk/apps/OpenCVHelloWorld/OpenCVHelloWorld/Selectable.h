@@ -5,6 +5,11 @@
 #include <set>
 #include <vector>
 #include <algorithm>
+#include <limits>
+
+
+// pre-declaration
+class SelectableGroup;
 
 
 // Selectable interface
