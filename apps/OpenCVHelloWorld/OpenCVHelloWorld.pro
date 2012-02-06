@@ -4,21 +4,21 @@
 
 TEMPLATE = app
 TARGET = 
-DEPENDPATH += . OpenCVHelloWorld /usr/local/include/opencv/
-INCLUDEPATH += . OpenCVHelloWorld /usr/local/include/opencv/
+DEPENDPATH += . src /usr/local/include/opencv/
+INCLUDEPATH += . src /usr/local/include/opencv/
 
-# LIBS += `pkg-config --libs opencv`
-LIBS += -lcv -lhighgui
+LIBS += `pkg-config --libs opencv`
 
 CONFIG -= qt
 CONFIG += release
 QMAKE_CXXFLAGS_RELEASE += -pedantic -ansi -Wno-unused-parameter
 
 # Input
-HEADERS += OpenCVHelloWorld/AnnotationTool.h \
-           OpenCVHelloWorld/BoxRoomView.h \
-           OpenCVHelloWorld/Geometry.h \
-           OpenCVHelloWorld/Macros.h \
-           OpenCVHelloWorld/Selectable.h \
-           OpenCVHelloWorld/VanishingPoint.h
-SOURCES += OpenCVHelloWorld/Geometry.cpp OpenCVHelloWorld/main.cpp
+HEADERS += src/AnnotationTool.h \
+           src/BoxRoomView.h \
+           src/Geometry.h \
+           src/Macros.h \
+           src/Selectable.h \
+           src/VanishingPoint.h
+SOURCES += src/Geometry.cpp \
+           src/main.cpp
