@@ -113,6 +113,8 @@ int main(int argc, char *argv[])
         annotation->load(fin);
         renderUpdate = true;
     }
+    fin.close();
+    
 
     cvNamedWindow(windowName.c_str(), 1);
     cvShowImage(windowName.c_str(), img);
@@ -138,6 +140,7 @@ int main(int argc, char *argv[])
     //        cvWaitKey();
     cvDestroyWindow(windowName.c_str());
     cvReleaseImage(&img);
+    cvReleaseImage(&temp);
 
     // save annotation to file
     std::ofstream fout((imageName+".dat").c_str());

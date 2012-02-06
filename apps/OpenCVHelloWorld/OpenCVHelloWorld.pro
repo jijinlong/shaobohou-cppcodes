@@ -10,7 +10,9 @@ INCLUDEPATH += . src /usr/local/include/opencv/
 LIBS += `pkg-config --libs opencv`
 
 CONFIG -= qt
-CONFIG += release
+# CONFIG += release
+CONFIG += debug
+QMAKE_CXXFLAGS_DEBUG += -pedantic -ansi -Wno-unused-parameter
 QMAKE_CXXFLAGS_RELEASE += -pedantic -ansi -Wno-unused-parameter
 
 # Input
