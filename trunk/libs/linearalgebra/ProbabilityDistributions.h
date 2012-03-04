@@ -1,7 +1,9 @@
 #ifndef PROBABILITY_DISTRIBUTIONS
 #define PROBABILITY_DISTRIBUTIONS
 
-#include "LinearAlgebra.h"
+#include "tnt/array2d.h"
+#include "tnt/jama_lu.h"
+#include "tnt/jama_lu_funcs.h"
 #include "STLArithmetics.h"
 #include "special.h"
 
